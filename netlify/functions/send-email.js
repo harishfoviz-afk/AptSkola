@@ -90,7 +90,7 @@ export const handler = async (event) => {
     // EMAIL 2: Scheduled Feedback (72 Hours Later - From Harish)
     // ==========================================
     try {
-        const scheduledTime = new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString();
+        const scheduledTime = new Date(Date.now() + 3 * 60 * 1000).toISOString();
         const feedbackEmailPayload = {
           // UPDATE 1: Sender is now explicitly Harish
           sender: { email: "harish@aptskola.com", name: "Harish from AptSkola" }, 
