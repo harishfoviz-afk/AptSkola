@@ -459,20 +459,6 @@
         .spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid var(--sunrise-primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Feedback Styles (NPS/Stars) */
-        .question-label { color: #1E293B; font-weight: 600; font-size: 1rem; line-height: 1.4; margin-bottom: 0.75rem; display: block; }
-        .star-svg { width: 100%; height: 100%; display: block; cursor: pointer; transition: transform 0.2s; }
-        .star-path { fill: #F1F5F9; stroke: #CBD5E1; stroke-width: 1.5; transition: all 0.2s ease; }
-        .star-active .star-path { fill: url(#modernGradient); stroke: none; }
-        .nps-container { display: flex; justify-content: center; flex-wrap: wrap; gap: 0.5rem; }
-        .nps-btn { width: 2.5rem; height: 3rem; display: flex; align-items: center; justify-content: center; border-radius: 0.5rem; font-weight: 500; color: #64748B; background: #F8FAFC; border: 1px solid #E2E8F0; cursor: pointer; transition: all 0.2s; }
-        .nps-btn.selected { background: linear-gradient(135deg, #FFD25E 0%, #FF9546 100%); color: white; border-color: transparent; }
-        .nps-btn:hover { background: #F1F5F9; color: #1E293B; border-color: #CBD5E1; transform: translateY(-2px); }
-        .choice-btn { transition: all 0.2s ease; border: 1px solid #E2E8F0; background-color: #FFFFFF; color: #475569; font-size: 0.875rem; width: 100%; }
-        .choice-btn:hover { border-color: #CBD5E1; background-color: #F8FAFC; }
-        .choice-btn.selected { background: linear-gradient(135deg, #FFD25E 0%, #FF9546 100%); border-color: transparent; color: white; font-weight: 600; box-shadow: 0 4px 12px rgba(255, 149, 70, 0.3); transform: translateY(-1px); }
-        .custom-input:focus { outline: none; border-color: #FF9546; ring: 2px solid rgba(255, 149, 70, 0.2); box-shadow: 0 0 0 3px rgba(255, 149, 70, 0.1); }
-
         /* --- MOBILE RESPONSIVENESS FIXES --- */
         @media (max-width: 768px) {
             header {
@@ -501,11 +487,6 @@
             
             .pain-cards, .testimonial-grid { grid-template-columns: 1fr; }
             
-            /* Feedback Section Mobile Adjustments */
-            .browser-only .grid { grid-template-columns: 1fr !important; gap: 30px !important; }
-            .star-wrapper { width: 35px; height: 35px; } /* Larger touch target */
-            .choice-btn { padding: 12px; }
-            
             /* Font size adjustment for inputs to prevent zoom on iOS */
             input, select, textarea { font-size: 16px !important; }
         }
@@ -517,24 +498,6 @@
     </style>
 </head>
 <body>
-    <svg width="0" height="0" class="absolute">
-        <defs>
-            <linearGradient id="modernGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" style="stop-color:#FFD25E;stop-opacity:1" />
-                <stop offset="100%" style="stop-color:#FF9546;stop-opacity:1" />
-            </linearGradient>
-        </defs>
-    </svg>
-
-    <form name="feedback_form" netlify netlify-honeypot="bot-field" hidden>
-        <input type="text" name="parent_name" />
-        <input type="email" name="parent_email" />
-        <input type="text" name="rating_stars" />
-        <input type="text" name="time_saved" />
-        <input type="text" name="unanswered_question" />
-        <input type="text" name="nps_score" />
-    </form>
-
     <div id="stickyCTA" class="sticky-cta md:hidden">
         <div class="flex flex-col">
             <span class="font-bold text-sm">Confused about boards?</span>
@@ -848,8 +811,12 @@
                 <h2 style="color: var(--verified-green); margin-bottom: 15px;">Success! We have emailed a copy to you for safe keeping.</h2>
                 <p style='color: var(--sunrise-primary); font-size: 0.9em; margin-top: -10px; font-weight: bold;'>Your 3 weeks of research is now a 10-minute read.</p>
                 <p style="color: var(--navy-light); margin-bottom: 20px;">Welcome back, <strong id="successParentName">Parent</strong>! Here is your full report.</p>
-                <button class="custom-cta-button" style="width: 100%; padding: 18px 40px; font-size: 1.2rem; margin-bottom: 30px;" onclick="downloadShareReport()" id="downloadShareBtn">Download / Share Report 📲</button>
                 
+                <div style="display:flex; gap:15px; justify-content:center; flex-wrap:wrap; margin-bottom:30px; width:100%;">
+                    <button class="custom-cta-button" style="flex:1; min-width:200px; padding: 18px 20px; font-size: 1.1rem;" onclick="downloadReport()" id="downloadBtn">Download Report ⬇️</button>
+                    <button class="custom-cta-button" style="flex:1; min-width:200px; padding: 18px 20px; font-size: 1.1rem; background: var(--navy-premium);" onclick="sharePDF()" id="shareBtn">Share Report 📲</button>
+                </div>
+
                 <div class="report-card mt-8" style="text-align:center; border-color: var(--sunrise-primary); background: #fff7ed;">
                     <h3 style="color:var(--navy-premium); font-weight:800; margin-bottom:15px; font-size:1.5rem;">Help Other Parents Find Clarity</h3>
                     <p style="margin-bottom:20px; color:var(--navy-light);">If Apt Skola helped you, spread the word!</p>
@@ -882,21 +849,12 @@
         
         // Prices in PAISE (1 Rupee = 100 Paise)
         const PACKAGE_PRICES = { 'Essential': 100, 'Premium': 100, 'Platinum': 100 };
-        
-        const starPath = "M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.53.044.75.72.35 1.054l-4.186 3.492a.563.563 0 00-.182.559l1.267 5.405c.126.54-.45.96-.906.658l-4.752-3.134a.563.563 0 00-.608 0l-4.752 3.134c-.456.302-1.032-.118-.906-.658l1.267-5.405a.563.563 0 00-.182-.559l-4.186-3.492c-.4-.334-.179-1.01.35-1.054l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z";
 
         let currentQuestion = 0;
         let selectedPackage = '';
         let selectedPrice = 0;
         let answers = {};
         let customerData = {}; 
-
-        // New Feedback Data Object
-        let feedbackData = {
-            stars: 0,
-            timeSaved: "",
-            nps: 0
-        };
 
         // --- CORE UI ACTIONS ---
         function scrollToPricing() {
@@ -989,14 +947,7 @@
             persona: "Convergent Thinker",
             profile: "This profile is characterized by strong retention memory, the ability to handle high-volume data processing, and a high comfort level with objective assessment metrics.",
             rejectionReason: "Why not IB? Your child prefers structured outcomes. The ambiguity of the IB 'Constructivist' approach may cause unnecessary anxiety.",
-            careerPath: "The Competitive Exam Track (JEE/NEET/UPSC). Grade 9-10 Focus: Foundation building using NCERT. Grade 11-12 Focus: Integrated Coaching or Dummy Schools.",
-            dailySchedule: [
-              { time: "05:30 AM", activity: "Wake up, light revision" },
-              { time: "07:30 AM", activity: "School (Math/Science focus)" },
-              { time: "03:30 PM", activity: "Coaching/Tuition Center" },
-              { time: "07:30 PM", activity: "Self-Study: Daily Practice Papers" },
-              { time: "10:30 PM", activity: "Sleep" }
-            ]
+            careerPath: "The Competitive Exam Track (JEE/NEET/UPSC). Grade 9-10 Focus: Foundation building using NCERT. Grade 11-12 Focus: Integrated Coaching or Dummy Schools."
           },
           icse: {
             name: "ICSE",
@@ -1004,14 +955,7 @@
             persona: "Verbal Analyst",
             profile: "Students with this archetype display high verbal intelligence, strong analytical skills in humanities, and the ability to synthesize disparate pieces of information into a coherent whole.",
             rejectionReason: "Why not CBSE? Your child thrives on narrative and context. The rote-heavy, objective nature of CBSE might stifle their desire for depth.",
-            careerPath: "The Creative & Liberal Arts Track (Law/Design/Journalism). Grade 9-10: Strong emphasis on Literature/Arts. Grade 11-12: Portfolio development and wide reading.",
-            dailySchedule: [
-              { time: "06:00 AM", activity: "Wake up, review Literature texts" },
-              { time: "07:30 AM", activity: "School: English & Lab Practicals" },
-              { time: "04:30 PM", activity: "Project Work & Documentation" },
-              { time: "07:00 PM", activity: "Study: Concept Application" },
-              { time: "09:30 PM", activity: "Reading/Wind Down" }
-            ]
+            careerPath: "The Creative & Liberal Arts Track (Law/Design/Journalism). Grade 9-10: Strong emphasis on Literature/Arts. Grade 11-12: Portfolio development and wide reading."
           },
           ib: {
             name: "IB",
@@ -1019,14 +963,7 @@
             persona: "Independent Innovator",
             profile: "This cognitive style thrives on openness to experience, exhibits a high tolerance for ambiguity, and possesses the strong self-regulation skills needed for inquiry-based learning.",
             rejectionReason: "Why not CBSE? Your child requires autonomy. The rigid, defined syllabus of CBSE would likely lead to boredom and disengagement.",
-            careerPath: "The Global Ivy League/Oxbridge Track. Grade 9-10 (MYP): Critical writing. Grade 11-12 (DP): Building the 'Profile' via CAS and Extended Essay.",
-            dailySchedule: [
-              { time: "06:30 AM", activity: "Check emails/Global Context news" },
-              { time: "08:00 AM", activity: "School: Discussion & TOK" },
-              { time: "03:30 PM", activity: "CAS: Sports/NGO Work" },
-              { time: "05:00 PM", activity: "Extended Essay Research" },
-              { time: "10:00 PM", activity: "Late Night Writing" }
-            ]
+            careerPath: "The Global Ivy League/Oxbridge Track. Grade 9-10 (MYP): Critical writing. Grade 11-12 (DP): Building the 'Profile' via CAS and Extended Essay."
           },
           financial: {
             inflationRate: "10-12%",
@@ -1549,112 +1486,20 @@
             // FIX: Move the report from off-screen bottom back into the Success Container so the user can see it
             const reportDiv = document.getElementById('reportPreview');
             const successContainer = document.querySelector('.success-container');
-            const downloadBtn = document.getElementById('downloadShareBtn');
+            const downloadBtn = document.getElementById('downloadBtn');
             
             if(reportDiv && successContainer && downloadBtn) {
                 // Remove the special off-screen class
                 reportDiv.classList.remove('off-screen-render');
-                // Move it to after the Download button
-                downloadBtn.parentNode.insertBefore(reportDiv, downloadBtn.nextSibling);
+                // Move it to after the share buttons
+                // Ideally, insert after the button wrapper
+                downloadBtn.parentElement.parentNode.insertBefore(reportDiv, downloadBtn.parentElement.nextSibling);
             }
             
             closeModal(); // Ensure payment modal is hidden
             window.scrollTo({ top: 0, behavior: 'instant' });
         }
         
-        // --- INTERACTIVE FUNCTIONS FOR FEEDBACK FORM ---
-        function selectStar(rating) {
-            feedbackData.stars = rating;
-            const wrappers = document.querySelectorAll('#starContainer .star-wrapper');
-            const text = document.getElementById('starText');
-            const labels = ["Poor", "Fair", "Good", "Very Good", "Excellent"];
-
-            wrappers.forEach((wrap, idx) => {
-                const star = wrap.querySelector('.star-svg');
-                if (idx < rating) {
-                    wrap.classList.add('star-active');
-                } else {
-                    wrap.classList.remove('star-active');
-                }
-                
-                if(idx === rating - 1) {
-                    star.classList.remove('pop-anim');
-                    void star.offsetWidth; // Trigger reflow
-                    star.classList.add('pop-anim');
-                }
-            });
-            
-            text.innerText = labels[rating - 1];
-            text.classList.remove('opacity-0');
-        }
-
-        function selectChoice(btn) {
-            feedbackData.timeSaved = btn.innerText;
-            const parent = btn.parentElement;
-            const buttons = parent.querySelectorAll('.choice-btn');
-            buttons.forEach(b => b.classList.remove('selected'));
-            btn.classList.add('selected');
-        }
-
-        function selectNPS(selectedBtn) {
-            feedbackData.nps = selectedBtn.innerText;
-            const buttons = document.querySelectorAll('.nps-btn');
-            const selectedValue = parseInt(selectedBtn.innerText);
-            
-            buttons.forEach(btn => {
-                const btnValue = parseInt(btn.innerText);
-                if (btnValue <= selectedValue) {
-                    btn.classList.add('selected');
-                } else {
-                    btn.classList.remove('selected');
-                }
-            });
-        }
-
-        // --- UPDATED FEEDBACK SUBMISSION (EVENT 2) ---
-        function submitFeedback() {
-            const btn = document.querySelector('button[onclick="submitFeedback()"]');
-            btn.innerText = "Sending...";
-            btn.disabled = true;
-
-            // 1. Prepare Data for Netlify
-            const formData = new FormData();
-            formData.append('form-name', 'feedback_form'); // Must match the hidden HTML form name
-            
-            // Link to the user who paid (from the first form)
-            formData.append('parent_name', customerData.parentName || 'Anonymous');
-            formData.append('parent_email', customerData.email || 'no-email');
-            
-            // Feedback values
-            formData.append('rating_stars', feedbackData.stars);
-            formData.append('time_saved', feedbackData.timeSaved);
-            formData.append('nps_score', feedbackData.nps);
-            
-            // Get text area value manually
-            const textArea = document.querySelector('.custom-input');
-            if(textArea) formData.append('unanswered_question', textArea.value);
-
-            // 2. Submit via AJAX
-            fetch("/", {
-                method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: new URLSearchParams(formData).toString(),
-            })
-            .then(() => {
-                // Show Success Message
-                const successMsg = document.getElementById('successMessage');
-                successMsg.classList.remove('hidden');
-                btn.innerText = "Submitted";
-                setTimeout(() => { successMsg.classList.add('hidden'); }, 3000);
-            })
-            .catch((error) => {
-                console.error(error);
-                alert("Could not send feedback. Please try again.");
-                btn.innerText = "Submit Feedback";
-                btn.disabled = false;
-            });
-        }
-
         function renderReportToBrowser() {
             const res = calculateFullRecommendation(answers);
             let recBoard = res.recommended.name;
@@ -1692,11 +1537,6 @@
                 const q = questions.find(x => x.id === qId);
                 return (q && answers[qId] !== undefined) ? q.options[answers[qId]] : "N/A";
             };
-
-            // Generate NPS Buttons HTML String (0-10)
-            const npsButtonsHTML = Array.from({length: 11}, (_, i) => 
-                `<div class="nps-btn" onclick="selectNPS(this)">${i}</div>`
-            ).join('');
 
             let html = `
                 <div id="pdf-header" style="display:none; background:#0F172A; color:white; padding:30px; text-align:center; margin-bottom:30px; border-radius:12px;">
@@ -1930,20 +1770,15 @@
         }
         
         /**
-         * @function downloadShareReport - Combines PDF generation, native share, and local download fallback.
+         * @function generatePDFInternal - Shared helper to generate PDF object from DOM.
          */
-        async function downloadShareReport() {
-            const btn = document.getElementById('downloadShareBtn');
+        async function generatePDFInternal(buttonId) {
+            const btn = document.getElementById(buttonId);
             const originalText = btn.innerText;
-            btn.innerText = "Generating PDF...";
+            btn.innerText = "Generating...";
             btn.disabled = true;
-
-            const PDF_FILENAME = `AptSkola-Admission-Toolkit.pdf`;
-			const SHARE_TITLE = 'AptSkola School Board Report';
-            const SHARE_TEXT = 'Here is the scientific admission toolkit for our child generated by Apt Skola.';
-
+            
             try {
-                // 1. PDF Generation (Keep existing logic intact)
                 const { jsPDF } = window.jspdf;
                 const pdf = new jsPDF('p', 'mm', 'a4');
                 const pdfWidth = pdf.internal.pageSize.getWidth();
@@ -1954,7 +1789,7 @@
                 // Capture Header
                 const pdfHeader = document.getElementById('pdf-header');
                 pdfHeader.style.display = 'block'; 
-                // FIX: Use JPEG at 0.8 quality
+                
                 const headerCanvas = await html2canvas(pdfHeader, { scale: 2 });
                 pdfHeader.style.display = 'none'; 
                 
@@ -1967,7 +1802,6 @@
                 const cards = document.querySelectorAll('#reportPreview .report-card');
                 for (let i = 0; i < cards.length; i++) {
                     const card = cards[i];
-                    // FIX: Use JPEG at 0.8 quality
                     const canvas = await html2canvas(card, { scale: 2, backgroundColor: '#ffffff' });
                     const imgData = canvas.toDataURL('image/jpeg', 0.8);
                     const imgHeight = (canvas.height * (pdfWidth - 2*margin)) / canvas.width;
@@ -1979,58 +1813,68 @@
                     pdf.addImage(imgData, 'JPEG', margin, currentY, pdfWidth - 2*margin, imgHeight);
                     currentY += imgHeight + 5; 
                 }
-
+                
                 // Add Footer
                 const footerText = "© 2025 Apt Skola. All Rights Reserved. | support@aptskola.com";
                 pdf.setFontSize(8);
                 pdf.setTextColor(150);
                 pdf.text(footerText, pdfWidth / 2, pdfHeight - 10, { align: 'center' });
                 
-                // 2. Sharing Logic (New Step)
-                const pdfBlob = pdf.output('blob'); // Get PDF as Blob
-                const file = new File([pdfBlob], PDF_FILENAME, { type: "application/pdf" });
-
-                if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                    // Use native share API
-                    await navigator.share({
-                        files: [file],
-                        title: SHARE_TITLE,
-                        text: SHARE_TEXT
-                    }).then(() => {
-                        console.log('Shared successfully');
-                    }).catch((error) => {
-                        // If share fails or user cancels, fallback to force download
-                        console.log('Share failed or canceled, falling back to download:', error);
-                        pdf.save(`AptSkola-${customerData.childName || 'Report'}.pdf`);
-                    });
-                } else {
-                    // Fallback for Desktop: Just Download
-                    pdf.save(PDF_FILENAME);
-                }
-
+                return pdf;
+                
             } catch (err) {
-                console.error("Error during report generation or sharing:", err);
-                alert("Error generating or sharing report. Please try again.");
+                console.error(err);
+                alert("Error generating PDF.");
+                return null;
             } finally {
                 btn.innerText = originalText;
                 btn.disabled = false;
             }
         }
-        
-		function shareReport() {
-			if (navigator.share) {
-				// Native Share (Mobile)
-				navigator.share({
-					title: 'Apt Skola Recommendation',
-					text: 'I just found the perfect school board for my child with Apt Skola!',
-					url: "https://aptskola.com"
-				}).catch(console.error);
-			} else {
-        // Fallback (Desktop)
-        navigator.clipboard.writeText("https://aptskola.com");
-			alert("Link copied to clipboard!");
-			}
-		}
+
+        async function downloadReport() {
+            const childName = customerData.childName || "Child";
+            const fileName = `Apt Skola - ${childName} - Best Board.pdf`;
+            
+            const pdf = await generatePDFInternal('downloadBtn');
+            if(pdf) {
+                pdf.save(fileName);
+            }
+        }
+
+        async function sharePDF() {
+            if (!navigator.canShare) {
+                alert("Sharing is not supported on this browser/device. Please use Download instead.");
+                return;
+            }
+            
+            const childName = customerData.childName || "Child";
+            const fileName = `Apt Skola - ${childName} - Best Board.pdf`;
+            const shareTitle = 'Apt Skola School Board Report';
+            const shareText = `Here is the scientific admission toolkit for ${childName} generated by Apt Skola.`;
+            
+            const pdf = await generatePDFInternal('shareBtn');
+            
+            if(pdf) {
+                try {
+                    const pdfBlob = pdf.output('blob');
+                    const file = new File([pdfBlob], fileName, { type: "application/pdf" });
+                    
+                    if (navigator.canShare({ files: [file] })) {
+                        await navigator.share({
+                            files: [file],
+                            title: shareTitle,
+                            text: shareText
+                        });
+                    } else {
+                        alert("Your device does not support sharing files directly. Downloading instead.");
+                        pdf.save(fileName);
+                    }
+                } catch (err) {
+                    console.error("Share failed:", err);
+                }
+            }
+        }
         
         // --- SOCIAL SHARING FUNCTIONS ---
         function shareToWhatsApp() {
