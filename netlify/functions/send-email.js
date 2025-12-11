@@ -22,15 +22,14 @@ export const handler = async (event) => {
     }
 
     // 4. CLEAN THE PDF & SIZE CHECK
-    // Remove the data URI prefix
+    // Remove the data URI prefix if present
     const cleanBase64 = pdfBase64.replace(/^data:.+;base64,/, '');
     
     // Calculate approximate size in MB (Base64 string length * 0.75 / 1024 / 1024)
     const sizeInMB = (cleanBase64.length * 0.75) / (1024 * 1024);
     
     // Brevo Limit is ~10MB, Netlify Limit is ~6MB for request/response bodies.
-    // If it's over 9MB, we skip the attachment to prevent a crash, 
-    // but still send the email with a note.
+    // If it's over 9MB, we skip the attachment to prevent a crash.
     let attachments = [];
     if (sizeInMB < 9) {
         attachments = [{
@@ -50,7 +49,7 @@ export const handler = async (event) => {
     };
 
     // ==========================================
-    // EMAIL 1: Instant PDF Delivery
+    // EMAIL 1: Instant PDF Delivery (From connect@)
     // ==========================================
     const pdfEmailPayload = {
       sender: { email: "connect@aptskola.com", name: "Apt Skola Support" },
@@ -88,12 +87,13 @@ export const handler = async (event) => {
     }
 
     // ==========================================
-    // EMAIL 2: Scheduled Feedback (72 Hours Later)
+    // EMAIL 2: Scheduled Feedback (72 Hours Later - From Harish)
     // ==========================================
     try {
         const scheduledTime = new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString();
         const feedbackEmailPayload = {
-          sender: { email: "connect@aptskola.com", name: "Harish from AptSkola" }, 
+          // UPDATE 1: Sender is now explicitly Harish
+          sender: { email: "harish@aptskola.com", name: "Harish from AptSkola" }, 
           to: [{ email: userEmail, name: userName || "Parent" }],
           subject: "One quick question about your kid's admission...",
           htmlContent: `
@@ -105,7 +105,7 @@ export const handler = async (event) => {
                 <p><strong>What is the one thing in the report that surprised you the most?</strong></p>
                 <br>
                 <p>Best,</p>
-                <p>Rahul<br>Founder, AptSkola</p>
+                <p>Harish<br>AptSkola Team</p>
               </body>
             </html>
           `,
