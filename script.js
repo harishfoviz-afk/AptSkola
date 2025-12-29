@@ -1,6 +1,5 @@
 // --- CONFIG ---
 const RAZORPAY_KEY_ID = "rzp_live_RxHmfgMlTRV3Su";
-// HARDCODED API KEY - This ensures the maps engine is ready instantly
 const GMAPS_API_KEY = "AIzaSyCS0hE4xa32DpKoNs5Na3KDX3HrazBvwiU"; 
 
 // Prices in PAISE (1 Rupee = 100 Paise)
@@ -23,7 +22,7 @@ let hasSeenDowngradeModal = false;
 let isSyncMatchMode = false;
 let isManualSync = false;
 let syncTimerInterval = null;
-let mapsScriptLoaded = false;
+let mapsLoadedPromise = null;
 
 const xrayCardHtml = `
     <div class="xray-card">
@@ -47,7 +46,6 @@ const ambassadorButtonHtml = `
     </button>
 `;
 
-// Manual Selection UI Block
 const manualSyncUI = `
     <div id="manualSyncBlock" style="margin-top: 25px; padding: 20px; border: 2px dashed #CBD5E1; border-radius: 12px; background: #F8FAFC;">
         <h3 style="color: #0F172A; font-size: 1.1rem; font-weight: 700; margin-bottom: 10px;">🔄 Manual Sync Recovery</h3>
@@ -460,7 +458,6 @@ function validateInputs(email, phone) {
     const emailEl = document.getElementById('email');
     const phoneEl = document.getElementById('phone');
 
-    // Reset styles
     if(emailEl) emailEl.classList.remove('input-error');
     if(phoneEl) phoneEl.classList.remove('input-error');
 
@@ -475,7 +472,6 @@ function validateInputs(email, phone) {
     return isValid;
 }
 
-// --- UPDATED: CALCULATOR LOGIC WITH DONUT CHART ---
 function calculateCostOfConfusion() {
     const hoursInput = document.getElementById('researchHours');
     const rateInput = document.getElementById('hourlyRate');
@@ -486,29 +482,22 @@ function calculateCostOfConfusion() {
     const rate = parseInt(rateInput.value);
     const tabs = parseInt(tabsInput.value);
     
-    // Formula: (Hours * 4 weeks) * Professional Hourly Rate
     const monthlyLoss = (hours * 4) * rate; 
-    
-    // Anxiety Level: Tabs mapped to 1-100 percentage
     const anxietyLevel = Math.min(tabs * 5, 100); 
 
-    // Update Numerical UI
     document.getElementById('lossAmount').textContent = monthlyLoss.toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 });
     document.getElementById('anxietyLevel').textContent = `${anxietyLevel}%`;
 
-    // Update Value Badges
     document.getElementById('hoursValue').textContent = `${hours} hours`;
     document.getElementById('rateValue').textContent = `₹${rate.toLocaleString('en-IN', { maximumFractionDigits: 0 })}`;
     document.getElementById('tabsValue').textContent = `${tabs} tabs`;
 
-    // Update CSS Variable for Donut Chart
     const donut = document.getElementById('confusionDonut');
     if(donut) {
         donut.style.setProperty('--anxiety-degree', `${anxietyLevel}%`);
     }
 }
 
-// --- CORE UI ACTIONS ---
 function scrollToPricing() {
     const pricing = document.getElementById('pricing');
     if (pricing) pricing.scrollIntoView({ behavior: 'smooth' });
@@ -755,7 +744,7 @@ function loadGoogleMaps() {
             resolve(true);
         };
         script.onerror = () => {
-            console.error("Maps API Load Fail - Check key and console for errors");
+            console.error("Maps API Load Fail");
             reject(new Error("Maps Script Load Error"));
         };
         document.head.appendChild(script);
@@ -772,10 +761,8 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(scrollToPricing, 800);
     }
     
-    const landingHeaderLogo = document.getElementById('landingHeaderLogo');
-    if (landingHeaderLogo) {
-        landingHeaderLogo.innerHTML = `<span class="font-black text-4xl text-white" onclick="goToLandingPage()" style="cursor:pointer;">Apt <span class="text-brand-orange">Skola</span></span>`;
-    }
+    const logos = document.querySelectorAll('#landingHeaderLogo');
+    logos.forEach(l => l.addEventListener('click', goToLandingPage));
     
     const elementsToUpdate = [
         { id: 'detailsHeader', html: getIntermediateHeaderHtml() },
@@ -833,12 +820,8 @@ function calculateFullRecommendation(ansSet) {
     return { recommended: results[0], alternative: results[1], fullRanking: results };
 }
 
-// --- HELPER: GEOCODING ---
 async function getCoords(address) {
     await loadGoogleMaps();
-    if (typeof google === 'undefined' || !google.maps || !google.maps.Geocoder) {
-        throw new Error("Maps Service Unavailable");
-    }
     const geocoder = new google.maps.Geocoder();
     return new Promise((resolve, reject) => {
         geocoder.geocode({ address: address }, (results, status) => {
@@ -854,7 +837,6 @@ async function getCoords(address) {
     });
 }
 
-// --- HELPER: ROUTES API ---
 async function getDistanceMatrixWithRoutesAPI(origins, destinations) {
     const response = await fetch('https://routes.googleapis.com/distanceMatrix/v2:computeRouteMatrix', {
         method: 'POST',
@@ -874,8 +856,6 @@ async function getDistanceMatrixWithRoutesAPI(origins, destinations) {
     if (!response.ok) throw new Error(`Routes API error: ${response.statusText}`);
     return await response.json();
 }
-
-// --- QUIZ FLOW ---
 
 function selectPackage(pkg, price) {
     if (price === 599) {
@@ -1023,7 +1003,6 @@ function generateOrderId(prefix = '') {
     return typePrefix + Date.now().toString().slice(-8) + Math.floor(Math.random() * 100);
 }
 
-// --- FORM CAPTURE ---
 document.getElementById('customerForm')?.addEventListener('submit', function(e) {
     e.preventDefault();
     
@@ -1087,7 +1066,6 @@ document.getElementById('customerForm')?.addEventListener('submit', function(e) 
     }, 1000);
 });
 
-// --- OFFICIAL RAZORPAY INTEGRATION WITH LIVE VERIFICATION ---
 async function redirectToRazorpay() {
     const payButton = document.getElementById('payButton');
     const loadingMsg = document.getElementById('paymentProcessing');
@@ -1104,7 +1082,7 @@ async function redirectToRazorpay() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                amount: selectedPrice * 100, // paise
+                amount: selectedPrice * 100,
                 internalOrderId: customerData.orderId
             })
         });
@@ -1156,7 +1134,7 @@ async function redirectToRazorpay() {
                     }
                 } catch (err) {
                     console.error("Payment Verification Error:", err);
-                    alert("Payment verification failed. Please contact support with your Payment ID: " + response.razorpay_payment_id);
+                    alert("Payment verification failed. Please contact support.");
                     if(payButton) payButton.classList.remove('hidden');
                     loadingMsg.style.display = 'none';
                 }
@@ -1171,16 +1149,11 @@ async function redirectToRazorpay() {
         };
 
         const rzp1 = new Razorpay(options);
-        rzp1.on('payment.failed', function (response){
-            alert("Payment Failed: " + response.error.description);
-            if(payButton) payButton.classList.remove('hidden');
-            if(loadingMsg) loadingMsg.style.display = 'none';
-        });
         rzp1.open();
 
     } catch (err) {
         console.error("Checkout Initiation Error:", err);
-        alert("Unable to reach payment gateway. Please check your internet connection.");
+        alert("Unable to reach payment gateway.");
         if(payButton) payButton.classList.remove('hidden');
         if(loadingMsg) loadingMsg.style.display = 'none';
     }
@@ -1202,9 +1175,8 @@ async function triggerAutomatedEmail() {
                 pdfBase64: pdfData
             })
         });
-        console.log("Report sent to email successfully.");
     } catch (e) {
-        console.warn("Email dispatch failed, but report is available for download.", e);
+        console.warn("Email dispatch failed.", e);
     }
 }
 
@@ -1220,20 +1192,7 @@ function processSyncUpgrade() {
             const ageInput = document.getElementById('syncChildAge');
             customerData.childAge = ageInput ? ageInput.value : '5-10';
             isSyncMatchMode = true; 
-            
             localStorage.setItem(`aptskola_session_${customerData.orderId}`, JSON.stringify({ answers, customerData }));
-
-            const upgradeBlock = document.getElementById('upgradeBlock');
-            const startBtn = document.getElementById('startSyncBtn');
-            
-            if(upgradeBlock) upgradeBlock.classList.add('hidden');
-            if(startBtn) {
-                startBtn.classList.remove('hidden');
-                startBtn.innerText = "Access Unlocked! Start Sync Check →";
-                startBtn.style.background = "#10B981";
-            }
-            
-            alert("Upgrade Successful! Redirecting to Sync Match...");
             showSyncTransition();
         },
         "theme": { "color": "#FF6B35" }
@@ -1256,7 +1215,6 @@ function closeForensicModalAndShowSuccess() {
     showInstantSuccessPage();
 }
 
-// --- PERSISTENCE: SAVE STATE ---
 function showInstantSuccessPage() {
     const paymentPage = document.getElementById('paymentPageContainer');
     const successPage = document.getElementById('successPage');
@@ -1290,13 +1248,12 @@ function showInstantSuccessPage() {
     window.scrollTo({ top: 0, behavior: 'instant' });
 }
 
-// --- SYNC MATCH CALCULATION ---
 function calculateSyncMatch() {
     const parentQuestions = ["q1", "q2", "q3", "q4", "q5", "q6", "q7", "q8", "q9", "q10", "q11", "q12", "q13", "q14", "q15"];
     const isParentDataMissing = parentQuestions.some(id => answers[id] === undefined);
 
     if (isParentDataMissing) {
-        alert("Initial assessment data is missing. Please complete the first part of the quiz before generating a Sync Match report.");
+        alert("Initial assessment data is missing.");
         goToLandingPage();
         return;
     }
@@ -1308,9 +1265,7 @@ function calculateSyncMatch() {
     for(let i=16; i<=30; i++) {
         let val = answers['q'+i];
         if(val === undefined) continue;
-        
         let multiplier = (i === 30) ? 2.0 : 1.0; 
-        
         if(val === 0) dnaScores["CBSE"] += multiplier;
         if(val === 1) dnaScores["IB"] += multiplier;
         if(val === 2) dnaScores["ICSE"] += multiplier;
@@ -1327,27 +1282,17 @@ function calculateSyncMatch() {
 
     const manualDisclaimer = isManualSync ? `<p style="text-align: center; font-size: 0.75rem; color: #94A3B8; margin-bottom: 10px;">⚠️ Sync generated via Manual Input from Phase 1 Report.</p>` : '';
 
-    let bridgeHtml = '';
-    if (isConflict) {
-        bridgeHtml = `
-            <div class="report-card" style="border: 2px solid var(--sunrise-primary); background: #FFF9F2; margin-top: 20px;">
-                <h3 style="color: var(--navy-premium); font-weight: 800; font-size: 1.2rem; margin-bottom: 10px;">Bridge Narrative</h3>
-                <p style="color: var(--navy-light); font-size: 1rem; line-height: 1.6; margin-bottom: 15px;">
-                    Your aspiration is <strong>${parentRec}</strong>, but your child’s DNA shows high <strong>${traits[topDNA]}</strong> suggesting <strong>${normalizedDNA}</strong>.
-                </p>
-                <div style="padding: 15px; background: white; border-radius: 8px; border-left: 4px solid var(--sunrise-primary); font-size: 0.95rem; color: var(--navy-light);">
-                    <strong>Apt Skola Strategy:</strong> To solve this mismatch, look for a ${parentRec} school that allows for high ${traits[topDNA]} through clubs and projects.
-                </div>
-            </div>
-        `;
-    } else {
-        bridgeHtml = `
-            <div class="report-card" style="border: 2px solid #22C55E; background: #F0FDF4; margin-top: 20px;">
-                <h3 style="color: #166534; font-weight: 800; font-size: 1.2rem; margin-bottom: 10px;">✅ PERFECT ALIGNMENT</h3>
-                <p style="color: #166534; font-size: 1rem;">Your vision and your child's natural DNA are in sync. Proceed with full confidence in ${parentRec}.</p>
-            </div>
-        `;
-    }
+    let bridgeHtml = isConflict ? `
+        <div class="report-card" style="border: 2px solid var(--sunrise-primary); background: #FFF9F2; margin-top: 20px;">
+            <h3 style="color: var(--navy-premium); font-weight: 800; font-size: 1.2rem; margin-bottom: 10px;">Bridge Narrative</h3>
+            <p style="color: var(--navy-light); font-size: 1rem; line-height: 1.6; margin-bottom: 15px;">
+                Your aspiration is <strong>${parentRec}</strong>, but your child’s DNA shows high <strong>${traits[topDNA]}</strong> suggesting <strong>${normalizedDNA}</strong>.
+            </p>
+        </div>` : `
+        <div class="report-card" style="border: 2px solid #22C55E; background: #F0FDF4; margin-top: 20px;">
+            <h3 style="color: #166534; font-weight: 800; font-size: 1.2rem; margin-bottom: 10px;">✅ PERFECT ALIGNMENT</h3>
+            <p style="color: #166534; font-size: 1rem;">Your vision and your child's natural DNA are in sync.</p>
+        </div>`;
 
     const successPage = document.getElementById('successPage');
     successPage.innerHTML = `
@@ -1366,14 +1311,8 @@ function calculateSyncMatch() {
                         <div style="font-size:1.4rem; font-weight:800; color:#7C2D12;">${normalizedDNA}</div>
                     </div>
                 </div>
-                <div style="margin-top:20px; text-align:center; padding:20px; background:#F8FAFC; border-radius:10px;">
-                    <div style="font-size:1.2rem; font-weight:bold; color:#334155;">Alignment Score: ${alignmentScore}%</div>
-                </div>
                 ${bridgeHtml}
-                ${ambassadorButtonHtml}
-                ${xrayCardHtml}
-                ${fovizBannerHtml}
-                <button class="custom-cta-button" style="margin-top:30px;" onclick="endFullSession()">End Session</button>
+                <button class="custom-cta-button" style="margin-top:30px;" onclick="goToLandingPage()">End Session</button>
             </div>
         </div>
         ${getIntermediateFooterHtml()}
@@ -1382,49 +1321,30 @@ function calculateSyncMatch() {
     successPage.classList.add('active');
 }
 
-function endFullSession() {
-    if (customerData.orderId && customerData.orderId !== 'N/A') {
-        localStorage.removeItem(`aptskola_session_${customerData.orderId}`);
-    }
-    goToLandingPage();
-}
-
-// --- BULLETPROOF SCHOOL SCOUTING LOGIC ---
 async function fetchNearbySchools(board, area, pincode, retryCount = 0) {
     const schoolBlock = document.getElementById('schoolFinderBlock');
     if (!schoolBlock) return;
 
-    if (retryCount > 8) {
+    if (retryCount > 12) {
         schoolBlock.innerHTML = `
             <div class="report-header-bg">LOCAL SCHOOL SCOUT: ${board}</div>
             <div style="padding:20px; text-align:center;">
-                <p style="margin-bottom:15px; font-size:0.9rem; color:#EF4444;">Maps engine took too long to load. Please click the button below to start manually.</p>
-                <button onclick="fetchNearbySchools('${board}', '${area}', '${pincode}', 0)" class="btn-xray" style="background:var(--navy-premium); color:white; border:none; padding:10px 20px; border-radius:6px; cursor:pointer; font-weight:bold;">
-                    🔍 Retry School Search
-                </button>
+                <p style="margin-bottom:15px; font-size:0.9rem; color:#EF4444;">Maps engine took too long to load.</p>
+                <button onclick="fetchNearbySchools('${board}', '${area}', '${pincode}', 0)" class="btn-xray">🔍 Retry Search</button>
             </div>`;
         return;
     }
 
+    if (typeof google === 'undefined' || !google.maps || !google.maps.places) {
+        setTimeout(() => fetchNearbySchools(board, area, pincode, retryCount + 1), 1000);
+        return;
+    }
+
     try {
-        // LAYER 1: Check Global variable and script
-        if (typeof google === 'undefined' || !google.maps || !google.maps.places) {
-            console.log(`Maps not ready (Attempt ${retryCount}), waiting...`);
-            setTimeout(() => fetchNearbySchools(board, area, pincode, retryCount + 1), 1000);
-            return;
-        }
-
         const locationQuery = `${area} ${pincode || ''}`.trim();
-        let userOrigin;
-        try {
-            userOrigin = await getCoords(locationQuery);
-        } catch (e) {
-            userOrigin = await getCoords(area);
-        }
-
+        const userOrigin = await getCoords(locationQuery);
         const py = new google.maps.places.PlacesService(schoolBlock);
         
-        // LAYER 2: Try Nearby search (High precision)
         py.nearbySearch({
             location: userOrigin,
             radius: '10000',
@@ -1432,24 +1352,19 @@ async function fetchNearbySchools(board, area, pincode, retryCount = 0) {
             type: ['school']
         }, async (results, status) => {
             if (status !== google.maps.places.PlacesServiceStatus.OK || !results || results.length === 0) {
-                // LAYER 3: Fallback to Text Search (Lower precision but broader)
                 py.textSearch({ query: `${board} school in ${area}` }, async (textResults, textStatus) => {
                     if (textStatus === 'OK' && textResults.length > 0) {
                         processSchoolResults(textResults.slice(0, 5), userOrigin, board, area, schoolBlock);
                     } else {
-                        schoolBlock.innerHTML = `
-                            <div class="report-header-bg">LOCAL SCHOOL SCOUT: ${board}</div>
-                            <p style="padding:20px; font-size:0.9rem; color:#64748B;">No matching ${board} schools found directly in ${area}. We suggest checking nearby suburbs manually on Google Maps.</p>`;
+                        schoolBlock.innerHTML = `<div class="report-header-bg">LOCAL SCHOOL SCOUT: ${board}</div><p style="padding:20px;">No schools found in ${area}.</p>`;
                     }
                 });
                 return;
             }
             processSchoolResults(results.slice(0, 5), userOrigin, board, area, schoolBlock);
         });
-
     } catch (err) {
-        console.error("Scout Error:", err);
-        schoolBlock.innerHTML = `<p style="padding:20px; color:#EF4444;">Search engine delay. Please verify your address or click retry.</p>`;
+        schoolBlock.innerHTML = `<p style="padding:20px; color:#EF4444;">Search engine delay.</p>`;
     }
 }
 
@@ -1461,36 +1376,28 @@ async function processSchoolResults(top5, userOrigin, board, area, schoolBlock) 
         }));
 
         const matrixData = await getDistanceMatrixWithRoutesAPI([userOrigin], schoolDestinations);
-        let rowsHtml = '';
-        
-        top5.forEach((school, i) => {
+        let rowsHtml = top5.map((school, i) => {
             const info = matrixData.find(item => item.destinationIndex === i);
             const driveTime = info && info.duration ? Math.round(parseInt(info.duration) / 60) + " mins" : "N/A";
             const busTime = info && info.duration ? Math.round((parseInt(info.duration) * 1.4) / 60) + " mins" : "N/A";
-            rowsHtml += `<tr><td style="font-weight:600; color:var(--navy-premium);">${school.name}</td><td>${driveTime}</td><td>${busTime}</td></tr>`;
-        });
+            return `<tr><td style="font-weight:600;">${school.name}</td><td>${driveTime}</td><td>${busTime}</td></tr>`;
+        }).join('');
 
         schoolBlock.innerHTML = `
             <div class="report-header-bg">LOCAL SCHOOL SCOUT (${board})</div>
-            <p style="font-size:0.85rem; color:#64748B; margin-bottom:15px;">Verified schools found near ${area}:</p>
             <table class="data-table">
                 <thead><tr><th>School Name</th><th>Self Travel</th><th>Bus Travel</th></tr></thead>
                 <tbody>${rowsHtml}</tbody>
             </table>`;
     } catch (e) {
-        let fallbackRows = top5.map(s => `<tr><td style="font-weight:600;">${s.name}</td><td>See Maps</td><td>See Maps</td></tr>`).join('');
-        schoolBlock.innerHTML = `<div class="report-header-bg">LOCAL SCHOOL SCOUT (${board})</div><p style="padding:10px; font-size:0.85rem;">Found schools, travel analysis failed. Please use Maps for commute times.</p><table class="data-table"><tbody>${fallbackRows}</tbody></table>`;
+        schoolBlock.innerHTML = `<div class="report-header-bg">LOCAL SCHOOL SCOUT (${board})</div><p>Analysis failed. Use Google Maps.</p>`;
     }
 }
 
-// --- REPORT RENDERER ---
 async function renderReportToBrowser() {
     const res = calculateFullRecommendation(answers);
     const recBoard = res.recommended.name;
-    const boardKey = recBoard.toLowerCase().includes('cbse') ? 'cbse' : 
-                     (recBoard.toLowerCase().includes('icse') ? 'icse' : 
-                     (recBoard.toLowerCase().includes('ib') ? 'ib' : 
-                     (recBoard.toLowerCase().includes('cambridge') ? 'Cambridge (IGCSE)' : 'State Board')));
+    const boardKey = recBoard.toLowerCase().includes('cbse') ? 'cbse' : (recBoard.toLowerCase().includes('icse') ? 'icse' : (recBoard.toLowerCase().includes('ib') ? 'ib' : (recBoard.toLowerCase().includes('cambridge') ? 'Cambridge (IGCSE)' : 'State Board')));
     
     const data = MASTER_DATA[boardKey];
     const isPremiumTier = (selectedPrice >= 999);
@@ -1498,233 +1405,52 @@ async function renderReportToBrowser() {
 
     let html = `
         <div id="pdf-header" style="background:#0F172A; color:white; padding:30px; text-align:center; margin-bottom:30px; border-radius:12px;">
-            <div style="font-size:2rem; font-weight:800;">Apt <span style="color:var(--sunrise-primary);">Skola</span></div>
-            <div style="font-size:1.2rem;">${selectedPackage} Report</div>
-            <div style="font-size:0.9rem; margin-top:10px;">Prepared for: ${customerData.childName || 'Student'} | Order ID: ${customerData.orderId}</div>
+            <div style="font-size:2rem; font-weight:800;">Apt Skola</div>
+            <div style="font-size:0.9rem; margin-top:10px;">Order ID: ${customerData.orderId}</div>
         </div>
-    `;
-
-    if (!isPlatinumTier) {
-        html += xrayCardHtml;
-    }
-
-    html += `
         <div class="report-card" style="background:var(--navy-premium); color:white; border:none;">
-            <div style="font-size:1.1rem; opacity:0.8; text-transform:uppercase;">The Recommended Archetype</div>
             <div style="font-size:2.2rem; font-weight:800; margin:5px 0;">${data.title}</div>
             <div style="background:rgba(255,255,255,0.1); padding:10px; border-radius:8px; display:inline-block; margin-top:10px;">
                 Board Match: <span style="color:var(--sunrise-primary); font-weight:bold;">${recBoard}</span>
             </div>
         </div>
-
         <div class="report-card">
             <div class="report-header-bg">STUDENT PERSONA & MATCH LOGIC</div>
-            <div class="narrative-item">
-                <h3 class="narrative-theme">Archetype: ${data.persona}</h3>
-                <p>${data.profile}</p>
-            </div>
-            <div class="narrative-item" style="border-left-color: var(--urgent-red);">
-                <h3 class="narrative-theme">The "Why Not" (Rejection Logic)</h3>
-                <p>${data.rejectionReason}</p>
-            </div>
-            <div class="narrative-item" style="border-left-color: var(--verified-green);">
-                <h3 class="narrative-theme">Projected Career Path</h3>
-                <p>${data.careerPath}</p>
-            </div>
+            <p>${data.profile}</p>
         </div>
-
-        <div class="report-card">
-            <div class="report-header-bg">BOARD & OPTION COMPARISON</div>
-            <table class="data-table">
-                <thead><tr><th>Board</th><th>Match %</th><th>Status</th></tr></thead>
-                <tbody>
-                    ${res.fullRanking.slice(0,3).map((r, i) => `
-                        <tr>
-                            <td>${r.name}</td>
-                            <td>${r.percentage}%</td>
-                            <td style="color:${i===0 ? 'var(--verified-green)' : 'inherit'}; font-weight:${i===0 ? 'bold' : 'normal'}">
-                                ${i===0 ? 'Recommended' : 'Alternative'}
-                            </td>
-                        </tr>
-                    `).join('')}
-                </tbody>
-            </table>
-        </div>
-
-        <div class="report-card">
-            <div class="report-header-bg">🎯 BOARD DEEP DIVE</div>
-            <div style="padding: 10px 0;">
-                <p style="margin-bottom: 15px; font-size: 1rem;"><strong>🎯 Philosophy:</strong> ${data.philosophy}</p>
-                <p style="margin-bottom: 15px; font-size: 1rem;"><strong>📚 Pedagogy:</strong> ${data.teachingMethod}</p>
-                <p style="font-size: 1rem; color: var(--urgent-red);"><strong>👨‍👩‍👧 Parental Commitment:</strong> <strong>${data.parentalRole}</strong></p>
-            </div>
-        </div>
-
-        <div class="report-card">
-            <div class="report-header-bg">EXPERT NOTE: SPECIAL NEEDS & INCLUSION</div>
-            <p style="font-size:0.9rem; line-height:1.5;"> Rather than focusing solely on the board, prioritize finding a school that offers inclusive education and genuine flexibility. A supportive school environment is often more critical than the syllabus itself.</p>
-        </div>
-
         <div id="schoolFinderBlock" class="report-card">
             <div class="report-header-bg">LOCAL SCHOOL SCOUT: ${recBoard}</div>
-            <p style="font-size:0.9rem; color:#64748B;">Scanning for verified ${recBoard} schools in ${customerData.residentialArea || 'the area'}...</p>
-        </div>
-    `;
-
-    if (isPremiumTier) {
-        html += `
-        <div class="report-card">
-            <div class="report-header-bg">🧐 RISK MITIGATION & VETTING</div>
-            <div class="narrative-item" style="border-left-color: var(--urgent-red);">
-                <h3 class="narrative-theme">Operational Red Flags</h3>
-                <ul style="list-style:none; padding:0; font-size:0.9rem; line-height:1.6;">
-                    ${MASTER_DATA.vetting.redFlags.map(flag => `<li>🚩 ${flag}</li>`).join('')}
-                </ul>
-            </div>
-            <div class="narrative-item">
-                <h3 class="narrative-theme">Critical Interview Questions for Admission Heads</h3>
-                <ul style="list-style:none; padding:0; font-size:0.9rem; line-height:1.6;">
-                    ${MASTER_DATA.vetting.questions.map(item => `<li style="margin-bottom:10px;"><strong>Q: ${item.q}</strong><br><span style="color:var(--urgent-red); font-size:0.85rem;">${item.flag || ''}</span></li>`).join('')}
-                </ul>
-            </div>
-        </div>
-
-        <div class="report-card">
-            <div class="report-header-bg">PREMIUM: CHILD INTERVIEW CONFIDENCE (PART 1)</div>
-            <div class="interview-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-top: 15px;">
-                ${MASTER_DATA.interviewMastery.part1.slice(0, 8).map(item => `
-                    <div class="interview-card" style="border-top: 3px solid var(--verified-green); background: #f8fafc; padding: 15px; border-radius: 8px;">
-                        <div class="interview-card-q" style="font-weight: 700; color: #1e293b; margin-bottom: 8px;">Q: ${item.q}</div>
-                        <div class="interview-card-strategy" style="font-size: 0.85rem; color: #475569;"><strong>Strategy:</strong> ${item.strategy}</div>
-                    </div>`).join('')}
-            </div>
-        </div>
-
-        <div class="report-card">
-            <div class="report-header-bg">PREMIUM: CHILD INTERVIEW CONFIDENCE (PART 2)</div>
-            <div class="interview-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-top: 15px;">
-                ${MASTER_DATA.interviewMastery.part1.slice(8).map(item => `
-                    <div class="interview-card" style="border-top: 3px solid var(--verified-green); background: #f8fafc; padding: 15px; border-radius: 8px;">
-                        <div class="interview-card-q" style="font-weight: 700; color: #1e293b; margin-bottom: 8px;">Q: ${item.q}</div>
-                        <div class="interview-card-strategy" style="font-size: 0.85rem; color: #475569;"><strong>Strategy:</strong> ${item.strategy}</div>
-                    </div>`).join('')}
-            </div>
-        </div>
-
-        <div class="report-card">
-            <div class="report-header-bg">15-YEAR FEE FORECASTER</div>
-            <p style="font-size:0.85rem; margin-bottom:10px; color:var(--navy-light);">Inflation Adjusted Projection (10-12% p.a.):</p>
-            <table class="data-table">
-                ${MASTER_DATA.financial.projectionTable.map(r => `<tr><td>${r.grade}</td><td>${r.fee}</td></tr>`).join('')}
-            </table>
-        </div>`;
-    }
-
-    if (isPlatinumTier) {
-        html += `
-        <div class="report-card">
-            <div class="report-header-bg">💰 PRO: FEE NEGOTIATION SCRIPTS</div>
-            <div style="display:flex; flex-direction:column; gap:20px;">
-                ${MASTER_DATA.concierge.negotiation.map(item => `
-                    <div class="narrative-item">
-                        <h3 class="narrative-theme">${item.title}</h3>
-                        <p style="font-size:0.85rem; margin-bottom:10px;"><em>Scenario: ${item.scenario}</em></p>
-                        <div class="script-box">"${item.script}"</div>
-                    </div>
-                `).join('')}
-            </div>
-        </div>
-
-        <div class="report-card">
-            <div class="report-header-bg">PRO: ADMISSION WAR ROOM - STRATEGY & SCOOP</div>
-            <div class="narrative-item" style="border-left-color: var(--urgent-red); margin-bottom: 25px;">
-                <h3 class="narrative-theme">INSIDER SCOOP: RED FLAGS & PRO-TIPS</h3>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
-                    ${MASTER_DATA.interviewMastery.scoop.map(item => `
-                        <div style="padding: 10px; background: #fff1f2; border-radius: 6px; border-left: 3px solid var(--urgent-red);">
-                            <strong style="color: var(--urgent-red);">${item.title}:</strong> <span style="font-size: 0.9rem;">${item.text}</span>
-                        </div>`).join('')}
-                </div>
-            </div>
-        </div>
-
-        <div class="report-card">
-            <div class="report-header-bg">PRO: PARENTAL INTERVIEW STRATEGY (PART 2 & 3)</div>
-            <div class="interview-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px;">
-                ${[...MASTER_DATA.interviewMastery.part2, ...MASTER_DATA.interviewMastery.part3].map(item => `
-                    <div class="interview-card" style="border-top: 3px solid var(--sunrise-primary); background: #f8fafc; padding: 15px; border-radius: 8px;">
-                        <div class="interview-card-q" style="font-weight: 700; color: #1e293b; margin-bottom: 8px;">Q: ${item.q}</div>
-                        <div class="interview-card-strategy" style="font-size: 0.85rem; color: #475569;"><strong>Strategy:</strong> ${item.strategy}</div>
-                    </div>`).join('')}
-            </div>
-        </div>`;
-    }
-
-    html += ambassadorButtonHtml;
-    html += fovizBannerHtml;
-
-    html += `
-        <div style="margin-top:40px; padding:20px; background:#F1F5F9; border-radius:8px; font-size:0.8rem; color:#64748B; text-align:justify;">
-            <strong>LEGAL DISCLAIMER:</strong> This report is advisory only. Apt Skola does not guarantee admission.
+            <p>Scanning schools in ${customerData.residentialArea}...</p>
         </div>
     `;
 
     const preview = document.getElementById('reportPreview');
     if (preview) {
         preview.innerHTML = html;
-        // Start school scout after brief delay to allow div to exist
         setTimeout(() => {
             fetchNearbySchools(recBoard, customerData.residentialArea, customerData.pincode, 0);
-        }, 800);
+        }, 1000);
     }
 }
 
-// --- PDF GENERATOR ---
 async function downloadReport() {
     const { jsPDF } = window.jspdf;
     const reportElement = document.getElementById('reportPreview');
-    const cards = reportElement.querySelectorAll('.report-card, #pdf-header, .xray-card, .foviz-banner, .btn-ambassador');
-    
+    const cards = reportElement.querySelectorAll('.report-card, #pdf-header');
     const pdf = new jsPDF('p', 'mm', 'a4');
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = pdf.internal.pageSize.getHeight();
-    const margin = 10;
-    const contentWidth = pdfWidth - (2 * margin);
-    
-    let currentY = margin;
+    let currentY = 10;
 
     for (let i = 0; i < cards.length; i++) {
-        const canvas = await html2canvas(cards[i], {
-            scale: 2,
-            useCORS: true,
-            logging: false
-        });
-
+        const canvas = await html2canvas(cards[i], { scale: 2, useCORS: true });
         const imgData = canvas.toDataURL('image/jpeg', 0.8);
-        const imgProps = pdf.getImageProperties(imgData);
-        const imgHeight = (imgProps.height * contentWidth) / imgProps.width;
-
-        if (currentY + imgHeight > pdfHeight - margin) {
-            pdf.addPage();
-            currentY = margin;
-        }
-
-        pdf.addImage(imgData, 'JPEG', margin, currentY, contentWidth, imgHeight);
+        const imgHeight = (canvas.height * 190) / canvas.width;
+        if (currentY + imgHeight > 280) { pdf.addPage(); currentY = 10; }
+        pdf.addImage(imgData, 'JPEG', 10, currentY, 190, imgHeight);
         currentY += imgHeight + 5;
     }
-
-    const res = calculateFullRecommendation(answers);
-    const recBoard = res.recommended.name;
-    pdf.save(`Apt-Skola-${customerData.childName || 'Report'}-${recBoard}.pdf`);
+    pdf.save(`Apt-Skola-Report.pdf`);
 }
 
 function sharePDF() {
     if (navigator.share) navigator.share({ title: 'Apt Skola Report', url: window.location.href });
 }
-
-// Global Initialization
-document.addEventListener('DOMContentLoaded', () => {
-    calculateCostOfConfusion();
-    const logos = document.querySelectorAll('#landingHeaderLogo');
-    logos.forEach(l => l.addEventListener('click', goToLandingPage));
-});
