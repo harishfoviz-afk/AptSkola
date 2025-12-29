@@ -494,25 +494,26 @@ function checkPaymentStatus() {
             }
         }
 
-        const savedSession = localStorage.getItem(sessionKey);
-        if (savedSession) {
-            const data = JSON.parse(savedSession);
-            answers = data.answers;
-            customerData = data.customerData;
-            selectedPrice = customerData.amount;
-            selectedPackage = customerData.package;
+        // --- Update this specific block in your checkPaymentStatus() ---
+		const savedSession = localStorage.getItem(sessionKey);
+		if (savedSession) {
+			const data = JSON.parse(savedSession);
+			answers = data.answers;
+			customerData = data.customerData;
+			selectedPrice = customerData.amount;
+			selectedPackage = customerData.package;
 
-            // Immediately Hide Landing Page
-            document.getElementById('landingPage').classList.add('hidden');
+			document.getElementById('landingPage').classList.add('hidden');
 
-            // Render Report and Success Page
-            renderReportToBrowser().then(() => {
-                triggerAutomatedEmail();
-                showInstantSuccessPage();
-                // Cleanup: Optional, but keeps local storage clean
-                // localStorage.removeItem(sessionKey); 
-            });
-        }
+			renderReportToBrowser().then(() => {
+			triggerAutomatedEmail();
+			showInstantSuccessPage();
+    });
+} else {
+    // THIS IS THE MISSING SAFETY GEAR
+    console.error("Payment received, but no local session data found.");
+    alert("Payment successful! However, we couldn't find your assessment data on this device. Please check your email for the report or contact support with your Order ID.");
+}
     }
 }
 
