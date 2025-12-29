@@ -1,6 +1,7 @@
 // --- CONFIG ---
 const RAZORPAY_KEY_ID = "rzp_live_RxHmfgMlTRV3Su";
 let GMAPS_API_KEY = ""; // Initialized dynamically
+let mapsLoadedPromise = null; // Tracks if Google Maps is ready
 
 // Prices in PAISE (1 Rupee = 100 Paise)
 const PACKAGE_PRICES = { 'Essential': 59900, 'Premium': 99900, 'The Smart Parent Pro': 149900 };
@@ -110,7 +111,7 @@ const MASTER_DATA = {
         careerPath: "International University Admissions and Specialized Career Paths (Finance, Design).",
         philosophy: 'Subject depth and international curriculum portability.',
         teachingMethod: 'Application-based learning. Requires external resources and focuses on critical thinking over rote memorization.',
-        parentalRole: 'Moderate to High. You must manage complex curriculum choices and ensure external support for subjects like Math/Science.'
+        parentalRole: 'Moderate to High. You must manage complex curriculum choices and ensure external support for topics like Math/Science.'
     },
     'State Board': {
         name: "State Board",
@@ -736,24 +737,32 @@ function startSyncMatchNow() {
 
 // --- DYNAMIC GOOGLE MAPS LOADER ---
 async function loadGoogleMaps() {
-    try {
-        const response = await fetch('/.netlify/functions/get-maps-config');
-        if (!response.ok) throw new Error("Could not fetch maps config");
-        const data = await response.json();
-        GMAPS_API_KEY = data.key;
+    if (mapsLoadedPromise) return mapsLoadedPromise;
+    
+    mapsLoadedPromise = new Promise(async (resolve, reject) => {
+        try {
+            const response = await fetch('/.netlify/functions/get-maps-config');
+            if (!response.ok) throw new Error("Could not fetch maps config");
+            const data = await response.json();
+            GMAPS_API_KEY = data.key;
 
-        const script = document.createElement('script');
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${GMAPS_API_KEY}&libraries=places`;
-        script.async = true;
-        script.defer = true;
-        document.head.appendChild(script);
-    } catch (error) {
-        console.error("Failed to load Google Maps dynamically:", error);
-    }
+            const script = document.createElement('script');
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${GMAPS_API_KEY}&libraries=places`;
+            script.async = true;
+            script.defer = true;
+            script.onload = () => resolve(true);
+            script.onerror = () => reject(new Error("Maps Script Load Error"));
+            document.head.appendChild(script);
+        } catch (error) {
+            console.error("Failed to load Google Maps dynamically:", error);
+            reject(error);
+        }
+    });
+    return mapsLoadedPromise;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    loadGoogleMaps();
+    loadGoogleMaps().catch(err => console.error("Maps load delayed or failed."));
     calculateCostOfConfusion(); 
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -824,9 +833,7 @@ function calculateFullRecommendation(ansSet) {
 
 // --- HELPER: GEOCODING ---
 async function getCoords(address) {
-    if (typeof google === 'undefined' || !google.maps || !google.maps.Geocoder) {
-        throw new Error("Geocoder not loaded");
-    }
+    await loadGoogleMaps();
     const geocoder = new google.maps.Geocoder();
     return new Promise((resolve, reject) => {
         geocoder.geocode({ address: address }, (results, status) => {
@@ -1385,41 +1392,41 @@ async function fetchNearbySchools(board, area, pincode) {
     if (!schoolBlock) return;
 
     try {
-        // Step 1: Validate Maps Availability
+        // Wait for maps to be absolutely ready
+        await loadGoogleMaps();
+
         if (typeof google === 'undefined' || !google.maps || !google.maps.places) {
-            schoolBlock.innerHTML = `<p style="font-size:0.9rem; color:#64748B;">Maps engine not ready. Please refresh.</p>`;
+            schoolBlock.innerHTML = `<p style="font-size:0.9rem; color:#64748B;">Maps engine failed to initialize. Please refresh.</p>`;
             return;
         }
 
-        // Step 2: Get Geolocation for Center Point
         const locationQuery = `${area} ${pincode || ''}`.trim();
         let userOrigin;
         try {
             userOrigin = await getCoords(locationQuery);
         } catch (e) {
-            console.warn("Geocoding failed, trying fallback to broad area", e);
             userOrigin = await getCoords(area);
         }
 
-        // Step 3: Search for Schools
         const py = new google.maps.places.PlacesService(schoolBlock);
-        const searchQuery = `${board} school near ${area}`;
         
         const request = {
             location: userOrigin,
-            radius: '10000', // 10km radius
+            radius: '8000', // 8km
             keyword: board,
             type: ['school']
         };
 
         py.nearbySearch(request, async (results, status) => {
             if (status !== google.maps.places.PlacesServiceStatus.OK || !results || results.length === 0) {
-                // Try text search fallback if nearbySearch yields nothing
+                // Text Search Fallback
                 py.textSearch({ query: `${board} school in ${area}` }, async (textResults, textStatus) => {
                     if (textStatus === 'OK' && textResults.length > 0) {
                         processSchoolResults(textResults.slice(0, 5), userOrigin, board, area, schoolBlock);
                     } else {
-                        schoolBlock.innerHTML = `<div class="report-header-bg">LOCAL SCHOOL SCOUT: ${board}</div><p style="padding:15px;">No high-confidence ${board} schools found directly in ${area}. Please verify nearby zones.</p>`;
+                        schoolBlock.innerHTML = `
+                            <div class="report-header-bg">LOCAL SCHOOL SCOUT: ${board}</div>
+                            <p style="padding:15px; font-size:0.9rem;">No ${board} schools found directly in ${area}. Expanding search is recommended.</p>`;
                     }
                 });
                 return;
@@ -1428,8 +1435,8 @@ async function fetchNearbySchools(board, area, pincode) {
         });
 
     } catch (err) {
-        console.error("School Scouting Error:", err);
-        schoolBlock.innerHTML = `<p style="padding:15px; color:#EF4444;">Travel analysis encountered an error. Please check your internet connection.</p>`;
+        console.error("Scouting Error:", err);
+        schoolBlock.innerHTML = `<p style="padding:15px; color:#EF4444;">Could not load school list. Check connection.</p>`;
     }
 }
 
@@ -1452,15 +1459,14 @@ async function processSchoolResults(top5, userOrigin, board, area, schoolBlock) 
 
         schoolBlock.innerHTML = `
             <div class="report-header-bg">LOCAL SCHOOL SCOUT (${board})</div>
-            <p style="font-size:0.85rem; color:#64748B; margin-bottom:15px;">Verified schools near ${area}:</p>
+            <p style="font-size:0.85rem; color:#64748B; margin-bottom:15px;">Schools found near ${area}:</p>
             <table class="data-table">
                 <thead><tr><th>School Name</th><th>Self Travel</th><th>Bus Travel</th></tr></thead>
                 <tbody>${rowsHtml}</tbody>
             </table>`;
     } catch (e) {
-        // Fallback: Show names without times if matrix fails
-        let fallbackRows = top5.map(s => `<tr><td style="font-weight:600;">${s.name}</td><td>Check Maps</td><td>Check Maps</td></tr>`).join('');
-        schoolBlock.innerHTML = `<div class="report-header-bg">LOCAL SCHOOL SCOUT (${board})</div><p style="font-size:0.85rem; color:#64748B;">Found schools, but commute calculation failed:</p><table class="data-table"><tbody>${fallbackRows}</tbody></table>`;
+        let fallbackRows = top5.map(s => `<tr><td style="font-weight:600;">${s.name}</td><td>Maps Check</td><td>Maps Check</td></tr>`).join('');
+        schoolBlock.innerHTML = `<div class="report-header-bg">LOCAL SCHOOL SCOUT (${board})</div><table class="data-table"><tbody>${fallbackRows}</tbody></table>`;
     }
 }
 
@@ -1548,7 +1554,7 @@ async function renderReportToBrowser() {
 
         <div id="schoolFinderBlock" class="report-card">
             <div class="report-header-bg">LOCAL SCHOOL SCOUT: ${recBoard}</div>
-            <p style="font-size:0.9rem; color:#64748B;">Initializing geospatial scan for ${customerData.residentialArea || 'your area'}...</p>
+            <p style="font-size:0.9rem; color:#64748B;">Scanning for ${recBoard} schools in ${customerData.residentialArea || 'area'}...</p>
         </div>
     `;
 
@@ -1653,10 +1659,8 @@ async function renderReportToBrowser() {
     const preview = document.getElementById('reportPreview');
     if (preview) {
         preview.innerHTML = html;
-        // Search for schools specifically using the board and area provided
-        setTimeout(() => {
-            fetchNearbySchools(recBoard, customerData.residentialArea, customerData.pincode);
-        }, 500);
+        // Search for schools after the HTML is in place
+        fetchNearbySchools(recBoard, customerData.residentialArea, customerData.pincode);
     }
 }
 
