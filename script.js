@@ -1155,22 +1155,31 @@ async function redirectToRazorpay() {
                 "contact": customerData.phone
             },
             "handler": async function (response) {
-                loadingMsg.innerText = "Verifying Payment with Bank...";
-                
-                // 2. Ask Netlify to verify the payment signature
-                const verifyResponse = await fetch('/.netlify/functions/verify-payment', {
-                    method: 'POST',
-                    body: JSON.stringify(response)
-                });
+			loadingMsg.innerText = "Verifying Payment with Bank...";
+    
+// --- FIND THIS IN script.js (approx line 614) ---
+"handler": async function (response) {
+    const loadingMsg = document.getElementById('paymentProcessing');
+    if(loadingMsg) loadingMsg.innerText = "Verifying Payment with Bank...";
 
-                if (verifyResponse.ok) {
-                    loadingMsg.innerText = "Success! Generating Report...";
-                    await renderReportToBrowser(); 
-					await triggerAutomatedEmail();
-                    showInstantSuccessPage();
-                } else {
-                    alert("Payment verification failed. Please contact support.");
-                }
+    const verifyResp = await fetch('/.netlify/functions/verify-payment', {
+        method: 'POST',
+        headers: { "Content-Type": "application/json" }, // Added explicit header
+        body: JSON.stringify({
+            razorpay_order_id: response.razorpay_order_id,   // EXPLICITLY PASS ID
+            razorpay_payment_id: response.razorpay_payment_id, // EXPLICITLY PASS ID
+            razorpay_signature: response.razorpay_signature   // EXPLICITLY PASS ID
+        })
+    });
+
+    if (verifyResp.ok) {
+        await renderReportToBrowser(); 
+        await triggerAutomatedEmail(); 
+        showInstantSuccessPage();
+    } else {
+        alert("Verification failed. Your bank has processed the amount, but our server handshake failed. Please contact connect@aptskola.com with your Order ID.");
+    }
+},
             },
             "theme": { "color": "#FF6B35" }
         };
