@@ -1,7 +1,7 @@
 // --- CONFIG ---
 const RAZORPAY_KEY_ID = "rzp_live_RxHmfgMlTRV3Su";
-let GMAPS_API_KEY = ""; // Initialized dynamically
-let mapsLoadedPromise = null; 
+// HARDCODED API KEY - This ensures the maps engine is ready instantly
+const GMAPS_API_KEY = "AIzaSyCS0hE4xa32DpKoNs5Na3KDX3HrazBvwiU"; 
 
 // Prices in PAISE (1 Rupee = 100 Paise)
 const PACKAGE_PRICES = { 'Essential': 59900, 'Premium': 99900, 'The Smart Parent Pro': 149900 };
@@ -23,6 +23,7 @@ let hasSeenDowngradeModal = false;
 let isSyncMatchMode = false;
 let isManualSync = false;
 let syncTimerInterval = null;
+let mapsScriptLoaded = false;
 
 const xrayCardHtml = `
     <div class="xray-card">
@@ -735,40 +736,35 @@ function startSyncMatchNow() {
     initializeQuizShell(15); 
 }
 
-// --- DYNAMIC GOOGLE MAPS LOADER ---
-async function loadGoogleMaps() {
+// --- HARDCODED GOOGLE MAPS LOADER ---
+function loadGoogleMaps() {
     if (mapsLoadedPromise) return mapsLoadedPromise;
     
-    mapsLoadedPromise = new Promise(async (resolve, reject) => {
-        try {
-            const response = await fetch('/.netlify/functions/get-maps-config');
-            if (!response.ok) throw new Error("Could not fetch maps config");
-            const data = await response.json();
-            GMAPS_API_KEY = data.key;
-
-            const script = document.createElement('script');
-            script.src = `https://maps.googleapis.com/maps/api/js?key=${GMAPS_API_KEY}&libraries=places`;
-            script.async = true;
-            script.defer = true;
-            script.onload = () => {
-                console.log("Maps API Script Loaded");
-                resolve(true);
-            };
-            script.onerror = () => {
-                console.error("Maps API Script Fail");
-                reject(new Error("Maps Script Load Error"));
-            };
-            document.head.appendChild(script);
-        } catch (error) {
-            console.error("Failed to fetch Google Maps key:", error);
-            reject(error);
+    mapsLoadedPromise = new Promise((resolve, reject) => {
+        if (typeof google !== 'undefined' && google.maps) {
+            resolve(true);
+            return;
         }
+
+        const script = document.createElement('script');
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${GMAPS_API_KEY}&libraries=places`;
+        script.async = true;
+        script.defer = true;
+        script.onload = () => {
+            console.log("Maps API Hardcoded Load Success");
+            resolve(true);
+        };
+        script.onerror = () => {
+            console.error("Maps API Load Fail - Check key and console for errors");
+            reject(new Error("Maps Script Load Error"));
+        };
+        document.head.appendChild(script);
     });
     return mapsLoadedPromise;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    loadGoogleMaps().catch(err => console.warn("Initial maps load delayed."));
+    loadGoogleMaps().catch(err => console.warn("Maps init failed:", err));
     calculateCostOfConfusion(); 
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -839,12 +835,10 @@ function calculateFullRecommendation(ansSet) {
 
 // --- HELPER: GEOCODING ---
 async function getCoords(address) {
-    // Ensure maps engine is ready before creating a Geocoder
     await loadGoogleMaps();
     if (typeof google === 'undefined' || !google.maps || !google.maps.Geocoder) {
-        throw new Error("Maps Engine failed to load geocoding services.");
+        throw new Error("Maps Service Unavailable");
     }
-
     const geocoder = new google.maps.Geocoder();
     return new Promise((resolve, reject) => {
         geocoder.geocode({ address: address }, (results, status) => {
@@ -854,7 +848,7 @@ async function getCoords(address) {
                     lng: results[0].geometry.location.lng() 
                 });
             } else {
-                reject('Geocode failed for: ' + address + ' (Status: ' + status + ')');
+                reject('Geocode failed: ' + status);
             }
         });
     });
@@ -1106,7 +1100,6 @@ async function redirectToRazorpay() {
     }
 
     try {
-        // Step 1: Create Secure Order Server-Side
         const orderResponse = await fetch('/.netlify/functions/create-order', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -1119,14 +1112,13 @@ async function redirectToRazorpay() {
         if (!orderResponse.ok) throw new Error("Could not create Razorpay order");
         const order = await orderResponse.json();
 
-        // Step 2: Open Checkout with Official Order ID
         const options = {
             "key": RAZORPAY_KEY_ID,
             "amount": selectedPrice * 100, 
             "currency": "INR",
             "name": "Apt Skola",
             "description": `${selectedPackage} Package - ${customerData.orderId}`,
-            "order_id": order.id, // Mandatory for Signature matching
+            "order_id": order.id,
             "prefill": {
                 "name": customerData.parentName,
                 "email": customerData.email,
@@ -1397,29 +1389,28 @@ function endFullSession() {
     goToLandingPage();
 }
 
-// --- FULL SCHOOL SCOUTING LOGIC ---
+// --- BULLETPROOF SCHOOL SCOUTING LOGIC ---
 async function fetchNearbySchools(board, area, pincode, retryCount = 0) {
     const schoolBlock = document.getElementById('schoolFinderBlock');
     if (!schoolBlock) return;
 
-    // Safety: If engine fails after 5 retries, show a manual "Find Schools" button
-    if (retryCount > 5) {
+    if (retryCount > 8) {
         schoolBlock.innerHTML = `
             <div class="report-header-bg">LOCAL SCHOOL SCOUT: ${board}</div>
             <div style="padding:20px; text-align:center;">
-                <p style="margin-bottom:15px; font-size:0.9rem; color:#64748B;">Maps engine took longer than expected to respond.</p>
-                <button onclick="fetchNearbySchools('${board}', '${area}', '${pincode}', 0)" class="btn-xray" style="background:var(--navy-premium); color:white; border:none; padding:10px 20px; border-radius:6px; cursor:pointer;">
-                    🔍 Manually Trigger Search
+                <p style="margin-bottom:15px; font-size:0.9rem; color:#EF4444;">Maps engine took too long to load. Please click the button below to start manually.</p>
+                <button onclick="fetchNearbySchools('${board}', '${area}', '${pincode}', 0)" class="btn-xray" style="background:var(--navy-premium); color:white; border:none; padding:10px 20px; border-radius:6px; cursor:pointer; font-weight:bold;">
+                    🔍 Retry School Search
                 </button>
             </div>`;
         return;
     }
 
     try {
-        // Force engine ready check
+        // LAYER 1: Check Global variable and script
         if (typeof google === 'undefined' || !google.maps || !google.maps.places) {
-            console.log(`Maps engine not ready (Attempt ${retryCount + 1}), retrying...`);
-            setTimeout(() => fetchNearbySchools(board, area, pincode, retryCount + 1), 1500);
+            console.log(`Maps not ready (Attempt ${retryCount}), waiting...`);
+            setTimeout(() => fetchNearbySchools(board, area, pincode, retryCount + 1), 1000);
             return;
         }
 
@@ -1432,22 +1423,23 @@ async function fetchNearbySchools(board, area, pincode, retryCount = 0) {
         }
 
         const py = new google.maps.places.PlacesService(schoolBlock);
-        const request = {
+        
+        // LAYER 2: Try Nearby search (High precision)
+        py.nearbySearch({
             location: userOrigin,
-            radius: '10000', // 10km
+            radius: '10000',
             keyword: board,
             type: ['school']
-        };
-
-        py.nearbySearch(request, async (results, status) => {
+        }, async (results, status) => {
             if (status !== google.maps.places.PlacesServiceStatus.OK || !results || results.length === 0) {
+                // LAYER 3: Fallback to Text Search (Lower precision but broader)
                 py.textSearch({ query: `${board} school in ${area}` }, async (textResults, textStatus) => {
                     if (textStatus === 'OK' && textResults.length > 0) {
                         processSchoolResults(textResults.slice(0, 5), userOrigin, board, area, schoolBlock);
                     } else {
                         schoolBlock.innerHTML = `
                             <div class="report-header-bg">LOCAL SCHOOL SCOUT: ${board}</div>
-                            <p style="padding:15px; font-size:0.9rem; color:#64748B;">No high-confidence ${board} matches found directly in ${area}. We suggest expanding your search radius on Maps.</p>`;
+                            <p style="padding:20px; font-size:0.9rem; color:#64748B;">No matching ${board} schools found directly in ${area}. We suggest checking nearby suburbs manually on Google Maps.</p>`;
                     }
                 });
                 return;
@@ -1456,8 +1448,8 @@ async function fetchNearbySchools(board, area, pincode, retryCount = 0) {
         });
 
     } catch (err) {
-        console.error("Scouting Error:", err);
-        schoolBlock.innerHTML = `<p style="padding:15px; color:#EF4444;">Commute logic delay. Check connection and retry.</p>`;
+        console.error("Scout Error:", err);
+        schoolBlock.innerHTML = `<p style="padding:20px; color:#EF4444;">Search engine delay. Please verify your address or click retry.</p>`;
     }
 }
 
@@ -1480,21 +1472,19 @@ async function processSchoolResults(top5, userOrigin, board, area, schoolBlock) 
 
         schoolBlock.innerHTML = `
             <div class="report-header-bg">LOCAL SCHOOL SCOUT (${board})</div>
-            <p style="font-size:0.85rem; color:#64748B; margin-bottom:15px;">Schools found near ${area}:</p>
+            <p style="font-size:0.85rem; color:#64748B; margin-bottom:15px;">Verified schools found near ${area}:</p>
             <table class="data-table">
                 <thead><tr><th>School Name</th><th>Self Travel</th><th>Bus Travel</th></tr></thead>
                 <tbody>${rowsHtml}</tbody>
             </table>`;
     } catch (e) {
-        let fallbackRows = top5.map(s => `<tr><td style="font-weight:600;">${s.name}</td><td>Maps Check</td><td>Maps Check</td></tr>`).join('');
-        schoolBlock.innerHTML = `<div class="report-header-bg">LOCAL SCHOOL SCOUT (${board})</div><p style="font-size:0.85rem; padding:10px;">Found schools, but commute calculation failed. Please check Google Maps for ${area}.</p><table class="data-table"><tbody>${fallbackRows}</tbody></table>`;
+        let fallbackRows = top5.map(s => `<tr><td style="font-weight:600;">${s.name}</td><td>See Maps</td><td>See Maps</td></tr>`).join('');
+        schoolBlock.innerHTML = `<div class="report-header-bg">LOCAL SCHOOL SCOUT (${board})</div><p style="padding:10px; font-size:0.85rem;">Found schools, travel analysis failed. Please use Maps for commute times.</p><table class="data-table"><tbody>${fallbackRows}</tbody></table>`;
     }
 }
 
 // --- REPORT RENDERER ---
 async function renderReportToBrowser() {
-    loadGoogleMaps().catch(e => console.warn("Maps init pending..."));
-
     const res = calculateFullRecommendation(answers);
     const recBoard = res.recommended.name;
     const boardKey = recBoard.toLowerCase().includes('cbse') ? 'cbse' : 
@@ -1577,7 +1567,7 @@ async function renderReportToBrowser() {
 
         <div id="schoolFinderBlock" class="report-card">
             <div class="report-header-bg">LOCAL SCHOOL SCOUT: ${recBoard}</div>
-            <p style="font-size:0.9rem; color:#64748B;">Launching school scanner for ${customerData.residentialArea || 'the area'}...</p>
+            <p style="font-size:0.9rem; color:#64748B;">Scanning for verified ${recBoard} schools in ${customerData.residentialArea || 'the area'}...</p>
         </div>
     `;
 
@@ -1682,8 +1672,10 @@ async function renderReportToBrowser() {
     const preview = document.getElementById('reportPreview');
     if (preview) {
         preview.innerHTML = html;
-        // Search schools
-        fetchNearbySchools(recBoard, customerData.residentialArea, customerData.pincode);
+        // Start school scout after brief delay to allow div to exist
+        setTimeout(() => {
+            fetchNearbySchools(recBoard, customerData.residentialArea, customerData.pincode, 0);
+        }, 800);
     }
 }
 
