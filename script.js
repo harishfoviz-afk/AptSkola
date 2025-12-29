@@ -134,7 +134,7 @@ const MASTER_DATA = {
             { grade: "Grade 6 (2030)", fee: "₹ 3,22,102", total: "₹ 15,43,122" },
             { grade: "Grade 7 (2031)", fee: "₹ 3,54,312", total: "₹ 18,97,434" },
             { grade: "Grade 8 (2032)", fee: "₹ 3,89,743", total: "₹ 22,87,177" },
-            { grade: "Grade 9 (2033)", fee: "₹ 4,28,718", total: "₹ 27,15,895" },
+            { grade: "Grade 9 (2033)", fee: "₹ 4,28,718", total: "max-w-7xl mx-auto" },
             { grade: "Grade 10 (2034)", fee: "₹ 4,71,589", total: "₹ 31,87,484" },
             { grade: "Grade 11 (2035)", fee: "₹ 5,18,748", total: "₹ 37,06,232" },
             { grade: "Grade 12 (2036)", fee: "₹ 5,70,623", total: "₹ 42,76,855" }
@@ -1383,12 +1383,22 @@ async function fetchNearbySchools(board, area, pincode) {
 
     return new Promise(async (resolve) => {
         try {
+            // Safety check: ensure google maps library is actually loaded
+            if (typeof google === 'undefined' || !google.maps || !google.maps.places) {
+                schoolBlock.innerHTML = `
+                    <div class="report-header-bg">LOCAL SCHOOL SCOUT: ${board}</div>
+                    <p style="font-size:0.9rem; color:#64748B;">Maps engine loading... please refresh or wait a moment.</p>`;
+                return resolve();
+            }
+
             const py = new google.maps.places.PlacesService(document.createElement('div'));
             const query = `${board} school near ${area} ${pincode}`;
             
             py.textSearch({ query: query }, async (results, status) => {
-                if (status !== google.maps.places.PlacesServiceStatus.OK || !results) {
-                    schoolBlock.innerHTML = `<p>Geospatial scan complete. No high-confidence matches found for ${board} in this area.</p>`;
+                if (status !== google.maps.places.PlacesServiceStatus.OK || !results || results.length === 0) {
+                    schoolBlock.innerHTML = `
+                        <div class="report-header-bg">LOCAL SCHOOL SCOUT: ${board}</div>
+                        <p style="font-size:0.9rem; color:#64748B;">Geospatial scan complete. No high-confidence matches found for ${board} in ${area}.</p>`;
                     return resolve();
                 }
 
@@ -1404,11 +1414,12 @@ async function fetchNearbySchools(board, area, pincode) {
 
                     let rowsHtml = '';
                     top5.forEach((school, i) => {
+                        // Find match in matrix by index
                         const info = matrixData.find(item => item.destinationIndex === i);
                         const driveTime = info && info.duration ? Math.round(parseInt(info.duration) / 60) + " mins" : "N/A";
                         const busTime = info && info.duration ? Math.round((parseInt(info.duration) * 1.4) / 60) + " mins" : "N/A";
                         
-                        rowsHtml += `<tr><td>${school.name}</td><td>${driveTime}</td><td>${busTime}</td></tr>`;
+                        rowsHtml += `<tr><td style="font-weight:600; color:var(--navy-premium);">${school.name}</td><td>${driveTime}</td><td>${busTime}</td></tr>`;
                     });
 
                     schoolBlock.innerHTML = `
@@ -1420,12 +1431,15 @@ async function fetchNearbySchools(board, area, pincode) {
                         </table>`;
                 } catch (err) {
                     console.error("Commute Calculation Error:", err);
-                    schoolBlock.innerHTML = `<p>Schools found, but travel analysis failed.</p>`;
+                    schoolBlock.innerHTML = `
+                        <div class="report-header-bg">LOCAL SCHOOL SCOUT: ${board}</div>
+                        <p style="font-size:0.9rem; color:#64748B;">Schools found, but travel analysis timed out. Check Google Maps for ${area}.</p>`;
                 }
                 resolve();
             });
         } catch (e) { 
             console.warn("Maps Library Error:", e);
+            schoolBlock.innerHTML = `<p style="font-size:0.85rem; color:#EF4444;">Unable to load school discovery engine. Please check your connection.</p>`;
             resolve();
         }
     });
@@ -1515,7 +1529,7 @@ async function renderReportToBrowser() {
 
         <div id="schoolFinderBlock" class="report-card">
             <div class="report-header-bg">LOCAL SCHOOL SCOUT: ${recBoard}</div>
-            <p style="font-size:0.9rem;">Initializing scan for ${customerData.residentialArea}...</p>
+            <p style="font-size:0.9rem; color:#64748B;">Initializing scan for schools in ${customerData.residentialArea || 'your area'}...</p>
         </div>
     `;
 
@@ -1620,6 +1634,7 @@ async function renderReportToBrowser() {
     const preview = document.getElementById('reportPreview');
     if (preview) {
         preview.innerHTML = html;
+        // Trigger the school search after the shell is in the DOM
         await fetchNearbySchools(recBoard, customerData.residentialArea, customerData.pincode);
     }
 }
