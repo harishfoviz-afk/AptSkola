@@ -1073,7 +1073,7 @@ document.getElementById('customerForm')?.addEventListener('submit', function(e) 
 });
 
 // --- OFFICIAL RAZORPAY INTEGRATION WITH LIVE VERIFICATION ---
-function redirectToRazorpay() {
+async function redirectToRazorpay() {
     const payButton = document.getElementById('payButton');
     const loadingMsg = document.getElementById('paymentProcessing');
     
@@ -1084,73 +1084,93 @@ function redirectToRazorpay() {
         loadingMsg.style.color = "var(--navy-premium)";
     }
 
-    const options = {
-        "key": RAZORPAY_KEY_ID,
-        "amount": selectedPrice * 100, 
-        "currency": "INR",
-        "name": "Apt Skola",
-        "description": `${selectedPackage} Package - ${customerData.orderId}`,
-        "prefill": {
-            "name": customerData.parentName,
-            "email": customerData.email,
-            "contact": customerData.phone
-        },
-        "handler": async function (response) {
-            loadingMsg.innerText = "Verifying Payment with Bank...";
-            
-            try {
-                const verifyResponse = await fetch('/.netlify/functions/verify-payment', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        razorpay_order_id: response.razorpay_order_id,
-                        razorpay_payment_id: response.razorpay_payment_id,
-                        razorpay_signature: response.razorpay_signature,
-                        internal_order_id: customerData.orderId
-                    })
-                });
+    try {
+        // Step 1: Create Secure Order Server-Side
+        const orderResponse = await fetch('/.netlify/functions/create-order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                amount: selectedPrice * 100, // paise
+                internalOrderId: customerData.orderId
+            })
+        });
 
-                if (verifyResponse.status === 200) {
-                    loadingMsg.innerText = "Payment Verified. Generating Analysis...";
-                    loadingMsg.style.color = "var(--verified-green)";
-                    
-                    // Generate report first so DOM is ready for email capture
-                    await renderReportToBrowser(); 
-                    
-                    // Send automated email
-                    await triggerAutomatedEmail();
+        if (!orderResponse.ok) throw new Error("Could not create Razorpay order");
+        const order = await orderResponse.json();
 
-                    if (selectedPrice >= 999) {
-                        document.getElementById('bonusModal').classList.add('active');
+        // Step 2: Open Checkout with Official Order ID
+        const options = {
+            "key": RAZORPAY_KEY_ID,
+            "amount": selectedPrice * 100, 
+            "currency": "INR",
+            "name": "Apt Skola",
+            "description": `${selectedPackage} Package - ${customerData.orderId}`,
+            "order_id": order.id, // Mandatory for Signature matching
+            "prefill": {
+                "name": customerData.parentName,
+                "email": customerData.email,
+                "contact": customerData.phone
+            },
+            "handler": async function (response) {
+                loadingMsg.innerText = "Verifying Payment with Bank...";
+                
+                try {
+                    const verifyResponse = await fetch('/.netlify/functions/verify-payment', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_signature: response.razorpay_signature,
+                            internal_order_id: customerData.orderId
+                        })
+                    });
+
+                    if (verifyResponse.status === 200) {
+                        loadingMsg.innerText = "Payment Verified. Generating Analysis...";
+                        loadingMsg.style.color = "var(--verified-green)";
+                        
+                        await renderReportToBrowser(); 
+                        await triggerAutomatedEmail();
+
+                        if (selectedPrice >= 999) {
+                            document.getElementById('bonusModal').classList.add('active');
+                        } else {
+                            showInstantSuccessPage();
+                        }
                     } else {
-                        showInstantSuccessPage();
+                        throw new Error("Verification failed");
                     }
-                } else {
-                    throw new Error("Verification failed");
+                } catch (err) {
+                    console.error("Payment Verification Error:", err);
+                    alert("Payment verification failed. Please contact support with your Payment ID: " + response.razorpay_payment_id);
+                    if(payButton) payButton.classList.remove('hidden');
+                    loadingMsg.style.display = 'none';
                 }
-            } catch (err) {
-                console.error("Payment Verification Error:", err);
-                alert("Payment verification failed. Please contact support with your Payment ID: " + response.razorpay_payment_id);
-                if(payButton) payButton.classList.remove('hidden');
-                loadingMsg.style.display = 'none';
-            }
-        },
-        "modal": {
-            "ondismiss": function(){
-                if(payButton) payButton.classList.remove('hidden');
-                if(loadingMsg) loadingMsg.style.display = 'none';
-            }
-        },
-        "theme": { "color": "#FF6B35" }
-    };
+            },
+            "modal": {
+                "ondismiss": function(){
+                    if(payButton) payButton.classList.remove('hidden');
+                    if(loadingMsg) loadingMsg.style.display = 'none';
+                }
+            },
+            "theme": { "color": "#FF6B35" }
+        };
 
-    const rzp1 = new Razorpay(options);
-    rzp1.on('payment.failed', function (response){
-        alert("Payment Failed: " + response.error.description);
+        const rzp1 = new Razorpay(options);
+        rzp1.on('payment.failed', function (response){
+            alert("Payment Failed: " + response.error.description);
+            if(payButton) payButton.classList.remove('hidden');
+            if(loadingMsg) loadingMsg.style.display = 'none';
+        });
+        rzp1.open();
+
+    } catch (err) {
+        console.error("Checkout Initiation Error:", err);
+        alert("Unable to reach payment gateway. Please check your internet connection.");
         if(payButton) payButton.classList.remove('hidden');
         if(loadingMsg) loadingMsg.style.display = 'none';
-    });
-    rzp1.open();
+    }
 }
 
 async function triggerAutomatedEmail() {
