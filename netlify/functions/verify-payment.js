@@ -1,25 +1,38 @@
-// netlify/functions/create-order.js
-const Razorpay = require('razorpay');
+const crypto = require("crypto");
 
-exports.handler = async (event) => {
-    const rzp = new Razorpay({
-        key_id: process.env.RAZORPAY_KEY_ID,
-        key_secret: process.env.RAZORPAY_KEY_SECRET,
-    });
+export const handler = async (event) => {
+  if (event.httpMethod !== "POST") {
+    return { statusCode: 405, body: "Method Not Allowed" };
+  }
 
-    const { amount, internalOrderId } = JSON.parse(event.body);
+  try {
+    const data = JSON.parse(event.body);
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = data;
+    const secret = process.env.RAZORPAY_KEY_SECRET;
 
-    const options = {
-        amount: amount, 
-        currency: "INR",
-        receipt: internalOrderId, // This is your AS1-XXX ID
-    };
+    // LOG FOR DEBUGGING: This will show up in your Netlify logs
+    console.log("Attempting verification for Order:", razorpay_order_id);
 
-    try {
-        const order = await rzp.orders.create(options);
-        // This 'order' object contains the 'id' (order_XXXXX) needed for verification
-        return { statusCode: 200, body: JSON.stringify(order) };
-    } catch (error) {
-        return { statusCode: 500, body: JSON.stringify(error) };
+    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+        return { 
+            statusCode: 400, 
+            body: JSON.stringify({ status: "error", message: "Missing required Razorpay IDs" }) 
+        };
     }
+
+    const expectedSignature = crypto
+      .createHmac("sha256", secret)
+      .update(razorpay_order_id + "|" + razorpay_payment_id)
+      .digest("hex");
+
+    if (expectedSignature === razorpay_signature) {
+      return { statusCode: 200, body: JSON.stringify({ status: "success" }) };
+    } else {
+      // If this still happens, your SECRET KEY in Netlify is wrong
+      console.error("SIGNATURE MISMATCH. Check your RAZORPAY_KEY_SECRET in Netlify.");
+      return { statusCode: 400, body: JSON.stringify({ status: "failure" }) };
+    }
+  } catch (error) {
+    return { statusCode: 500, body: error.toString() };
+  }
 };
