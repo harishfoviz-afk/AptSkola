@@ -60,7 +60,7 @@
 </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Apt Skola | Find Your Child's Perfect School Board</title>
+    <title>Apt Skola by Foviz | Scientific School Board Selection</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -99,6 +99,8 @@
             }
         }
     </script>
+    
+    <link rel="stylesheet" href="style.css">
 
     <script type="application/ld+json">
     {
@@ -115,387 +117,6 @@
       ]
     }
     </script>
-
-    <style>
-        :root {
-            --sunrise-primary: #FF6B35;
-            --navy-premium: #0F172A;
-            --navy-light: #334155;
-            --bg-light: #F8FAFC;
-            --border-grey: #E2E8F0;
-            --white: #FFFFFF;
-            --verified-green: #10B981;
-            --star-yellow: #F59E0B;
-            --urgent-red: #EF4444;
-            --shadow-soft: 0 10px 40px -10px rgba(15, 23, 42, 0.1);
-        }
-        
-        body {
-            font-family: 'Inter', system-ui, sans-serif;
-            color: var(--navy-light);
-            background: #F8FAFC;
-            -webkit-font-smoothing: antialiased;
-        }
-        
-        /* FIX: Off-screen render class for PDF generation */
-        .off-screen-render {
-            position: absolute;
-            left: -9999px;
-            top: 0;
-            width: 800px; /* Fixed width ensures consistent PDF look */
-            display: block !important; 
-            z-index: -1;
-            background: white; /* Ensure transparent backgrounds don't turn black */
-        }
-
-        /* Header (Landing Page) */
-        header {
-            background: var(--navy-premium);
-            color: white;
-            padding: 40px 20px 80px;
-            text-align: center;
-            position: relative;
-            clip-path: polygon(0 0, 100% 0, 100% 95%, 0 100%);
-        }
-        
-        .brand-logo-container { display: flex; justify-content: center; margin-bottom: 20px; }
-        
-        header h1 {
-            color: var(--white);
-            font-size: 2.8rem;
-            margin-bottom: 15px;
-            font-weight: 800;
-            line-height: 1.2;
-        }
-        
-        header .subheadline {
-            font-size: 1.2rem;
-            margin-bottom: 25px;
-            opacity: 0.9;
-            font-weight: 400;
-            color: #CBD5E1; 
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        
-        .urgency-banner {
-            display: inline-block;
-            background: var(--urgent-red);
-            color: white;
-            padding: 8px 20px;
-            border-radius: 30px;
-            margin-bottom: 25px;
-            font-weight: 600;
-            font-size: 0.9rem;
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-
-        /* Hero Buttons */
-        .hero-actions {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 10px;
-            flex-wrap: wrap;
-        }
-        
-        .hero-btn-primary {
-            background: var(--sunrise-primary);
-            color: white;
-            padding: 14px 32px;
-            border-radius: 50px;
-            font-weight: 700;
-            text-decoration: none;
-            transition: transform 0.2s;
-            border: 2px solid var(--sunrise-primary);
-        }
-        .hero-btn-primary:hover { transform: translateY(-3px); background: #e55b2b; }
-
-        .hero-btn-secondary {
-            background: transparent;
-            color: white;
-            padding: 14px 32px;
-            border-radius: 50px;
-            font-weight: 600;
-            text-decoration: none;
-            border: 2px solid rgba(255,255,255,0.3);
-            transition: all 0.2s;
-        }
-        .hero-btn-secondary:hover { border-color: white; background: rgba(255,255,255,0.1); }
-        
-        /* Legacy Button Style (retained for form) */
-        .custom-cta-button {
-            display: block; width: 100%; padding: 16px 20px;
-            background: var(--sunrise-primary);
-            color: white; text-align: center; text-decoration: none;
-            border-radius: 8px; font-weight: 600; font-size: 1.1rem;
-            transition: all 0.3s; border: none; cursor: pointer;
-        }
-        .custom-cta-button:hover { 
-            transform: translateY(-2px); 
-            background-color: #e55b2b; 
-        }
-        
-        .secondary-cta-button {
-            display: block; width: 100%; padding: 16px 20px;
-            background: transparent;
-            color: var(--navy-premium); text-align: center; text-decoration: none;
-            border: 2px solid var(--navy-premium);
-            border-radius: 8px; font-weight: 600; font-size: 1.1rem;
-            transition: all 0.3s; cursor: pointer;
-        }
-        .secondary-cta-button:hover {
-            background: var(--navy-premium);
-            color: white;
-        }
-
-        /* Sticky CTA (Mobile) */
-        .sticky-cta {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            right: 20px;
-            background: var(--navy-premium);
-            color: white;
-            padding: 15px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            z-index: 999;
-            display: none; /* Hidden by default, JS toggles it */
-            justify-content: space-between;
-            align-items: center;
-            animation: fadeInUp 0.5s ease-out;
-        }
-        .sticky-cta button {
-            background: var(--sunrise-primary);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-weight: 700;
-            font-size: 0.9rem;
-        }
-
-        /* Pain Points & General Section Titles */
-        .pain-points-section, .about-section { padding: 80px 20px; background: var(--white); }
-        .section-title { text-align: center; font-size: 2.5rem; margin-bottom: 15px; color: var(--navy-premium); font-weight: 800; }
-        
-        /* About Section New Styles */
-        .about-section-content { max-width: 1200px; margin: 0 auto; text-align: center; }
-        .about-section-content h2 { font-size: 2.8rem; font-weight: 800; color: var(--navy-premium); margin-bottom: 40px; }
-        
-        .about-cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-bottom: 50px; }
-        .about-card {
-            background: var(--bg-light); 
-            border-radius: 16px;
-            padding: 30px; 
-            text-align: left;
-            border-left: 5px solid var(--sunrise-primary);
-            box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05);
-        }
-        .about-card h3 { 
-            font-size: 1.5rem; 
-            font-weight: 700; 
-            color: var(--navy-premium); 
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid var(--border-grey);
-        }
-        .about-card p { font-size: 1rem; line-height: 1.6; color: var(--navy-light); }
-        
-        /* DNA Points */
-        .dna-points { display: flex; flex-direction: column; gap: 15px; }
-        .dna-point { 
-            font-weight: 600; 
-            color: var(--navy-premium); 
-            border-left: 3px solid var(--sunrise-primary); 
-            padding-left: 15px;
-            font-size: 0.95rem;
-            line-height: 1.4;
-        }
-
-        /* Pain Points */
-        .pain-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; max-width: 1200px; margin: 0 auto; }
-        .pain-card {
-            background: var(--white); 
-            border: 1px solid var(--border-grey);
-            border-radius: 16px;
-            padding: 35px; text-align: center; transition: all 0.3s;
-            box-shadow: var(--shadow-soft);
-        }
-        .pain-card:hover { transform: translateY(-5px); border-color: var(--sunrise-primary); }
-        .pain-icon { font-size: 3.5rem; margin-bottom: 20px; }
-        .pain-card h3 { color: var(--navy-premium); font-size: 1.5rem; margin-bottom: 15px; font-weight: 700; }
-        
-        /* Social Proof */
-        .social-proof { padding: 80px 20px; background: var(--bg-light); }
-        .testimonial-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; max-width: 1200px; margin: 40px auto 0; }
-        .testimonial { background: var(--white); padding: 35px; border-radius: 16px; box-shadow: var(--shadow-soft); position: relative; border: 1px solid var(--border-grey); }
-        .testimonial::before { content: '"'; position: absolute; top: -10px; left: 20px; font-size: 5rem; color: var(--sunrise-primary); opacity: 0.2; font-family: Georgia, serif; }
-        .testimonial-text { font-style: italic; margin-bottom: 20px; color: var(--navy-light); line-height: 1.8; position: relative; z-index: 1; }
-        .testimonial-author { font-weight: 700; color: var(--navy-premium); font-size: 1.1rem; }
-        .stars { color: var(--star-yellow); font-size: 1.2rem; margin-bottom: 10px; }
-
-        /* --- INTERMEDIATE PAGE HEADER/FOOTER STYLES --- */
-        .intermediate-header {
-            background: var(--navy-premium);
-            color: white;
-            padding: 1rem 2rem;
-            width: 100%;
-            position: sticky;
-            top: 0;
-            z-index: 50;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        .intermediate-footer {
-            background: var(--navy-premium);
-            color: white;
-            padding: 1.5rem 2rem;
-            width: 100%;
-            margin-top: auto; 
-        }
-        .intermediate-footer p { font-size: 0.85rem; text-align: center; color: #CBD5E1; margin-top: 5px; }
-
-        /* --- UI FOR QUESTION PAGE --- */
-        #questionPageApp { display: none; min-height: 100vh; background: #fff; padding: 0; flex-direction: column; }
-        .question-page { display: none; min-height: 100vh; background: #fff; padding: 0; flex-direction: column; }
-        .active { display: flex !important; }
-        
-        .question-content-wrapper { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; width: 100%; }
-
-        .question-container { width: 100%; max-width: 750px; background: #fff; padding: 0 20px; }
-        .progress-container { width: 100%; margin-bottom: 20px; text-align: center; }
-        .progress-track { width: 100%; height: 6px; background: #E2E8F0; border-radius: 10px; overflow: hidden; margin-bottom: 15px; }
-        .progress-fill { height: 100%; background: #FF6B35; border-radius: 10px; transition: width 0.4s ease; }
-        .progress-label { font-size: 0.9rem; color: #64748B; font-weight: 500; }
-        .question-text { font-size: 2rem; font-weight: 800; color: var(--navy-premium); margin-bottom: 30px; line-height: 1.3; text-align: left; }
-        .options-grid { display: flex; flex-direction: column; gap: 15px; width: 100%; }
-        .option-card { padding: 20px 25px; background: #F8FAFC; border-radius: 12px; cursor: pointer; transition: all 0.2s ease; font-size: 1.1rem; font-weight: 500; color: var(--navy-premium); border: 2px solid transparent; text-align: left; }
-        .option-card:hover { background: #F1F5F9; }
-        .option-card.selected { border-color: var(--navy-premium); background: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .nav-actions { display: flex; align-items: center; justify-content: flex-start; margin-top: 40px; gap: 20px; }
-        .btn-prev { background: #E2E8F0; color: #64748B; font-weight: 600; padding: 14px 28px; border-radius: 8px; border: none; cursor: pointer; transition: background 0.2s; }
-        .btn-prev:hover { background: #CBD5E1; }
-
-        /* Other Pages */
-        .details-page, .success-page, #paymentPageContainer { display: none; min-height: 100vh; background: var(--bg-light); padding: 0; flex-direction: column; }
-        /* Adjusted .success-content-wrapper to center the container */
-        .details-content-wrapper, .success-content-wrapper { 
-            flex-grow: 1; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; /* Center vertically */
-            padding: 40px 20px; 
-            width: 100%; 
-        }
-
-        .details-form, .success-container { background: var(--white); border-radius: 16px; padding: 50px; max-width: 800px; width: 100%; box-shadow: var(--shadow-soft); border: 1px solid var(--border-grey); margin-bottom: 30px; }
-        .form-group { margin-bottom: 25px; width: 100%; }
-        .form-group label { display: block; color: var(--navy-premium); font-weight: 600; margin-bottom: 8px; }
-        .form-group input, .form-group select { width: 100%; padding: 15px; border: 1px solid var(--border-grey); border-radius: 8px; font-size: 1rem; background: var(--bg-light); }
-        
-        /* REPORT PREVIEW STYLES */
-        #reportPreview { width: 100%; text-align: left; margin-top: 20px; padding: 20px; }
-        .report-card { background: #fff; border: 1px solid var(--border-grey); border-radius: 12px; padding: 30px; margin-bottom: 30px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); page-break-inside: avoid; }
-        .report-header-bg { background: var(--navy-premium); color: white; padding: 10px 15px; font-weight: 700; font-size: 1.2rem; margin: -30px -30px 20px -30px; border-radius: 12px 12px 0 0; display: flex; align-items: center; gap: 10px; }
-        .data-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        .data-table th, .data-table td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
-        .data-table th { background: #f8fafc; font-weight: 700; color: var(--navy-premium); }
-        .narrative-item { background: white; padding: 20px; border-radius: 8px; border-left: 4px solid var(--sunrise-primary); box-shadow: 0 2px 4px rgba(0,0,0,0.03); margin-bottom: 15px; }
-        .narrative-theme { color: var(--navy-premium); margin: 0 0 10px 0; font-size: 1.1rem; font-weight: 700; }
-        .script-box { background: #f1f5f9; padding: 15px; border-radius: 8px; border-left: 4px solid var(--navy-premium); margin-bottom: 15px; font-family: monospace; font-size: 0.95rem; color: var(--navy-premium); }
-        .premium-badge, .platinum-badge { display: inline-block; font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 10px; margin-left: auto; }
-        .premium-badge { background: #7c3aed; color: white; }
-        .platinum-badge { background: var(--star-yellow); color: var(--navy-premium); }
-
-        /* FAQ Styling */
-        .faq-item { margin-bottom: 15px; border-bottom: 1px solid #E2E8F0; padding-bottom: 15px; }
-        .faq-q { color: var(--navy-premium); font-weight: 700; margin-bottom: 5px; font-size: 1rem; }
-        .faq-a { color: var(--navy-light); font-size: 0.95rem; line-height: 1.6; }
-        /* INSIGHT BLOCK */
-        .insight-block {
-            background: #f8fafc;
-            border-left: 4px solid var(--navy-premium);
-            padding: 15px 20px;
-            margin-bottom: 25px;
-            border-radius: 0 8px 8px 0;
-        }
-        .insight-title {
-            color: var(--navy-premium);
-            font-weight: 700;
-            font-size: 1rem;
-            margin-bottom: 5px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .insight-body { color: #475569; font-size: 0.95rem; line-height: 1.5; }
-        .legal-disclaimer { font-size: 0.75rem; color: #94a3b8; text-align: center; padding: 20px 0; margin-top: 20px; border-top: 1px solid #eee; }
-
-        /* Footer */
-        footer { background: var(--navy-premium); color: white; padding: 50px 20px; text-align: center; margin-top: auto; }
-        footer .policy-links a { margin: 0 8px; color: #CBD5E1; text-decoration: none; font-size: 0.85rem; transition: color 0.2s; }
-        footer .policy-links a:hover { color: var(--sunrise-primary); }
-
-        .hidden { display: none !important; }
-        
-        /* Modal & Spinner */
-        .payment-modal, .sample-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.8); justify-content: center; align-items: center; z-index: 1000; }
-        .payment-modal.active, .sample-modal.active { display: flex; }
-        .payment-modal-content { background: white; padding: 40px; border-radius: 16px; text-align: center; width: 90%; max-width: 400px; }
-        
-        /* Sample Modal Content */
-        .sample-modal-content { background: #F1F5F9; padding: 0; border-radius: 16px; width: 95%; max-width: 800px; height: 90vh; overflow-y: auto; position: relative; }
-        .close-sample { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.5); color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; z-index: 10; font-weight: bold; }
-        .close-sample:hover { background: black; }
-
-        .spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid var(--sunrise-primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        /* --- MOBILE RESPONSIVENESS FIXES --- */
-        @media (max-width: 768px) {
-            header {
-                padding: 30px 15px 50px;
-                clip-path: polygon(0 0, 100% 0, 100% 97%, 0 100%);
-            }
-            header h1 { font-size: 2rem; line-height: 1.2; }
-            header .subheadline { font-size: 1rem; }
-
-            .sticky-cta { display: flex; } 
-            .hero-actions { flex-direction: column; width: 100%; gap: 10px; }
-            .hero-btn-primary, .hero-btn-secondary { width: 100%; text-align: center; }
-            
-            .section-title { font-size: 2rem; }
-            .about-section-content h2 { font-size: 2rem; }
-            
-            /* Reduce padding on forms for mobile */
-            .details-form, .success-container { padding: 25px 20px; }
-            
-            /* Report Cards: Ensure tables scroll instead of breaking */
-            .report-card { padding: 20px; overflow-x: auto; }
-            .report-header-bg { margin: -20px -20px 20px -20px; border-radius: 12px 12px 0 0; font-size: 1rem; }
-            
-            .data-table { min-width: 300px; font-size: 0.9rem; }
-            .data-table th, .data-table td { padding: 8px; }
-            
-            .pain-cards, .testimonial-grid { grid-template-columns: 1fr; }
-            
-            /* Font size adjustment for inputs to prevent zoom on iOS */
-            input, select, textarea { font-size: 16px !important; }
-        }
-        
-        /* Trust Badges */
-        .trust-badge-row { display: flex; justify-content: center; align-items: center; gap: 20px; margin-top: 20px; opacity: 0.7; }
-        .trust-badge-item { display: flex; flex-direction: column; align-items: center; font-size: 0.7rem; color: #64748B; }
-        .trust-icon { width: 32px; height: 32px; margin-bottom: 4px; fill: #64748B; }
-    </style>
 </head>
 <body>
     <div id="stickyCTA" class="sticky-cta md:hidden">
@@ -503,13 +124,18 @@
             <span class="font-bold text-sm">Confused about boards?</span>
             <span class="text-xs text-slate-300">Get clarity in 5 mins</span>
         </div>
-        <button onclick="scrollToPricing()">Find My School</button>
+        <button onclick="scrollToPricing()">Find Best Board</button>
     </div>
 
     <div id="landingPage">
         <header>
             <div class="container mx-auto px-4">
-                <div class="brand-logo-container" id="landingHeaderLogo"></div>
+                <div class="flex flex-col items-center">
+                    <div class="brand-logo-container" id="landingHeaderLogo" style="font-size: 1.5rem; font-weight: 800; color: #FFFFFF; margin-bottom: 10px;">
+                        Apt <span style="color: #FF6B35;">Skola</span> <span style="font-weight: 400; color: #CBD5E1; margin-left: 8px; border-left: 1px solid rgba(203, 213, 225, 0.3); padding-left: 12px;">A Foviz Venture</span>
+                    </div>
+                    <a href="https://foviz.in" target="_blank" class="text-xs text-brand-orange font-bold uppercase tracking-widest mb-4 hover:underline">Planning for College? Visit Foviz Career GPS →</a>
+                </div>
                 
                 <div class="urgency-banner">⚡ Limited Time: 40% OFF - Offer ends soon</div>
                 
@@ -519,6 +145,13 @@
                 <div class="hero-actions animate-fade-in-up" style="animation-delay: 0.4s">
                     <button onclick="scrollToPricing()" class="hero-btn-primary">Start Assessment</button>
                     <button onclick="openSampleReport()" class="hero-btn-secondary">View Sample Report</button>
+                    <button onclick="openSyncMatchGate()" class="hero-btn-secondary" style="background: transparent; border: 2px solid #F59E0B; color: #F59E0B; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+                        <span>🔓</span> Unlock Parent & Child Sync Check
+                    </button>
+                    <button onclick="window.open('https://aistudio.google.com/apps/drive/13P-uy_8m_uPrGY9b9VfAvnABqK6KwLj0?showAssistant=true&showPreview=true&resourceKey=&fullscreenApplet=true', '_blank')" class="hero-btn-secondary" style="background: transparent; border: 2px solid #3B82F6; color: #3B82F6; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+                        <span>🔎</span> AI School/College Forensic Report
+                    </button>
+					<p class="text-xs text-slate-400 mt-2 font-medium tracking-wide">⚡ Cloud-Diagnostic: No download required. Access instantly on any device.</p>
                 </div>
             </div>
         </header>
@@ -572,6 +205,66 @@
                 </div>
             </div>
         </section>
+        
+        <section class="confusion-calculator-section" id="confusionCalculator">
+            <div class="container mx-auto px-4">
+                <div class="calculator-card">
+                    <h2>The Complexity of Choice: Quantifying the Impact</h2>
+                    
+                    <div class="calculator-split-layout">
+                        <div class="flex flex-col gap-6">
+                            <div class="calculator-input-row">
+                                <div class="flex justify-between items-center mb-2">
+                                    <label class="icon-header">🔍 Research Investment</label>
+                                    <div class="value-badge-green" id="hoursValue">5 hours</div>
+                                </div>
+                                <p class="text-xs text-slate-500 mb-2">Hours spent per week manually vetting schools</p>
+                                <input type="range" id="researchHours" min="1" max="20" value="5" step="1" oninput="calculateCostOfConfusion()" class="custom-slider">
+                            </div>
+                            
+                            <div class="calculator-input-row">
+                                <div class="flex justify-between items-center mb-2">
+                                    <label class="icon-header">⚖️ Your Time Value</label>
+                                    <div class="value-badge-green" id="rateValue">₹1,000</div>
+                                </div>
+                                <p class="text-xs text-slate-500 mb-2">Estimated value of your professional hour (₹)</p>
+                                <input type="range" id="hourlyRate" min="500" max="5000" value="1000" step="500" oninput="calculateCostOfConfusion()" class="custom-slider">
+                            </div>
+                            
+                            <div class="calculator-input-row">
+                                <div class="flex justify-between items-center mb-2">
+                                    <label class="icon-header">📊 Cognitive Load</label>
+                                    <div class="value-badge-green" id="tabsValue">8 tabs</div>
+                                </div>
+                                <p class="text-xs text-slate-500 mb-2">Number of open tabs/sources of advice</p>
+                                <input type="range" id="browserTabs" min="1" max="20" value="8" step="1" oninput="calculateCostOfConfusion()" class="custom-slider">
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col items-center justify-center p-6 bg-white rounded-2xl border border-slate-100 shadow-sm">
+                            <div class="donut-chart-container">
+                                <div id="confusionDonut" class="donut-chart">
+                                    <div class="donut-inner">
+                                        <div class="text-center">
+                                            <p class="text-[10px] uppercase font-bold text-slate-400 leading-none">Anxiety</p>
+                                            <span id="anxietyLevel" class="text-2xl font-black text-brand-navy">40%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-6 text-center w-full">
+                                <p class="text-xs text-slate-500 mb-1 uppercase tracking-widest font-bold">Monthly Opportunity Cost</p>
+                                <div class="text-3xl font-black text-brand-orange" id="lossAmount">₹20,000</div>
+                                <p class="text-[11px] text-slate-400 mt-2 italic">Our diagnostic eliminates this friction instantly.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button onclick="scrollToPricing()" class="custom-cta-button mt-8">Reduce Cognitive Load: Start Diagnostic</button>
+                </div>
+            </div>
+        </section>
 
         <section class="bg-slate-50 py-12 px-4 sm:px-6 lg:px-8" id="pricing">
             <div class="max-w-7xl mx-auto">
@@ -590,9 +283,23 @@
                                 <span class="text-4xl font-extrabold text-brand-navy">₹599</span>
                                 <span class="text-lg text-slate-400 line-through ml-2">₹999</span>
                             </div>
-                            <ul class="space-y-4 mb-8">
-                                <li class="flex items-start"><svg class="h-5 w-5 text-green-500 shrink-0 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg><span class="text-slate-600 text-sm">Psychometric Assessment</span></li>
-                                <li class="flex items-start"><svg class="h-5 w-5 text-green-500 shrink-0 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg><span class="text-slate-600 text-sm">Future-Proofing</span></li>
+                            <ul class="feature-list">
+                                <li class="feature-item highlighted">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle class="icon-circle" cx="12" cy="12" r="10" stroke-width="2"/><path class="icon-circle" d="M8 12L11 15L16 9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                    <span>Psychometric Assessment</span>
+                                </li>
+                                <li class="feature-item">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle class="icon-circle" cx="12" cy="12" r="10" stroke-width="2"/><path class="icon-circle" d="M8 12L11 15L16 9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                    <span>Scientific Board Match</span>
+                                </li>
+                                <li class="feature-item">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle class="icon-circle" cx="12" cy="12" r="10" stroke-width="2"/><path class="icon-circle" d="M8 12L11 15L16 9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                    <span>Board Deep Dive</span>
+                                </li>
+                                <li class="feature-item">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle class="icon-circle" cx="12" cy="12" r="10" stroke-width="2"/><path class="icon-circle" d="M8 12L11 15L16 9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                    <span>School Proximity Check</span>
+                                </li>
                             </ul>
                         </div>
                         <div class="p-8 pt-0 mt-auto">
@@ -606,36 +313,60 @@
                             <h3 class="text-xl font-bold text-brand-navy mb-2">The Smart Parent Toolkit</h3>
                             <p class="text-sm text-slate-500 mb-6">Financial Safety & Risk-Free Evaluation</p>
                             <div class="flex items-baseline mb-6">
-                                <span class="text-4xl font-extrabold text-brand-navy">₹1,499</span>
+                                <span class="text-4xl font-extrabold text-brand-navy">₹999</span>
                                 <span class="text-lg text-slate-400 line-through ml-2">₹2,499</span>
                             </div>
-                            <div class="text-xs font-semibold text-brand-orange uppercase tracking-wide mb-3">Everything in Essential, plus:</div>
-                            <ul class="space-y-4 mb-8">
-                                <li class="flex items-start"><svg class="h-5 w-5 text-brand-navy shrink-0 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg><span class="text-brand-navy font-medium text-sm">Financial Clarity</span></li>
-                                <li class="flex items-start"><svg class="h-5 w-5 text-brand-navy shrink-0 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg><span class="text-brand-navy font-medium text-sm">Risk Mitigation</span></li>
+                            <div class="text-xs font-semibold text-brand-orange uppercase tracking-wide mb-3">Everything in The Decision Decoder, plus:</div>
+                            <ul class="feature-list">
+                                <li class="feature-item highlighted">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle class="icon-circle" cx="12" cy="12" r="10" stroke-width="2"/><path class="icon-circle" d="M8 12L11 15L16 9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                    <span>Parent & Child Sync Check</span>
+                                </li>                                <li class="feature-item">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle class="icon-circle" cx="12" cy="12" r="10" stroke-width="2"/><path class="icon-circle" d="M8 12L11 15L16 9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                    <span>Financial Clarity (15-Year Forecast)</span>
+                                </li>
+                                <li class="feature-item">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle class="icon-circle" cx="12" cy="12" r="10" stroke-width="2"/><path class="icon-circle" d="M8 12L11 15L16 9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                    <span>Risk Mitigation Checklist</span>
+                                </li>
                             </ul>
                         </div>
                         <div class="p-8 pt-0 mt-auto">
-                            <button onclick="selectPackage('Premium', 1499)" class="w-full block bg-brand-navy hover:bg-slate-800 text-white font-bold py-4 px-4 rounded-xl transition duration-200 text-center shadow-lg">Get the Toolkit</button>
+                            <button onclick="selectPackage('Premium', 999)" class="w-full block bg-brand-navy hover:bg-slate-800 text-white font-bold py-4 px-4 rounded-xl transition duration-200 text-center shadow-lg">Get the Toolkit</button>
                         </div>
                     </div>
 
                     <div class="bg-white rounded-2xl shadow-lg border border-brand-orange/30 ring-1 ring-brand-orange/20 overflow-hidden transform transition duration-300 hover:-translate-y-2 hover:shadow-xl flex flex-col h-full">
                         <div class="p-8 flex-grow">
-                            <h3 class="text-xl font-bold text-brand-navy mb-2">The Executive Advantage</h3>
-                            <p class="text-sm text-slate-500 mb-6">Done-For-You: Admission Success & Negotiation</p>
+                            <h3 class="text-xl font-bold text-brand-navy mb-2">The Smart Parent Pro</h3>
+                            <p class="text-sm text-slate-500 mb-6">Done-For-You: Negotiation & School Finalization </p>
                             <div class="flex items-baseline mb-6">
-                                <span class="text-4xl font-extrabold text-brand-navy">₹2,999</span>
+                                <span class="text-4xl font-extrabold text-brand-navy">₹1,499</span>
                                 <span class="text-lg text-slate-400 line-through ml-2">₹4,999</span>
                             </div>
-                            <div class="text-xs font-semibold text-brand-orange uppercase tracking-wide mb-3">Everything in Essential, plus:</div>
-                            <ul class="space-y-4 mb-8">
-                                <li class="flex items-start"><svg class="h-5 w-5 text-brand-orange shrink-0 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg><span class="text-slate-700 text-sm">Proven Savings</span></li>
-                                <li class="flex items-start"><svg class="h-5 w-5 text-brand-orange shrink-0 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg><span class="text-slate-700 text-sm">Complete Execution</span></li>
+                            <div class="text-xs font-semibold text-brand-orange uppercase tracking-wide mb-3">Everything in The Smart Parent Toolkit, plus:</div>
+                            <ul class="feature-list">
+                                </li>
+                                <li class="feature-item highlighted">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle class="icon-circle" cx="12" cy="12" r="10" stroke-width="2"/><path class="icon-circle" d="M8 12L11 15L16 9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                    <span>AI Forensic Report (3 Institutes)</span>
+                                </li>
+                                <li class="feature-item highlighted">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle class="icon-circle" cx="12" cy="12" r="10" stroke-width="2"/><path class="icon-circle" d="M8 12L11 15L16 9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                    <span><a href="https://foviz.in" target="_blank" class="hover:underline">Foviz Elite Discount (50% OFF)</a></span>
+                                </li>
+                                <li class="feature-item">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle class="icon-circle" cx="12" cy="12" r="10" stroke-width="2"/><path class="icon-circle" d="M8 12L11 15L16 9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                    <span>Fee Negotiation Scripts</span>
+                                </li>
+                                <li class="feature-item">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle class="icon-circle" cx="12" cy="12" r="10" stroke-width="2"/><path class="icon-circle" d="M8 12L11 15L16 9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                    <span>Parent Interview Guide</span>
+
                             </ul>
                         </div>
                         <div class="p-8 pt-0 mt-auto">
-                            <button onclick="selectPackage('Platinum', 2999)" class="w-full block bg-brand-orange hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-xl transition duration-200 text-center shadow-md">Find My School</button>
+                            <button onclick="selectPackage('The Smart Parent Pro', 1499)" class="w-full block bg-brand-orange hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-xl transition duration-200 text-center shadow-md">Find Best Board</button>
                         </div>
                     </div>
                 </div>
@@ -674,6 +405,14 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </section>
+
+        <section id="educatorPartner" class="py-16 px-4 sm:px-6 lg:px-8 bg-brand-navy text-white text-center">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl md:text-4xl font-extrabold mb-6">Apt Skola Educator Partnership: Empowering Growth</h2>
+                <p class="text-lg text-slate-300 mb-8 leading-relaxed">Teachers and Tutors: Join our clinical network. Earn <b>₹300</b> for student referrals and <b>₹3,000</b> per session for school-wide engagement.</p>
+                <button onclick="document.getElementById('partnerModal').classList.add('active')" class="hero-btn-primary py-4 px-10 text-lg">Register as Partner</button>
             </div>
         </section>
 
@@ -722,10 +461,62 @@
                 <div class="policy-links mb-4">
                     <a href="#contact">Contact Us</a> | <a href="#Refund & Cancellation Policy">Refund & Cancellation Policy</a> | <a href="#privacy">Privacy</a> | <a href="#terms">Terms</a>
                 </div>
-                <p style="font-size: 1.3rem; margin-bottom: 15px; font-weight:800;">Apt <span style="color: var(--sunrise-primary);">Skola</span></p>
-                <p>&copy; 2025 Apt Skola. All Rights Reserved.</p>
+                <p style="font-size: 1.3rem; margin-bottom: 15px; font-weight:800;">
+                    Apt <span style="color: var(--sunrise-primary);">Skola</span> 
+                    <span style="font-weight: 400; font-size: 1rem; opacity: 0.8; margin-left: 10px;">| A Foviz Venture</span>
+                </p>
+                <p>&copy; 2025 Apt Skola, all rights reserved.</p>
             </div>
         </footer>
+    </div>
+
+    <div id="syncMatchGate" class="details-page hidden">
+        <div id="syncGateHeader"></div>
+        <div class="details-content-wrapper">
+             <div class="details-form">
+                <h2 style="color: var(--navy-premium);">Unlock "Parent & Child Sync Check" 🔐</h2>
+                <p style="margin-bottom:20px;">Enter your Order ID to access the advanced child-observation module.</p>
+                
+                <div class="form-group">
+                    <label>Order ID (From your email/report)</label>
+                    <input type="text" id="syncOrderId" placeholder="AS..." required>
+                </div>
+                <div class="form-group">
+                    <label>Child's Age Bracket</label>
+                    <select id="syncChildAge">
+                        <option value="5-10">5 - 10 yrs</option>
+                        <option value="10-15">10 - 15 yrs</option>
+                        <option value="15+">15+ yrs</option>
+                    </select>
+                </div>
+                <div id="upgradeBlock" class="hidden" style="background: #FFF1F2; border: 1px solid #FECDD3; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <p style="color: #991B1B; font-weight: 700; font-size: 0.9rem; margin-bottom: 10px;">⚠️ Essential Tier Detected. The Sync Check module requires a Premium upgrade.</p>
+                    <button onclick="processSyncUpgrade()" class="custom-cta-button" style="background: #E11D48; border: none; font-size: 0.95rem;">Unlock Sync Match for ₹299</button>
+                </div>
+                <button id="startSyncBtn" onclick="validateAndStartSyncMatch()" class="custom-cta-button">Start Sync Check →</button>
+				<p style="margin-top:15px; font-size:0.9rem; text-decoration:underline; cursor:pointer;" onclick="goToLandingPage()">Go Back Home</p>
+             </div>
+        </div>
+        <div id="syncGateFooter"></div>
+    </div>
+    <div id="syncMatchTransition" class="details-page hidden">
+        <div id="syncTransitionHeader"></div>
+        <div class="details-content-wrapper">
+            <div class="details-form text-center">
+                <h2 style="color: var(--sunrise-primary); font-size: 1.8rem; font-weight: 800;">AUTHENTICATING SESSION...<br>DNA VALIDATION UNLOCKED</h2>
+                <div class="timer-circle-container">
+                    <div class="timer-circle">
+                        <span id="syncTimer">15</span>
+                    </div>
+                </div>
+                <p style="font-size: 1.1rem; line-height: 1.6; color: var(--navy-premium); margin: 25px 0;">
+                    Please call your child over. You will perform <strong>15 mini-experiments</strong> together.<br>
+                    We begin in few seconds.
+                </p>
+                <button onclick="startSyncMatchNow()" class="secondary-cta-button">I have kid with me,Skip Timer & Start Now →</button>
+            </div>
+        </div>
+        <div id="syncTransitionFooter"></div>
     </div>
 
     <div id="questionPages"></div>
@@ -735,16 +526,73 @@
         <div class="details-content-wrapper">
             <div class="details-form">
                 <h2>Almost There! 🎉</h2>
-                <p>Enter your details to generate your report</p>
+                <p class="mb-6">Enter your details to generate your report</p>
                 
-                <form id="customerForm" name="lead-capture" method="POST" data-netlify="true">
+                <form id="customerForm" name="lead-capture" method="POST" data-netlify="true" autocomplete="off">
                     <input type="hidden" name="form-name" value="lead-capture" />
-                    <div class="form-group"><label>Parent's Full Name *</label><input type="text" id="parentName" name="parentName" required></div>
-                    <div class="form-group"><label>Child's Name *</label><input type="text" id="childName" name="childName" required></div>
-                    <div class="form-group"><label>Child's Age *</label><select id="childAge" name="childAge" required><option value="5">5 years</option><option value="6">6 years</option></select></div>
-                    <div class="form-group"><label>Email Address *</label><input type="email" id="email" name="email" required></div>
-                    <div class="form-group"><label>Mobile Number *</label><input type="tel" id="phone" name="phone" required></div>
-                    <button type="submit" id="submitBtn" class="custom-cta-button">Proceed to Payment →</button>
+                    <input type="hidden" id="netlifyOrderId" name="orderId" value="" />
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="form-group">
+                            <label>Parent's Full Name *</label>
+                            <input type="text" id="parentName" name="parentName" required autocomplete="off">
+                        </div>
+                        <div class="form-group">
+                            <label>Child's Name *</label>
+                            <input type="text" id="childName" name="childName" required autocomplete="off">
+                        </div>
+                        <div class="form-group">
+                            <label>Child's Age *</label>
+                            <select id="childAge" name="childAge" required>
+                                <option value="5-10">5 - 10 yrs</option>
+                                <option value="10-15">10 - 15 yrs</option>
+                                <option value="15+">15+ yrs</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Email Address *</label>
+                            <input type="email" id="email" name="email" required autocomplete="off">
+                        </div>
+                        <div class="form-group">
+                            <label>Mobile Number *</label>
+                            <input type="tel" id="phone" name="phone" required autocomplete="off">
+                        </div>
+                        <div class="form-group">
+                            <label>Residential Area (For nearby schools) *</label>
+                            <input type="text" id="residentialArea" name="residentialArea" placeholder="e.g. Indiranagar" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Pincode (For nearby schools) *</label>
+                            <input type="number" id="pincode" name="pincode" placeholder="6-digit Pincode" required 
+							oninput="if(this.value.length > 6) this.value = this.value.slice(0, 6);">
+                        </div>
+						<div class="form-group">
+							<label>Partner/Referral ID (Optional)</label>
+							<input type="text" id="partnerId" name="partnerId" placeholder="e.g. PARTNER123" autocomplete="off">
+						</div>
+                        <div class="form-group">
+                            <label>Would you like to help other parents by sharing your school/college experience privately? *</label>
+                            <div class="flex items-center gap-6 mt-4">
+                                <div class="flex items-center gap-2">
+                                    <input type="radio" id="feedbackYes" name="shareFeedback" value="Yes" required style="width: auto;">
+                                    <label for="feedbackYes" class="mb-0 font-normal">Yes</label>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <input type="radio" id="feedbackNo" name="shareFeedback" value="No" required style="width: auto;">
+                                    <label for="feedbackNo" class="mb-0 font-normal">No</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="disclaimerCheck" style="margin-top:20px; font-size:0.95rem;">
+                        <input type="checkbox" id="confirmDisclaimer" name="confirmDisclaimer" required style="width:auto; margin-right:10px;">
+                        <label for="confirmDisclaimer" style="display:inline; font-weight:500; color:var(--navy-light);">
+                            I confirm I have read and agree to the <a href="#refund" style="color:var(--sunrise-primary); font-weight:700; text-decoration:underline;">Disclaimer & Terms</a> (Advisory only, ultimate decision is mine).
+                        </label>
+                    </div>
+
+                    <button type="submit" id="submitBtn" class="custom-cta-button mt-4">Proceed to Payment →</button>
                     <p id="loadingMsg" style="text-align:center; display:none; color: var(--sunrise-primary); margin-top: 10px;">Processing...</p>
                 </form>
             </div>
@@ -776,13 +624,27 @@
                         <span>SSL Secure</span>
                     </div>
                     <div class="trust-badge-item">
-                        <svg class="trust-icon" viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+                        <svg class="trust-icon" viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2-.9-2-2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
                         <span>UPI/Cards</span>
                     </div>
                     <div class="trust-badge-item">
                         <svg class="trust-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
                         <span>Verified</span>
                     </div>
+                </div>
+
+                <div style="margin-top: 30px; border-radius: 16px; overflow: hidden; border: 1px solid #BAE6FC; background: #F0F9FF; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);">
+                    <div style="width: 100%; line-height: 0;">
+                        <img src="Foviz Ad.jpg" alt="2040 Career Roadmap" style="width: 100%; height: auto; display: block;">
+                    </div>
+                    
+                    <div style="padding: 20px; text-align: left;">
+						<h4 style="margin: 0; font-size: 1.1rem; color: #0369A1; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">Why This Matters:</h4>
+						<p style="margin: 8px 0 0; font-size: 0.9rem; color: #0C4A6E; line-height: 1.5;">
+						Your Board match is the foundation. 
+						<a href="https://foviz.in" target="_blank" style="color: #0369A1; text-decoration: underline; font-weight: 700;">Foviz</a> ensures this foundation leads to the global career milestones shown in the map above.
+						</p>
+					</div>
                 </div>
             </div>
         </div>
@@ -797,11 +659,93 @@
         </div>
     </div>
 
+    <div id="partnerModal" class="payment-modal">
+        <div class="payment-modal-content" style="max-width: 500px; text-align: left;">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-brand-navy">Partner Registration</h3>
+                <span class="cursor-pointer text-2xl" onclick="document.getElementById('partnerModal').classList.remove('active')">&times;</span>
+            </div>
+            <form name="partner-registration" method="POST" data-netlify="true">
+                <input type="hidden" name="form-name" value="partner-registration" />
+                <div class="form-group mb-4">
+                    <label>Full Name</label>
+                    <input type="text" name="partnerName" required class="w-full p-3 border rounded-lg bg-slate-50">
+                </div>
+                <div class="form-group mb-4">
+                    <label>WhatsApp Number</label>
+                    <input type="tel" name="partnerWhatsApp" required class="w-full p-3 border rounded-lg bg-slate-50">
+                </div>
+                <div class="form-group mb-4">
+                    <label>School/College Name</label>
+                    <input type="text" name="partnerInstitute" required class="w-full p-3 border rounded-lg bg-slate-50">
+                </div>
+                <div class="form-group mb-6">
+                    <label>Preferred Time for Connect</label>
+                    <input type="text" name="partnerTime" placeholder="e.g., Weekdays after 4 PM" required class="w-full p-3 border rounded-lg bg-slate-50">
+                </div>
+                <button type="submit" class="custom-cta-button w-full">Submit Application</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="ambassadorModal" class="payment-modal">
+        <div class="payment-modal-content" style="max-width: 500px; text-align: left;">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-brand-navy">Be Our Ambassador</h3>
+                <span class="cursor-pointer text-2xl" onclick="document.getElementById('ambassadorModal').classList.remove('active')">&times;</span>
+            </div>
+            <form name="ambassador-registration" method="POST" data-netlify="true">
+                <input type="hidden" name="form-name" value="ambassador-registration" />
+                <div class="form-group mb-4">
+                    <label>Full Name</label>
+                    <input type="text" name="ambassadorName" required class="w-full p-3 border rounded-lg bg-slate-50">
+                </div>
+                <div class="form-group mb-4">
+                    <label>WhatsApp Number</label>
+                    <input type="tel" name="ambassadorWhatsApp" required class="w-full p-3 border rounded-lg bg-slate-50">
+                </div>
+                <div class="form-group mb-4">
+                    <label>Community Name</label>
+                    <input type="text" name="ambassadorCommunity" placeholder="e.g. Society Name or Facebook Group" required class="w-full p-3 border rounded-lg bg-slate-50">
+                </div>
+                <div class="form-group mb-6">
+                    <label>Preferred Time for Connect</label>
+                    <input type="text" name="ambassadorTime" placeholder="e.g., Weekdays after 4 PM" required class="w-full p-3 border rounded-lg bg-slate-50">
+                </div>
+                <button type="submit" class="custom-cta-button w-full">Apply Now</button>
+            </form>
+        </div>
+    </div>
+
     <div id="paymentModal" class="payment-modal" onclick="closeModal()">
         <div class="payment-modal-content" onclick="event.stopPropagation()">
             <div class="spinner"></div>
             <h3>Processing...</h3>
             <p id="paymentStatusText">Awaiting payment confirmation...</p>
+        </div>
+    </div>
+    
+    <div id="bonusModal" class="payment-modal" style="z-index: 3000;">
+        <div class="payment-modal-content" style="max-width: 500px; text-align: center; border-top: 5px solid var(--star-yellow); background: white;">
+            <div style="font-size: 3rem; margin-bottom: 10px;">🎉</div>
+            <h3 style="color: var(--navy-premium); font-weight: 800; font-size: 1.5rem; margin-bottom: 15px;">CONGRATULATIONS!</h3>
+            <p style="color: var(--navy-light); font-size: 1rem; line-height: 1.6; margin-bottom: 20px;">
+                You have unlocked the exclusive bonus benefit: <strong>Parent & Child Sync Check</strong>.<br>
+                Please be ready with your kid to enjoy this benefit.<br>
+                <span style="display:block; margin-top:10px; font-weight:bold; color:var(--urgent-red);">Keep your order ID handy with you.</span>
+            </p>
+            <button onclick="closeBonusModalAndShowSuccess()" class="custom-cta-button">Noted. I will return to AptSkola.com with my child to claim this.</button>
+        </div>
+    </div>
+
+    <div id="forensicSuccessModal" class="payment-modal" style="z-index: 3001;">
+        <div class="payment-modal-content" style="max-width: 500px; text-align: center; border-top: 5px solid var(--sunrise-primary); background: white;">
+            <div style="font-size: 3rem; margin-bottom: 10px;">🎉</div>
+            <h3 style="color: var(--navy-premium); font-weight: 800; font-size: 1.5rem; margin-bottom: 15px;">Double Congratulations!</h3>
+            <p style="color: var(--navy-light); font-size: 1rem; line-height: 1.6; margin-bottom: 20px;">
+                You have ALSO unlocked the <strong>AI Forensic Report</strong> for 3 Institutes. Keep your order ID handy with you and return to AptSkola.com to check the report of the short listed schools.
+            </p>
+            <button onclick="closeForensicModalAndShowSuccess()" class="custom-cta-button">Awesome! Show my Report</button>
         </div>
     </div>
 
@@ -810,1097 +754,95 @@
         <div class="success-content-wrapper">
             <div class="success-container" style="text-align: center;"> <div style="font-size: 3rem; margin-bottom: 10px;">✅</div>
                 <h2 style="color: var(--verified-green); margin-bottom: 15px;">Success! We have emailed a copy to you for safe keeping.</h2>
+                <div id="goldenTicketContainer" style="display:none; margin-bottom: 20px; border: 2px dashed #F59E0B; background: #FFFBEB; padding: 20px; border-radius: 12px;">
+                    <h3 style="color: #92400E; font-weight: 800; font-size: 1.2rem;">🎫 YOUR SHARED GOLDEN TICKET</h3>
+                    <p style="font-size: 0.9rem; color: #B45309;">Since you chose the Pro experience, you've unlocked 50% OFF Foviz Elite Career Sessions.</p>
+                    <div style="font-size: 1.5rem; font-weight: 900; color: #D97706; margin: 10px 0;">CODE: <span id="fovizDiscountCode">FOV50ELITE</span></div>
+                    <a href="https://foviz.in/elite" target="_blank" style="text-decoration: underline; font-weight: bold; color: #92400E;">Claim at Foviz.in →</a>
+                </div>
                 <p style='color: var(--sunrise-primary); font-size: 0.9em; margin-top: -10px; font-weight: bold;'>Your 3 weeks of research is now a 10-minute read.</p>
                 <p style="color: var(--navy-light); margin-bottom: 20px;">Welcome back, <strong id="successParentName">Parent</strong>! Here is your full report.</p>
                 
+                <div class="report-card" style="padding: 0; overflow: hidden; border: 2px solid var(--sunrise-primary); margin-bottom: 25px;">
+                    <div style="position: relative;">
+                        <img src="Foviz Ad.jpg" style="width: 100%; height: auto; display: block; filter: brightness(0.85);">
+                        <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 20px; background: linear-gradient(transparent, rgba(15, 23, 42, 0.9)); color: white; text-align: left;">
+                            <h3 style="margin: 0; font-size: 1.2rem; font-weight: 800;">Step 2: The 2040 Career GPS</h3>
+                            <p style="margin: 5px 0 0; font-size: 0.85rem; opacity: 0.9;">Map the journey from today's Board to tomorrow's Ivy League.</p>
+                        </div>
+                    </div>
+                    <div style="padding: 15px; background: #FFF9F2; text-align: center;">
+                        <a href="https://foviz.in" target="_blank" class="hero-btn-primary" style="text-decoration: none; display: inline-block;">Phase 2: Activating your Foviz Career GPS (Included in your Pro Bundle) →</a>
+                    </div>
+                </div>
+
                 <div style="display:flex; gap:15px; justify-content:center; flex-wrap:wrap; margin-bottom:30px; width:100%;">
                     <button class="custom-cta-button" style="flex:1; min-width:200px; padding: 18px 20px; font-size: 1.1rem;" onclick="downloadReport()" id="downloadBtn">Download Report ⬇️</button>
                     <button class="custom-cta-button" style="flex:1; min-width:200px; padding: 18px 20px; font-size: 1.1rem; background: var(--navy-premium);" onclick="sharePDF()" id="shareBtn">Share Report 📲</button>
                 </div>
 
-                <div class="report-card mt-8" style="text-align:center; border-color: var(--sunrise-primary); background: #fff7ed;">
-                    <h3 style="color:var(--navy-premium); font-weight:800; margin-bottom:15px; font-size:1.5rem;">Help Other Parents Find Clarity</h3>
-                    <p style="margin-bottom:20px; color:var(--navy-light);">If Apt Skola helped you, spread the word!</p>
-                    <div style="display:flex; justify-content:center; gap:15px; flex-wrap:wrap;">
-                        <button onclick="shareToWhatsApp()" style="background:#25D366; color:white; border:none; padding:12px 24px; border-radius:50px; font-weight:bold; display:flex; align-items:center; gap:8px; cursor:pointer; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-                            <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.894-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.463 1.065 2.876 1.213 3.074.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
-                            WhatsApp
-                        </button>
-                        <button onclick="shareToFacebook()" style="background:#1877F2; color:white; border:none; padding:12px 24px; border-radius:50px; font-weight:bold; display:flex; align-items:center; gap:8px; cursor:pointer; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-                            <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.588-1.333h2.412v-3h-3c-3.121 0-4 1.299-4 3.237v1.763z"/></svg>
-                            Facebook
-                        </button>
-                        <button onclick="shareToTwitter()" style="background:#1DA1F2; color:white; border:none; padding:12px 24px; border-radius:50px; font-weight:bold; display:flex; align-items:center; gap:8px; cursor:pointer; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-                            <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/></svg>
-                            Twitter
-                        </button>
-                    </div>
                 </div>
-            </div>
         </div>
         <div id="successFooter"></div>
     </div>
 
     <div id="reportPreview" class="off-screen-render"></div>
-
-    <script>
-        // --- CONFIG ---
-        // IMPORTANT: Replace this with your actual Razorpay Key ID
-        const RAZORPAY_KEY_ID = "rzp_live_RpteyQJeRciEvX"; 
-        
-        // Prices in PAISE (1 Rupee = 100 Paise)
-        const PACKAGE_PRICES = { 'Essential': 100, 'Premium': 100, 'Platinum': 100 };
-
-        let currentQuestion = 0;
-        let selectedPackage = '';
-        let selectedPrice = 0;
-        let answers = {};
-        let customerData = {}; 
-
-        // --- CORE UI ACTIONS ---
-        function scrollToPricing() {
-            const pricing = document.getElementById('pricing');
-            if (pricing) {
-                pricing.scrollIntoView({ behavior: 'smooth' });
-            } else {
-                console.warn("Pricing section not found.");
-            }
-        }
-        
-        // 1. Sticky CTA Logic
-        window.addEventListener('scroll', () => {
-            const stickyBtn = document.getElementById('stickyCTA');
-            const landingPage = document.getElementById('landingPage');
-            if (window.scrollY > 300 && !landingPage.classList.contains('hidden')) {
-                stickyBtn.style.display = 'flex';
-            } else {
-                stickyBtn.style.display = 'none';
-            }
-        });
-
-
-        // --- SAMPLE REPORT LOGIC ---
-        function openSampleReport() {
-            const modal = document.getElementById('sampleReportModal');
-            const content = document.getElementById('sampleReportContent');
+    
+    <div id="downgradeModal" class="payment-modal" style="z-index: 2000;">
+        <div class="payment-modal-content" style="max-width: 500px; text-align: left; border-top: 5px solid #EF4444;">
+            <h3 style="color: #0F172A; font-weight: 800; font-size: 1.5rem; margin-bottom: 10px;">⚠️ Wait! You are missing the "Radar"</h3>
+            <p style="color: #64748B; font-size: 0.95rem; line-height: 1.5; margin-bottom: 20px;">
+                You selected the <strong>Basic Report (₹599)</strong>. This will tell you <em>"Which Board"</em> but it won't help you spot <strong>fake schools</strong> or hidden fees.
+            </p>
             
-            content.innerHTML = `
-                <div style="text-align:center; margin-bottom:30px;">
-                    <h2 class="text-2xl font-bold text-brand-navy">Sample Report: The Decision Decoder</h2>
-                    <p class="text-sm text-slate-500">This is what you get after the assessment.</p>
-                </div>
-                <div class="report-card" style="background:#0F172A; color:white;">
-                    <div style="font-size:2rem; font-weight:800;">The Standardized Strategist</div>
-                    <div style="background:rgba(255,255,255,0.1); padding:10px; border-radius:8px; margin-top:10px;">
-                        Recommended: <span style="color:#FF6B35; font-weight:bold;">CBSE</span>
-                    </div>
-                </div>
-                <div class="report-card" style="opacity: 0.6; filter: blur(1px); position: relative; overflow: hidden;">
-                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; z-index: 10; background: rgba(255,255,255,0.4);">
-                        <button onclick="closeSampleReport(); scrollToPricing()" class="hero-btn-primary" style="box-shadow: 0 10px 20px rgba(0,0,0,0.2);">Unlock Full Report</button>
-                    </div>
-                    <div class="report-header-bg">CHILD'S PROFILE SUMMARY</div>
-                    <table class="data-table">
-                        <tr><td><strong>Learning Style</strong></td><td>Visual Learner</td></tr>
-                        <tr><td><strong>Core Interest</strong></td><td>Science & Logic</td></tr>
-                    </table>
-                    <br>
-                    <div class="report-header-bg">FEE FORECAST</div>
-                     <table class="data-table">
-                        <tr><td><strong>Grade 1 Fee</strong></td><td>₹ 1,50,000</td></tr>
-                        <tr><td><strong>Grade 12 Fee</strong></td><td>₹ 4,20,000</td></tr>
-                    </table>
-                </div>
-            `;
+            <div style="background: #FFF7ED; padding: 15px; border-radius: 8px; border: 1px solid #FFEDD5; margin-bottom: 20px;">
+                <div style="font-weight: 700; color: #9A3412; font-size: 0.9rem; margin-bottom: 5px;">Most Parents Upgrade Because:</div>
+                <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.85rem; color: #431407;">
+                    <li style="margin-bottom: 5px; color: #EF4444; font-weight: 700;">❌ Missing: Parent & Child Sync Check</li>
+                    <li style="margin-bottom: 5px;">❌ You won't get the 15-Year Fee Forecast.</li>
+                    <li>❌ You won't get the "Fake School" Checklist.</li>
+                </ul>
+            </div>
+
+            <button onclick="upgradeAndProceed()" class="custom-cta-button" style="background: #10B981; margin-bottom: 10px;">
+                Yes! Upgrade to Smart Toolkit (₹999)
+            </button>
+            <button onclick="confirmDowngrade()" style="background: transparent; border: none; color: #94A3B8; font-size: 0.85rem; width: 100%; cursor: pointer; text-decoration: underline;">
+                Proceed with Basic Check.
+            </button>
+        </div>
+    </div>
+
+    <div id="proUpgradeModal" class="payment-modal" style="z-index: 2100;">
+        <div class="payment-modal-content" style="max-width: 500px; text-align: center; border-top: 5px solid #10B981; padding: 40px 30px;">
+            <div style="font-size: 3rem; margin-bottom: 15px;">🚀</div>
+            <h3 style="color: #0F172A; font-weight: 800; font-size: 1.6rem; margin-bottom: 10px;">Wait! Get the "Done-For-You" Advantage</h3>
+            <p style="color: #64748B; font-size: 1rem; line-height: 1.5; margin-bottom: 25px;">
+                You've chosen the Toolkit. For just <strong>₹500 more</strong>, unlock the full <strong>Pro Admission Pack</strong> (₹1499).
+            </p>
             
-            modal.classList.add('active');
-        }
-
-        function closeSampleReport() {
-            document.getElementById('sampleReportModal').classList.remove('active');
-        }
-
-
-        // --- STANDARD LOGIC ---
-        
-        function getIntermediateHeaderHtml() {
-             return `<div class="intermediate-header"><div class="max-w-7xl mx-auto"><span class="font-bold text-xl">Apt <span class="text-brand-orange">Skola</span></span></div></div>`;
-        }
-        function getIntermediateFooterHtml() {
-             return `<div class="intermediate-footer"><div class="max-w-7xl mx-auto text-center"><p>&copy; 2025 Apt Skola.</p></div></div>`;
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-             // Injections for headers
-             document.getElementById('landingHeaderLogo').innerHTML = `<span class="font-black text-4xl text-white">Apt <span class="text-brand-orange">Skola</span></span>`;
-             document.getElementById('detailsHeader').innerHTML = getIntermediateHeaderHtml();
-             document.getElementById('detailsFooter').innerHTML = getIntermediateFooterHtml();
-             document.getElementById('successHeader').innerHTML = getIntermediateHeaderHtml();
-             document.getElementById('successFooter').innerHTML = getIntermediateFooterHtml();
-             document.getElementById('paymentHeader').innerHTML = getIntermediateHeaderHtml();
-             document.getElementById('paymentFooter').innerHTML = getIntermediateFooterHtml();
-        });
-
-        const MASTER_DATA = { 
-          cbse: {
-            name: "CBSE",
-            title: "The Standardized Strategist",
-            persona: "Convergent Thinker",
-            profile: "This profile is characterized by strong retention memory, the ability to handle high-volume data processing, and a high comfort level with objective assessment metrics.",
-            rejectionReason: "Why not IB? Your child prefers structured outcomes. The ambiguity of the IB 'Constructivist' approach may cause unnecessary anxiety.",
-            careerPath: "The Competitive Exam Track (JEE/NEET/UPSC). Grade 9-10 Focus: Foundation building using NCERT. Grade 11-12 Focus: Integrated Coaching or Dummy Schools."
-          },
-          icse: {
-            name: "ICSE",
-            title: "The Holistic Communicator",
-            persona: "Verbal Analyst",
-            profile: "Students with this archetype display high verbal intelligence, strong analytical skills in humanities, and the ability to synthesize disparate pieces of information into a coherent whole.",
-            rejectionReason: "Why not CBSE? Your child thrives on narrative and context. The rote-heavy, objective nature of CBSE might stifle their desire for depth.",
-            careerPath: "The Creative & Liberal Arts Track (Law/Design/Journalism). Grade 9-10: Strong emphasis on Literature/Arts. Grade 11-12: Portfolio development and wide reading."
-          },
-          ib: {
-            name: "IB",
-            title: "The Global Inquirer",
-            persona: "Independent Innovator",
-            profile: "This cognitive style thrives on openness to experience, exhibits a high tolerance for ambiguity, and possesses the strong self-regulation skills needed for inquiry-based learning.",
-            rejectionReason: "Why not CBSE? Your child requires autonomy. The rigid, defined syllabus of CBSE would likely lead to boredom and disengagement.",
-            careerPath: "The Global Ivy League/Oxbridge Track. Grade 9-10 (MYP): Critical writing. Grade 11-12 (DP): Building the 'Profile' via CAS and Extended Essay."
-          },
-          financial: {
-            inflationRate: "10-12%",
-            projectionTable: [
-              { grade: "Grade 1 (2025)", fee: "₹ 2,00,000", total: "₹ 2,00,000" },
-              { grade: "Grade 5 (2029)", fee: "₹ 2,92,820", total: "₹ 12,21,020" },
-              { grade: "Grade 9 (2033)", fee: "₹ 4,28,718", total: "₹ 27,73,184" },
-              { grade: "Grade 12 (2036)", fee: "₹ 5,70,623", total: "₹ 43,47,932" }
-            ],
-            hiddenCosts: [
-              "Transport: ₹40,000 - ₹80,000/year",
-              "Technology Fees: ₹1-2 Lakhs (Laptops/Tablets for IB)",
-              "Field Trips: ₹1-2 Lakhs per trip",
-              "Shadow Coaching (CBSE): ₹2-4 Lakhs/year"
-            ]
-          },
-          vetting: {
-            questions: [
-              { q: "What is your annual teacher turnover rate?", flag: "Red Flag Answer: 'We constantly refresh our faculty...' (Code for: We fire expensive teachers.)" },
-              { q: "Specific protocol for bullying incidents?", flag: "Red Flag Answer: 'We don't really have bullying here.' (Denial is a safety risk.)" },
-              { q: "Instruction for child falling behind?", flag: "Look for specific remedial programs, not generic 'extra classes'." }
-            ],
-            redFlags: [
-              "The 'Tired Teacher' Test: Do teachers look exhausted?",
-              "The 'Glossy Brochure' Disconnect: Fancy reception vs. broken furniture.",
-              "Restroom Hygiene: The truest test of dignity."
-            ]
-          },
-          concierge: {
-            interviewPrep: [
-                { category: "The Trap Question", question: "Principal: 'Describe your child's biggest weakness.'", wrongAnswer: "'He is very stubborn.' (Signals behavioral issues)", rightAnswer: "'He is highly determined. Once he sets his mind to a task, he finds it hard to switch gears immediately.'" },
-                { category: "The Alignment Question", question: "Principal: 'Why our school specifically?'", wrongAnswer: "'It is close to our house.' (Too generic)", rightAnswer: "'We analyzed your focus on [Board Philosophy]. Since our child is a [Persona Name], your emphasis aligns perfectly.'" }
-            ],
-            negotiation: [
-                { title: "The 'Lump Sum' Leverage", scenario: "Use when you have liquidity.", script: "If I clear the entire annual tuition in a single transaction this week, what is the best concession structure you can offer on the Admission Fee?" },
-                { title: "The 'Sibling Pipeline' Pitch", scenario: "Use if enrolling a younger child later.", script: "With my younger child entering Grade 1 next year, we are looking at a 15+ year LTV. Can we discuss a waiver on the security deposit?" }
-            ]
-          }
-        };
-
-        const questions = [
-          {
-            "id": "q1",
-            "text": "How does your child learn best?",
-            "options": [
-              "By seeing images, videos, and diagrams (Visual)",
-              "By listening to stories and discussions (Auditory)",
-              "By doing experiments and building things (Kinesthetic)",
-              "A mix of everything / Adaptable"
-            ]
-          },
-          {
-            "id": "q2",
-            "text": "What subject does your child naturally enjoy?",
-            "options": [
-              "Maths, Logic, and Puzzles",
-              "English, Stories, and Art",
-              "Science, Nature, and asking 'Why?'",
-              "A bit of everything / Balanced"
-            ]
-          },
-          {
-            "id": "q3",
-            "text": "What is the big future goal?",
-            "options": [
-              "Crack Indian Exams (IIT-JEE / NEET / UPSC)",
-              "Study Abroad (University in US/UK/Canada)",
-              "Entrepreneurship or Creative Arts",
-              "Not sure yet / Keep options open"
-            ]
-          },
-          {
-            "id": "q4",
-            "text": "What is your comfortable annual budget for school fees?",
-            "options": [
-              "Below ₹1 Lakh",
-              "₹1 Lakh - ₹3 Lakhs",
-              "₹3 Lakhs - ₹6 Lakhs",
-              "Above ₹6 Lakhs"
-            ]
-          },
-          {
-            "id": "q5",
-            "text": "Will you be moving cities in the next few years?",
-            "options": [
-              "No, we are settled here.",
-              "Yes, likely to move within India.",
-              "Yes, likely to move to another Country.",
-              "Unsure"
-            ]
-          },
-          {
-            "id": "q6",
-            "text": "What teaching style do you prefer?",
-            "options": [
-              "Structured: Textbooks and clear syllabus",
-              "Inquiry: Research and self-exploration",
-              "Flexible: Student-led (like Montessori)",
-              "Balanced approach"
-            ]
-          },
-          {
-            "id": "q7",
-            "text": "How much study load can your child handle?",
-            "options": [
-              "High Volume (Can memorize lots of details)",
-              "Concept Focus (Understands logic, less memory)",
-              "Practical Focus (Prefers doing over reading)"
-            ]
-          },
-          {
-            "id": "q8",
-            "text": "Is 'Global Recognition' important to you?",
-            "options": [
-              "Yes, it's critical.",
-              "It's important.",
-              "Nice to have.",
-              "Not important."
-            ]
-          },
-          {
-            "id": "q9",
-            "text": "Should the school focus heavily on Regional Languages?",
-            "options": [
-              "Yes, they must be fluent in the local language.",
-              "Basic functional knowledge is enough.",
-              "No, English is the main focus."
-            ]
-          },
-          {
-            "id": "q10",
-            "text": "How does your child react to exams?",
-            "options": [
-              "They are competitive and handle pressure well.",
-              "They prefer projects and assignments.",
-              "They get very anxious about tests."
-            ]
-          },
-          {
-            "id": "q11",
-            "text": "How important are Sports & Arts?",
-            "options": [
-              "Very High - Equal to academics.",
-              "Moderate - Good for hobbies.",
-              "Low - Academics come first."
-            ]
-          },
-          {
-            "id": "q12",
-            "text": "What grade is your child entering?",
-            "options": [
-              "Preschool / Kindergarten",
-              "Primary (Grades 1-5)",
-              "Middle (Grades 6-8)",
-              "High School (Grades 9+)"
-            ]
-          },
-          {
-            "id": "q13",
-            "text": "What class size do you prefer?",
-            "options": [
-              "Small (Less than 25 kids)",
-              "Standard (25-40 kids)",
-              "Large (40+ kids)"
-            ]
-          },
-          {
-            "id": "q14",
-            "text": "How involved do you want to be in homework?",
-            "options": [
-              "High (I will help daily)",
-              "Moderate (Weekly check-ins)",
-              "Low (School should manage it)"
-            ]
-          },
-          {
-            "id": "q15",
-            "text": "Where are you looking for schools?",
-            "options": [
-              "Metro City (Delhi, Mumbai, Hyd, etc.)",
-              "Tier-2 City (Jaipur, Vizag, etc.)",
-              "Small Town / Rural Area"
-            ]
-          }
-        ];
-        
-        const totalQuestions = questions.length;
-
-        function calculateFullRecommendation(answers) {
-            let scores = { "CBSE": 0, "ICSE": 0, "IB": 0, "Cambridge (IGCSE)": 0, "State Board": 0 };
-            let veto = { ib: false, cambridge: false, icse: false };
-
-            if (answers.q1 === 0) { scores["IB"] += 6; scores["Cambridge (IGCSE)"] += 6; scores["ICSE"] += 4; } 
-            if (answers.q1 === 1) { scores["CBSE"] += 6; scores["State Board"] += 5; scores["ICSE"] += 4; } 
-            if (answers.q1 === 2) { scores["IB"] += 8; scores["Cambridge (IGCSE)"] += 8; } 
-            if (answers.q1 === 3) { scores["CBSE"] += 4; scores["ICSE"] += 4; } 
-
-            if (answers.q2 === 0) { scores["CBSE"] += 7; scores["State Board"] += 5; } 
-            if (answers.q2 === 1) { scores["ICSE"] += 7; scores["IB"] += 6; } 
-            if (answers.q2 === 2) { scores["IB"] += 7; scores["Cambridge (IGCSE)"] += 7; } 
-            if (answers.q2 === 3) { scores["ICSE"] += 5; scores["CBSE"] += 5; } 
-
-            if (answers.q3 === 0) { scores["CBSE"] += 20; scores["State Board"] += 15; scores["IB"] -= 10; }
-            if (answers.q3 === 1) { scores["IB"] += 20; scores["Cambridge (IGCSE)"] += 20; scores["CBSE"] -= 5; }
-            if (answers.q3 === 2) { scores["IB"] += 10; scores["ICSE"] += 8; }
-
-            if (answers.q4 === 0) { veto.ib = true; veto.cambridge = true; scores["State Board"] += 10; scores["CBSE"] += 5; }
-            if (answers.q4 === 1) { veto.ib = true; scores["CBSE"] += 8; scores["ICSE"] += 8; }
-            if (answers.q4 === 2) { scores["ICSE"] += 5; scores["Cambridge (IGCSE)"] += 5; }
-            if (answers.q4 === 3) { scores["IB"] += 10; scores["Cambridge (IGCSE)"] += 10; }
-
-            if (answers.q5 === 1) scores["CBSE"] += 15; 
-            if (answers.q5 === 2) { scores["IB"] += 15; scores["Cambridge (IGCSE)"] += 15; } 
-
-            if (answers.q6 === 0) { scores["CBSE"] += 8; scores["State Board"] += 8; } 
-            if (answers.q6 === 1) { scores["IB"] += 10; scores["Cambridge (IGCSE)"] += 8; } 
-            if (answers.q6 === 2) { scores["IB"] += 8; } 
-
-            if (answers.q7 === 0) { scores["CBSE"] += 8; scores["State Board"] += 5; } 
-            if (answers.q7 === 1) { scores["ICSE"] += 6; scores["IB"] += 4; }
-            if (answers.q7 === 2) { scores["IB"] += 6; scores["Cambridge (IGCSE)"] += 6; } 
-            
-            if (answers.q8 === 0) { scores["IB"] += 10; scores["Cambridge (IGCSE)"] += 8; }
-            if (answers.q8 === 1) { scores["ICSE"] += 5; }
-
-            if (answers.q9 === 0) { scores["State Board"] += 10; scores["ICSE"] += 5; } 
-            if (answers.q9 === 2) { scores["IB"] += 5; scores["Cambridge (IGCSE)"] += 5; }
-
-            if (answers.q10 === 0) { scores["CBSE"] += 8; scores["ICSE"] += 4; }
-            if (answers.q10 === 1) { scores["IB"] += 8; scores["ICSE"] += 6; }
-
-            if (answers.q11 === 0) { scores["ICSE"] += 6; scores["IB"] += 6; }
-            if (answers.q11 === 2) { scores["CBSE"] += 6; }
-
-            if (answers.q12 === 0) { scores["IB"] += 5; scores["ICSE"] += 5; } 
-
-            if (answers.q13 === 0) { scores["IB"] += 5; scores["Cambridge (IGCSE)"] += 5; } 
-
-            if (answers.q14 === 0) { scores["ICSE"] += 5; scores["CBSE"] += 3; } 
-
-            if (answers.q15 === 2) { scores["State Board"] += 5; scores["CBSE"] += 3; veto.ib = true; veto.cambridge = true; }
-            if (answers.q15 === 0) { scores["IB"] += 5; scores["Cambridge (IGCSE)"] += 5; } 
-
-
-            let results = Object.keys(scores).map(board => { return { name: board, score: scores[board] }; });
-            results.forEach(r => {
-                if (veto.ib && (r.name === "IB" || r.name === "Cambridge (IGCSE)")) r.score = -999;
-                if (veto.cambridge && r.name === "Cambridge (IGCSE)") r.score = -999;
-                if (veto.icse && r.name === "ICSE") r.score = -999;
-            });
-            results.sort((a, b) => b.score - a.score);
-            
-            let topScore = Math.max(results[0].score, 1);
-            results.forEach(r => {
-                if (r.score < 0) { r.percentage = 0; } else { r.percentage = Math.min(Math.round((r.score / topScore) * 95), 99); }
-            });
-
-            return { recommended: results[0], alternative: results[1], fullRanking: results };
-        }
-
-        function selectPackage(pkg, price) {
-            selectedPackage = pkg;
-            selectedPrice = price;
-            document.getElementById('landingPage').classList.add('hidden');
-            initializeQuizShell(0);
-            window.scrollTo({ top: 0, behavior: 'instant' });
-        }
-
-        function initializeQuizShell(index) {
-            const shellHtml = `
-                <div id="questionPageApp" class="question-page active">
-                    ${getIntermediateHeaderHtml()}
-                    <div class="question-content-wrapper"><div id="dynamicQuizContent" class="question-container"></div></div>
-                    ${getIntermediateFooterHtml()}
-                </div>`;
-            document.getElementById('questionPages').innerHTML = shellHtml;
-            renderQuestionContent(index);
-        }
-
-        function renderQuestionContent(index) {
-            if(index >= questions.length) { 
-                document.getElementById('questionPageApp').classList.remove('active');
-                showDetailsPage(); 
-                return; 
-            }
-            const q = questions[index];
-            const optionsHTML = q.options.map((opt, i) => `
-                <div class="option-card ${answers[q.id] === i ? 'selected' : ''}" onclick="selectOption('${q.id}', ${i}, ${index}, this)">${opt}</div>
-            `).join('');
-
-            document.getElementById('dynamicQuizContent').innerHTML = `
-                <div class="progress-container"><div class="progress-track"><div class="progress-fill" style="width: ${((index + 1) / questions.length * 100).toFixed(0)}%"></div></div></div>
-                <div class="question-text">${q.text}</div>
-                <div class="options-grid">${optionsHTML}</div>
-            `;
-            currentQuestion = index;
-        }
-
-        function selectOption(qId, val, idx, el) {
-            answers[qId] = val;
-            el.classList.add('selected');
-            setTimeout(() => { renderQuestionContent(idx + 1); }, 300);
-        }
-
-        function showDetailsPage() {
-            document.getElementById('detailsPage').classList.remove('hidden');
-            document.getElementById('detailsPage').classList.add('active');
-            if(selectedPackage === 'Platinum') document.getElementById('pincodeGroup').style.display = 'block';
-            else document.getElementById('pincodeGroup').style.display = 'none';
-        }
-
-        // --- UPDATED FORM SUBMIT WITH NETLIFY HANDLING (EVENT 1) ---
-        document.getElementById('customerForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const btn = document.getElementById('submitBtn');
-            const loadingMsg = document.getElementById('loadingMsg');
-            
-            btn.disabled = true; btn.innerText = "Saving Data...";
-            loadingMsg.style.display = 'block';
-            
-            customerData = {
-                parentName: document.getElementById('parentName').value,
-                childName: document.getElementById('childName').value,
-                email: document.getElementById('email').value,
-                phone: document.getElementById('phone').value,
-                package: selectedPackage,
-                amount: selectedPrice
-            };
-
-            // Helper to transition to next page
-            const proceedToPayment = () => {
-                setTimeout(() => {
-                    document.getElementById('summaryPackage').textContent = selectedPackage;
-                    document.getElementById('summaryPrice').textContent = `₹${selectedPrice}`;
-                    document.getElementById('summaryTotal').textContent = `₹${selectedPrice}`;
-                    
-                    document.getElementById('detailsPage').classList.remove('active');
-                    document.getElementById('detailsPage').classList.add('hidden');
-                    
-                    document.getElementById('paymentPageContainer').classList.remove('hidden');
-                    document.getElementById('paymentPageContainer').classList.add('active');
-                    
-                    loadingMsg.style.display = 'none';
-                    btn.disabled = false; btn.innerText = "Proceed to Payment →";
-                    window.scrollTo({ top: 0, behavior: 'instant' });
-                }, 1000);
-            };
-
-            // NETLIFY FORM SUBMISSION VIA AJAX
-            const myForm = e.target;
-            const formData = new FormData(myForm);
-            formData.append('form-name', 'lead-capture'); // Explicitly needed for JS fetch
-            formData.append('package', selectedPackage);
-            formData.append('amount', selectedPrice);
-
-            // Attempt fetch
-            try {
-                if (window.location.protocol === 'blob:' || window.location.href.includes('usercontent')) {
-                    console.log("Preview environment: Skipping Netlify fetch, proceeding directly.");
-                    proceedToPayment();
-                } else {
-                    fetch("/", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                        body: new URLSearchParams(formData).toString(),
-                    })
-                    .then(() => {
-                        console.log("Form successfully submitted to Netlify");
-                        proceedToPayment();
-                    })
-                    .catch((error) => {
-                        console.warn("Netlify Form Submission failed. Proceeding anyway.");
-                        proceedToPayment();
-                    });
-                }
-            } catch (syncError) {
-                proceedToPayment();
-            }
-        });
-
-        // Razorpay Logic
-        function redirectToRazorpay() {
-            const payButton = document.getElementById('payButton');
-            const loadingMsg = document.getElementById('paymentProcessing');
-            
-            payButton.disabled = true;
-            payButton.classList.add('hidden');
-            loadingMsg.style.display = 'block';
-
-            // Find amount in paise
-            const amount = PACKAGE_PRICES[selectedPackage];
-            
-            if (!amount) {
-                alert("Error: Package price not found.");
-                return;
-            }
-
-            const options = {
-                "key": RAZORPAY_KEY_ID, 
-                "amount": amount, 
-                "currency": "INR",
-                "name": "Apt Skola",
-                "description": `${selectedPackage} Plan`,
-                "image": "https://www.aptskola.com/images/logo.png",
-                "handler": async function (response) {
-                    // --- MODIFIED SUCCESS HANDLER ---
-                    
-                    // 1. UI Feedback: Prevent closing tab
-                    const btn = document.getElementById('payButton');
-                    if(btn) {
-                        btn.classList.remove('hidden');
-                        btn.disabled = true;
-                        btn.innerText = "Generating Report...";
-                    }
-                    if(document.getElementById('paymentProcessing')) {
-                        document.getElementById('paymentProcessing').innerText = "Payment Successful! Generating PDF...";
-                        document.getElementById('paymentProcessing').style.display = 'block';
-                    }
-
-                    try {
-                        // 2. Render report invisibly to ensure DOM elements exist for capture
-                        // FIX: This now renders to the div at the bottom of the body (visible to DOM, hidden to user)
-                        renderReportToBrowser(); 
-                        
-                        // 3. Generate PDF Base64 (Reusing logic from downloadShareReport but getting string)
-                        const { jsPDF } = window.jspdf;
-                        const pdf = new jsPDF('p', 'mm', 'a4');
-                        const pdfWidth = pdf.internal.pageSize.getWidth();
-                        const pdfHeight = pdf.internal.pageSize.getHeight();
-                        const margin = 10;
-                        let currentY = margin;
-
-                        // Capture Header
-                        const pdfHeader = document.getElementById('pdf-header');
-                        if(pdfHeader) {
-                            pdfHeader.style.display = 'block'; 
-                            // FIX: Use JPEG at 0.8 quality to reduce file size significantly
-                            const headerCanvas = await html2canvas(pdfHeader, { scale: 1.5 });
-                            pdfHeader.style.display = 'none'; 
-                            
-                            const headerImgData = headerCanvas.toDataURL('image/jpeg', 0.8);
-                            const headerHeight = (headerCanvas.height * (pdfWidth - 2*margin)) / headerCanvas.width;
-                            pdf.addImage(headerImgData, 'JPEG', margin, currentY, pdfWidth - 2*margin, headerHeight);
-                            currentY += headerHeight + 5;
-                        }
-
-                        // Iterate Cards
-                        // FIX: #reportPreview is now always accessible in DOM (not hidden by parent)
-                        const cards = document.querySelectorAll('#reportPreview .report-card');
-                        for (let i = 0; i < cards.length; i++) {
-                            const card = cards[i];
-                            // Update progress counter
-                            const progressPercent = Math.round(((i + 1) / cards.length) * 100);
-                            const progressElement = document.getElementById('progressCounter');
-                            if (progressElement) {
-                                progressElement.innerText = `Generating Page ${i + 1} of ${cards.length}... (${progressPercent}% Complete)`;
-                                progressElement.style.display = 'block';
-                            }
-
-                            // FIX: Use JPEG at 0.8 quality
-                            const canvas = await html2canvas(card, { scale: 1.5, backgroundColor: '#ffffff' });
-                            const imgData = canvas.toDataURL('image/jpeg', 0.8);
-                            const imgHeight = (canvas.height * (pdfWidth - 2*margin)) / canvas.width;
-
-                            if (currentY + imgHeight > pdfHeight - margin) {
-                                pdf.addPage();
-                                currentY = margin; 
-                            }
-                            pdf.addImage(imgData, 'JPEG', margin, currentY, pdfWidth - 2*margin, imgHeight);
-                            currentY += imgHeight + 5; 
-                        }
-
-                        // 4. Get PDF Data String
-                        const pdfDataString = pdf.output('datauristring');
-
-                        // 5. Send to Backend Email Function
-                        console.log("Sending email...");
-                        await fetch('/.netlify/functions/send-email', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                userEmail: customerData.email,
-                                userName: customerData.parentName || "Parent",
-                                pdfBase64: pdfDataString
-                            })
-                        });
-                        console.log("Email sent request completed.");
-
-                    } catch (err) {
-                        console.error("Error during PDF generation or email sending:", err);
-                        // We proceed to show success page even if email fails, so user gets their report
-                    } finally {
-                        // 6. Final Redirect / Show Success
-                        showInstantSuccessPage();
-                    }
-                },
-                "prefill": { "name": customerData.parentName, "email": customerData.email, "contact": customerData.phone },
-                "theme": { "color": "#FF6B35" },
-                "modal": {
-                    "ondismiss": function(){ 
-                        console.log('Payment popup closed'); 
-                        payButton.disabled = false;
-                        payButton.classList.remove('hidden');
-                        loadingMsg.style.display = 'none';
-                    }
-                }
-            };
-            const rzp1 = new Razorpay(options);
-            rzp1.on('payment.failed', function (response){
-                alert("Payment Failed: " + response.error.description);
-                payButton.disabled = false;
-                payButton.classList.remove('hidden');
-                loadingMsg.style.display = 'none';
-            });
-            rzp1.open();
-        }
-
-        function showInstantSuccessPage() {
-            document.getElementById('paymentPageContainer').classList.remove('active');
-            document.getElementById('paymentPageContainer').classList.add('hidden');
-            document.getElementById('successPage').classList.remove('hidden');
-            document.getElementById('successPage').classList.add('active');
-            document.getElementById('successParentName').innerText = customerData.parentName || 'Parent';
-            
-            // Ensure report is rendered (in case skipping payment for testing)
-            renderReportToBrowser();
-            
-            // FIX: Move the report from off-screen bottom back into the Success Container so the user can see it
-            const reportDiv = document.getElementById('reportPreview');
-            const successContainer = document.querySelector('.success-container');
-            const downloadBtn = document.getElementById('downloadBtn');
-            
-            if(reportDiv && successContainer && downloadBtn) {
-                // Remove the special off-screen class
-                reportDiv.classList.remove('off-screen-render');
-                // Move it to after the share buttons
-                // Ideally, insert after the button wrapper
-                downloadBtn.parentElement.parentNode.insertBefore(reportDiv, downloadBtn.parentElement.nextSibling);
-            }
-            
-            closeModal(); // Ensure payment modal is hidden
-            window.scrollTo({ top: 0, behavior: 'instant' });
-        }
-        
-        function renderReportToBrowser() {
-            const res = calculateFullRecommendation(answers);
-            let recBoard = res.recommended.name;
-            let boardKey = 'cbse';
-            if (recBoard.includes('ICSE')) boardKey = 'icse';
-            else if (recBoard.includes('IB') || recBoard.includes('Cambridge')) boardKey = 'ib';
-            
-            const data = MASTER_DATA[boardKey] || MASTER_DATA['cbse'];
-            
-            const isPremium = selectedPackage === 'Premium' || selectedPackage === 'Platinum';
-            const isPlatinum = selectedPackage === 'Platinum';
-            
-            let planTitle = "The Decision Decoder";
-            if(isPremium) planTitle = "The Smart Parent Toolkit";
-            if(isPlatinum) planTitle = "The Executive Advantage"; 
-
-            // Helper for Feature Comparison
-            const getFeature = (board, type) => {
-                const features = {
-                    'CBSE': { curr: 'Standardized', flex: 'Moderate', assess: 'Exam-Focused' },
-                    'ICSE': { curr: 'Comprehensive', flex: 'Low', assess: 'Detailed' },
-                    'IB': { curr: 'Inquiry-Based', flex: 'High', assess: 'Continuous' },
-                    'Cambridge (IGCSE)': { curr: 'International', flex: 'High', assess: 'Application' },
-                    'State Board': { curr: 'Regional', flex: 'Low', assess: 'Rote-Based' }
-                };
-                let key = 'CBSE';
-                if(board.includes('ICSE')) key = 'ICSE';
-                if(board.includes('IB')) key = 'IB';
-                if(board.includes('Cambridge')) key = 'Cambridge (IGCSE)';
-                if(board.includes('State')) key = 'State Board';
-                return features[key]?.[type] || 'N/A';
-            };
-
-            const getAnsText = (qId) => {
-                const q = questions.find(x => x.id === qId);
-                return (q && answers[qId] !== undefined) ? q.options[answers[qId]] : "N/A";
-            };
-
-            let html = `
-                <div id="pdf-header" style="display:none; background:#0F172A; color:white; padding:30px; text-align:center; margin-bottom:30px; border-radius:12px;">
-                    <div style="font-size:2rem; font-weight:800;">Apt <span style="color:var(--sunrise-primary);">Skola</span></div>
-                    <div style="font-size:1.2rem;">${planTitle}</div>
-                    <div style="font-size:0.9rem; margin-top:10px;">Prepared for: ${customerData.childName}</div>
-                </div>
-
-                <div class="report-card" style="background:var(--navy-premium); color:white; border:none;">
-                    <div style="opacity:0.8; font-size:0.9rem; text-transform:uppercase; letter-spacing:1px;">${planTitle}</div>
-                    <div style="font-size:2rem; font-weight:800; margin:10px 0;">${data.title}</div>
-                    <div style="background:rgba(255,255,255,0.1); padding:10px; border-radius:8px;">
-                        Recommended: <span style="color:var(--sunrise-primary); font-weight:bold;">${recBoard}</span>
-                    </div>
-                </div>
-
-                <div class="report-card">
-                    <div class="report-header-bg">STUDENT PERSONA</div>
-                    <div class="narrative-item">
-                        <h3 class="narrative-theme">Cognitive Style: ${data.persona}</h3>
-                        <p>${data.profile}</p>
-                    </div>
-                </div>
-
-                <div class="report-card">
-                    <div class="report-header-bg">CHILD'S PROFILE SUMMARY</div>
-                    <table class="data-table">
-                        <tr><td><strong>Learning Style</strong></td><td>${getAnsText('q1')}</td></tr>
-                        <tr><td><strong>Core Interest</strong></td><td>${getAnsText('q2')}</td></tr>
-                        <tr><td><strong>Future Goal</strong></td><td>${getAnsText('q3')}</td></tr>
-                        <tr><td><strong>Budget Range</strong></td><td>${getAnsText('q4')}</td></tr>
-                    </table>
-                </div>
-
-                <div class="report-card">
-                    <div class="report-header-bg">BOARD & OPTION COMPARISON</div>
-                    <table class="data-table">
-                        <thead><tr><th>Board</th><th>Match %</th><th>Status</th></tr></thead>
-                        <tbody>
-                            ${res.fullRanking.slice(0,3).map((r, i) => `
-                                <tr>
-                                    <td>${r.name}</td>
-                                    <td>${r.percentage}%</td>
-                                    <td style="color:${i===0 ? 'var(--verified-green)' : 'inherit'}; font-weight:${i===0 ? 'bold' : 'normal'}">
-                                        ${i===0 ? 'Recommended' : 'Alternative'}
-                                    </td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                    <div style="margin-top:20px; padding:10px; background-color:#fff3cd; color:#555555; font-style:italic; border-left:4px solid #333; border-radius:0 5px 5px 0; font-size:0.9rem;">
-                        Expert Note on Special Needs: Generally, <strong>CBSE</strong> is recommended over ICSE for students with learning challenges due to significantly lighter syllabus volume. However, for maximum flexibility (like skipping Math or Science entirely), consider the National Institute of Open Schooling (NIOS). It is a recognizedNational Institute of Open Schooling (<strong>NIOS</strong>). It is a recognized Central Government Board in India (just like CBSE), but without the walls. or International General Certificate of Secondary Education (IGCSE) (usually Cambridge Board). The UK/International curriculum. Expensive, elite, and practical.
-                    </div>
-                    </div>
-
-                <div class="report-card">
-                    <div class="report-header-bg">DETAILED FEATURE COMPARISON</div>
-                    <table class="data-table">
-                        <thead><tr><th>Feature</th><th>${recBoard} (Rec)</th><th>${res.alternative ? res.alternative.name : 'Alt'}</th></tr></thead>
-                        <tbody>
-                            <tr><td>Curriculum</td><td>${getFeature(recBoard, 'curr')}</td><td>${getFeature(res.alternative?.name || '', 'curr')}</td></tr>
-                            <tr><td>Flexibility</td><td>${getFeature(recBoard, 'flex')}</td><td>${getFeature(res.alternative?.name || '', 'flex')}</td></tr>
-                            <tr><td>Assessment</td><td>${getFeature(recBoard, 'assess')}</td><td>${getFeature(res.alternative?.name || '', 'assess')}</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            `;
-
-            // TOOLKIT SECTION (Moved Up per user request to be before Fees)
-            html += `
-                <div class="report-card">
-                    <div class="report-header-bg">YOUR SCHOOL SCOUTING TOOLKIT</div>
-                    <div style="display:grid; grid-template-columns: 1fr; gap: 30px;">
-                        <div>
-                            <h3 class="narrative-theme">🧐 5-Point Observation Checklist</h3>
-                            <ul style="list-style:none; padding:0;">
-                               <li style="margin-bottom:10px; display:flex; gap:10px;"><span>✅</span> <div><strong>The 'Tired Teacher' Test:</strong> Do faculty look exhausted or engaged?</div></li>
-                               <li style="margin-bottom:10px; display:flex; gap:10px;"><span>✅</span> <div><strong>Restroom Hygiene:</strong> The truest indicator of student dignity.</div></li>
-                               <li style="margin-bottom:10px; display:flex; gap:10px;"><span>✅</span> <div><strong>Safety Protocols:</strong> Is security proactive or just a logbook?</div></li>
-                               <li style="margin-bottom:10px; display:flex; gap:10px;"><span>✅</span> <div><strong>Student Interaction:</strong> Are kids fearful or free-spirited?</div></li>
-                               <li style="margin-bottom:10px; display:flex; gap:10px;"><span>✅</span> <div><strong>Library Status:</strong> Is it a dusty museum or an active hub?</div></li>
-                            </ul>
-                        </div>
-                        <div style="margin-top:10px;">
-                            <h3 class="narrative-theme">🗣️ 3 Golden Questions to Ask</h3>
-                            <div style="background:#f1f5f9; padding:15px; border-radius:8px; margin-bottom:10px;">
-                                <strong>1. Teacher Turnover:</strong> "What is your annual attrition rate? (If >15%, why?)"
-                            </div>
-                            <div style="background:#f1f5f9; padding:15px; border-radius:8px; margin-bottom:10px;">
-                                <strong>2. Support Systems:</strong> "How exactly do you handle a child falling behind? (Seek specifics, not generic 'extra classes')."
-                            </div>
-                            <div style="background:#f1f5f9; padding:15px; border-radius:8px;">
-                                <strong>3. Real Validation:</strong> "Can I speak to a parent whose child is currently in Grade 10?"
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-
-            // NEW CONDITIONAL SECTIONS (1499 & 2499)
-            if (selectedPrice >= 1499) {
-                html += `
-                    <div class="report-card">
-                        <div class="report-header-bg">THE 'ZERO-PANIC' DOCUMENT MASTERLIST</div>
-                        <div class="dna-points" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:15px;">
-                            <div class="dna-point">Birth Certificate (Original + 3 attested copies)</div>
-                            <div class="dna-point">Aadhar Card (Child + Parents)</div>
-                            <div class="dna-point">Address Proof (Passport/Rent Agreement)</div>
-                            <div class="dna-point">Immunization Record</div>
-                            <div class="dna-point">Passport Photos (8 Child, 4 Parents)</div>
-                            <div class="dna-point">Glue stick & Stapler</div>
-                        </div>
-                    </div>
-
-                    <div class="report-card">
-                        <div class="report-header-bg">THE FAKE SCHOOL RADAR</div>
-                        <div class="narrative-item" style="border-left-color:var(--urgent-red);">
-                            <ul style="list-style:none; padding:0;">
-                                <li style="margin-bottom:12px; display:flex; gap:10px;">
-                                    <span style="font-size:1.2rem;">🚩</span> 
-                                    <div><strong>Library Check:</strong> Are there fewer books than students? (Prop vs Resource)</div>
-                                </li>
-                                <li style="margin-bottom:12px; display:flex; gap:10px;">
-                                    <span style="font-size:1.2rem;">🚩</span> 
-                                    <div><strong>The Grade 10 Test:</strong> Can they show Board Results for the last 3 years?</div>
-                                </li>
-                                <li style="display:flex; gap:10px;">
-                                    <span style="font-size:1.2rem;">🚩</span> 
-                                    <div><strong>The AC Trap:</strong> Is the AC only in the reception area but not classrooms?</div>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                `;
-            }
-
-            // NEW CONDITIONAL SECTION (2499 ONLY)
-            if (selectedPrice >= 2499) {
-                html += `
-                    <div class="report-card">
-                        <div class="report-header-bg">CHILD PREP GAMES (NO-TEARS INTERVIEW)</div>
-                        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
-                            <div style="background:#f8fafc; padding:20px; border-radius:12px; border-left:4px solid var(--verified-green); box-shadow:0 2px 5px rgba(0,0,0,0.05);">
-                                <h4 style="font-weight:700; color:var(--navy-premium); margin-bottom:8px;">Game 1: The Handshake</h4>
-                                <p style="font-size:0.9rem; color:var(--navy-light);">Practice firm grip + eye contact.</p>
-                            </div>
-                            <div style="background:#f8fafc; padding:20px; border-radius:12px; border-left:4px solid var(--verified-green); box-shadow:0 2px 5px rgba(0,0,0,0.05);">
-                                <h4 style="font-weight:700; color:var(--navy-premium); margin-bottom:8px;">Game 2: The Favorite Toy</h4>
-                                <p style="font-size:0.9rem; color:var(--navy-light);">Practice describing a toy in 3 sentences.</p>
-                            </div>
-                            <div style="background:#f8fafc; padding:20px; border-radius:12px; border-left:4px solid var(--verified-green); box-shadow:0 2px 5px rgba(0,0,0,0.05);">
-                                <h4 style="font-weight:700; color:var(--navy-premium); margin-bottom:8px;">Game 3: Simon Says</h4>
-                                <p style="font-size:0.9rem; color:var(--navy-light);">Practice listening to instructions.</p>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }
-
-            if(isPremium) {
-                html += `
-                    <div class="report-card">
-                        <div class="report-header-bg">FEE FORECASTER</div>
-                        <div class="insight-block">
-                            <div class="insight-title"><span style="font-size:1.2rem;">💡</span> The "10% Rule" of Indian Schools</div>
-                            <div class="insight-body">Most parents budget for Grade 1, but smart parents prepare for Grade 12. Because school fees compound annually, the cost often doubles every 6 to 7 years.</div>
-                        </div>
-                        <div class="narrative-item" style="border-left-color:var(--urgent-red);">
-                            <h3 class="narrative-theme" style="color:var(--urgent-red);">⚠️ Inflation: ${MASTER_DATA.financial.inflationRate}</h3>
-                        </div>
-                        <table class="data-table">
-                            <thead><tr><th>Grade</th><th>Est. Fee</th><th>Total</th></tr></thead>
-                            <tbody>${MASTER_DATA.financial.projectionTable.map(r => `<tr><td>${r.grade}</td><td>${r.fee}</td><td>${r.total}</td></tr>`).join('')}</tbody>
-                        </table>
-                    </div>
-                `;
-            }
-
-            if(isPlatinum) {
-                html += `
-                    <div class="report-card" style="border:2px solid var(--star-yellow);">
-                        <div class="report-header-bg" style="background:var(--star-yellow); color:var(--navy-premium);">
-                            THE EXECUTIVE ADVANTAGE
-                        </div>
-                        <h3 class="narrative-theme">🎙️ Interview War Room</h3>
-                        ${MASTER_DATA.concierge.interviewPrep.map(p => `
-                            <div style="margin-bottom:15px; background:#f8fafc; padding:10px; border-radius:8px;">
-                                <strong>"${p.question}"</strong><br><span style="color:green">✅ Say: ${p.rightAnswer}</span>
-                            </div>
-                        `).join('')}
-                        <h3 class="narrative-theme" style="margin-top:20px;">💰 Negotiation Protocols</h3>
-                        ${MASTER_DATA.concierge.negotiation.map(n => `
-                            <div class="script-box"><strong>${n.title}:</strong> "${n.script}"</div>
-                        `).join('')}
-                    </div>
-                `;
-            }
-
-            // FAQ
-            html += `
-                <div class="report-card">
-                    <div class="report-header-bg">FREQUENTLY ASKED QUESTIONS</div>
-                    <div class="faq-item">
-                        <div class="faq-q">Q: Which board is best for competitive exams like JEE and NEET?</div>
-                        <div class="faq-a">A: CBSE is widely considered the most aligned with Indian competitive exams like JEE and NEET, as the syllabus for these entrance tests is largely based on the NCERT curriculum used by CBSE schools.</div>
-                    </div>
-                    <div class="faq-item">
-                        <div class="faq-q">Q: I have a transferable job. Which board should I choose?</div>
-                        <div class="faq-a">A: CBSE is the safest option for parents with frequent transfers. It has the highest number of affiliated schools across India (and abroad), ensuring your child can continue the same curriculum seamlessly in a new city.</div>
-                    </div>
-                    <div class="faq-item" style="border-bottom:none;">
-                        <div class="faq-q">Q: Are State Boards valid for future employment?</div>
-                        <div class="faq-a">A: Yes, State Board certifications are fully valid for all government jobs, competitive exams, and higher education in India. However, the syllabus quality and English proficiency standards can vary significantly between states.</div>
-                    </div>
-                </div>
-            `;
-
-            // DISCLAIMER BLOCK (Keeping the content here to fulfill the requirement of showing the full report)
-            html += `
-                <div class="legal-disclaimer report-card" style="border-top:none; text-align:center; padding-top:10px; margin-top:10px;">
-                    Disclaimer: This report is generated exclusively based on the specific inputs provided by the user. The recommendations herein are algorithmic suggestions intended to guide your decision-making process. We strongly advise verifying current fee structures and admission criteria directly with schools, as these are subject to change.
-                </div>
-            `;
-            
-            document.getElementById('reportPreview').innerHTML = html;
-        }
-        
-        function closeModal() { 
-            document.getElementById('paymentModal').classList.remove('active');
-            document.getElementById('paymentStatusText').innerText = 'Awaiting payment confirmation...';
-        }
-        
-        /**
-         * @function generatePDFInternal - Shared helper to generate PDF object from DOM.
-         */
-        async function generatePDFInternal(buttonId) {
-            const btn = document.getElementById(buttonId);
-            const originalText = btn.innerText;
-            btn.innerText = "Generating...";
-            btn.disabled = true;
-            
-            try {
-                const { jsPDF } = window.jspdf;
-                const pdf = new jsPDF('p', 'mm', 'a4');
-                const pdfWidth = pdf.internal.pageSize.getWidth();
-                const pdfHeight = pdf.internal.pageSize.getHeight();
-                const margin = 10;
-                let currentY = margin;
-
-                // Capture Header
-                const pdfHeader = document.getElementById('pdf-header');
-                pdfHeader.style.display = 'block'; 
-                
-                const headerCanvas = await html2canvas(pdfHeader, { scale: 1.5 });
-                pdfHeader.style.display = 'none'; 
-                
-                const headerImgData = headerCanvas.toDataURL('image/jpeg', 0.8);
-                const headerHeight = (headerCanvas.height * (pdfWidth - 2*margin)) / headerCanvas.width;
-                pdf.addImage(headerImgData, 'JPEG', margin, currentY, pdfWidth - 2*margin, headerHeight);
-                currentY += headerHeight + 5;
-
-                // Iterate Cards
-                const cards = document.querySelectorAll('#reportPreview .report-card');
-                for (let i = 0; i < cards.length; i++) {
-                    const card = cards[i];
-                    const canvas = await html2canvas(card, { scale: 1.5, backgroundColor: '#ffffff' });
-                    const imgData = canvas.toDataURL('image/jpeg', 0.8);
-                    const imgHeight = (canvas.height * (pdfWidth - 2*margin)) / canvas.width;
-
-                    if (currentY + imgHeight > pdfHeight - margin) {
-                        pdf.addPage();
-                        currentY = margin; 
-                    }
-                    pdf.addImage(imgData, 'JPEG', margin, currentY, pdfWidth - 2*margin, imgHeight);
-                    currentY += imgHeight + 5; 
-                }
-                
-                // Add Footer
-                const footerText = "© 2025 Apt Skola. All Rights Reserved. | support@aptskola.com";
-                pdf.setFontSize(8);
-                pdf.setTextColor(150);
-                pdf.text(footerText, pdfWidth / 2, pdfHeight - 10, { align: 'center' });
-                
-                return pdf;
-                
-            } catch (err) {
-                console.error(err);
-                alert("Error generating PDF.");
-                return null;
-            } finally {
-                btn.innerText = originalText;
-                btn.disabled = false;
-            }
-        }
-
-        async function downloadReport() {
-            const childName = customerData.childName || "Child";
-            const fileName = `Apt Skola - ${childName} - Best Board.pdf`;
-            
-            const pdf = await generatePDFInternal('downloadBtn');
-            if(pdf) {
-                pdf.save(fileName);
-            }
-        }
-
-        async function sharePDF() {
-            if (!navigator.canShare) {
-                alert("Sharing is not supported on this browser/device. Please use Download instead.");
-                return;
-            }
-            
-            const childName = customerData.childName || "Child";
-            const fileName = `Apt Skola - ${childName} - Best Board.pdf`;
-            const shareTitle = 'Apt Skola School Board Report';
-            const shareText = `Here is the scientific admission toolkit for ${childName} generated by Apt Skola.`;
-            
-            const pdf = await generatePDFInternal('shareBtn');
-            
-            if(pdf) {
-                try {
-                    const pdfBlob = pdf.output('blob');
-                    const file = new File([pdfBlob], fileName, { type: "application/pdf" });
-                    
-                    if (navigator.canShare({ files: [file] })) {
-                        await navigator.share({
-                            files: [file],
-                            title: shareTitle,
-                            text: shareText
-                        });
-                    } else {
-                        alert("Your device does not support sharing files directly. Downloading instead.");
-                        pdf.save(fileName);
-                    }
-                } catch (err) {
-                    console.error("Share failed:", err);
-                }
-            }
-        }
-        
-        // --- SOCIAL SHARING FUNCTIONS ---
-        function shareToWhatsApp() {
-            const text = encodeURIComponent("I just found the perfect school board for my child using Apt Skola! It's a game changer. Check it out:");
-            const url = encodeURIComponent("https://aptskola.com");
-            window.open(`https://wa.me/?text=${text}%20${url}`, '_blank');
-        }
-        function shareToFacebook() {
-            const url = encodeURIComponent("https://aptskola.com");
-            const text = encodeURIComponent("I just found the perfect school board for my child using Apt Skola!");
-            window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`, '_blank');
-        }
-        function shareToTwitter() {
-            const text = encodeURIComponent("I just found the perfect school board for my child using Apt Skola! Find yours here:");
-            const url = encodeURIComponent("https://aptskola.com");
-            window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
-        }
-    </script>
+            <div style="background: #F0FDF4; border: 1px solid #BBF7D0; padding: 20px; border-radius: 12px; margin-bottom: 25px; text-align: left;">
+                <div style="font-weight: 700; color: #166534; font-size: 0.95rem; margin-bottom: 10px;">Pro Exclusives You'll Get:</div>
+                <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.9rem; color: #14532D; display: flex; flex-direction: column; gap: 8px;">
+                    <li style="display: flex; gap: 8px; align-items: center;">✅ <span>Fee Negotiation Scripts (Save ₹10k+)</span></li>
+                    <li style="display: flex; gap: 8px; align-items: center;">✅ <span>Parent Interview Curveball Guide</span></li>
+                </ul>
+                <div style="font-weight: 700; color: #EF4444; font-size: 0.95rem; margin-top: 15px; border-top: 1px dashed #EF4444; padding-top: 10px;">⚠️ Currently Missing:</div>
+                <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.85rem; color: #EF4444; display: flex; flex-direction: column; gap: 5px; margin-top: 5px;">
+                    <li>❌ Missing: AI Forensic Report (3 Institutes)</li>
+                    <li>❌ Missing: <a href="https://foviz.in" target="_blank" style="text-decoration: underline;">Foviz Elite Discount (50% OFF)</a></li>
+                </ul>
+            </div>
+
+            <button onclick="upgradeToProAndProceed()" class="custom-cta-button" style="background: #10B981; margin-bottom: 15px; box-shadow: 0 4px 14px 0 rgba(16, 185, 129, 0.39);">
+                Yes, Upgrade to Pro (₹1499)
+            </button>
+            <button onclick="confirmPremium()" style="background: transparent; border: none; color: #94A3B8; font-size: 0.85rem; width: 100%; cursor: pointer; text-decoration: underline;">
+                No, I'll stick with the Toolkit
+            </button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>
