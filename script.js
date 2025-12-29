@@ -1,5 +1,6 @@
 // --- CONFIG ---
 const RAZORPAY_KEY_ID = "rzp_live_RxHmfgMlTRV3Su";
+// HARDCODED API KEY - Restricted to aptskola.com in Google Cloud Console
 const GMAPS_API_KEY = "AIzaSyCS0hE4xa32DpKoNs5Na3KDX3HrazBvwiU"; 
 
 // Prices in PAISE (1 Rupee = 100 Paise)
@@ -22,8 +23,10 @@ let hasSeenDowngradeModal = false;
 let isSyncMatchMode = false;
 let isManualSync = false;
 let syncTimerInterval = null;
+let mapsScriptLoaded = false;
 let mapsLoadedPromise = null;
 
+// --- UI COMPONENTS (HTML Strings) ---
 const xrayCardHtml = `
     <div class="xray-card">
         <h3>Apt Skola Exclusive: AI Forensic School X-ray</h3>
@@ -50,7 +53,6 @@ const manualSyncUI = `
     <div id="manualSyncBlock" style="margin-top: 25px; padding: 20px; border: 2px dashed #CBD5E1; border-radius: 12px; background: #F8FAFC;">
         <h3 style="color: #0F172A; font-size: 1.1rem; font-weight: 700; margin-bottom: 10px;">🔄 Manual Sync Recovery</h3>
         <p style="font-size: 0.85rem; color: #64748B; margin-bottom: 15px;">We couldn't find your session on this device. Please check your Phase 1 PDF report.</p>
-        
         <div class="form-group">
             <label style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">Your Recommended Board (from PDF)</label>
             <select id="manualBoardSelect" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #E2E8F0;">
@@ -472,6 +474,7 @@ function validateInputs(email, phone) {
     return isValid;
 }
 
+// --- UPDATED: CALCULATOR LOGIC WITH DONUT CHART ---
 function calculateCostOfConfusion() {
     const hoursInput = document.getElementById('researchHours');
     const rateInput = document.getElementById('hourlyRate');
@@ -485,12 +488,20 @@ function calculateCostOfConfusion() {
     const monthlyLoss = (hours * 4) * rate; 
     const anxietyLevel = Math.min(tabs * 5, 100); 
 
-    document.getElementById('lossAmount').textContent = monthlyLoss.toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 });
-    document.getElementById('anxietyLevel').textContent = `${anxietyLevel}%`;
+    const lossEl = document.getElementById('lossAmount');
+    if(lossEl) lossEl.textContent = monthlyLoss.toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 });
+    
+    const anxEl = document.getElementById('anxietyLevel');
+    if(anxEl) anxEl.textContent = `${anxietyLevel}%`;
 
-    document.getElementById('hoursValue').textContent = `${hours} hours`;
-    document.getElementById('rateValue').textContent = `₹${rate.toLocaleString('en-IN', { maximumFractionDigits: 0 })}`;
-    document.getElementById('tabsValue').textContent = `${tabs} tabs`;
+    const hVal = document.getElementById('hoursValue');
+    if(hVal) hVal.textContent = `${hours} hours`;
+    
+    const rVal = document.getElementById('rateValue');
+    if(rVal) rVal.textContent = `₹${rate.toLocaleString('en-IN', { maximumFractionDigits: 0 })}`;
+    
+    const tVal = document.getElementById('tabsValue');
+    if(tVal) tVal.textContent = `${tabs} tabs`;
 
     const donut = document.getElementById('confusionDonut');
     if(donut) {
@@ -498,6 +509,7 @@ function calculateCostOfConfusion() {
     }
 }
 
+// --- CORE UI ACTIONS ---
 function scrollToPricing() {
     const pricing = document.getElementById('pricing');
     if (pricing) pricing.scrollIntoView({ behavior: 'smooth' });
@@ -562,11 +574,17 @@ function goToLandingPage() {
     if(form) form.reset();
     
     document.getElementById('landingPage').classList.remove('hidden');
-    document.getElementById('detailsPage').classList.add('hidden');
-    document.getElementById('paymentPageContainer').classList.add('hidden');
-    document.getElementById('successPage').classList.add('hidden');
-    document.getElementById('syncMatchGate').classList.add('hidden');
-    document.getElementById('syncMatchTransition').classList.add('hidden');
+    const dPage = document.getElementById('detailsPage');
+    if(dPage) dPage.classList.add('hidden');
+    const pCont = document.getElementById('paymentPageContainer');
+    if(pCont) pCont.classList.add('hidden');
+    const sPage = document.getElementById('successPage');
+    if(sPage) sPage.classList.add('hidden');
+    const sGate = document.getElementById('syncMatchGate');
+    if(sGate) sGate.classList.add('hidden');
+    const sTrans = document.getElementById('syncMatchTransition');
+    if(sTrans) sTrans.classList.add('hidden');
+    
     const app = document.getElementById('questionPageApp');
     if (app) app.classList.remove('active');
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -589,10 +607,10 @@ function openSyncMatchGate() {
         gate.classList.add('active'); 
         
         const gateContainer = gate.querySelector('.details-form');
-        if (gateContainer) {
+        if (gateContainer && !gateContainer.querySelector('.foviz-banner')) {
             gateContainer.insertAdjacentHTML('afterbegin', fovizBannerHtml);
             const startBtn = document.getElementById('startSyncBtn');
-            if (startBtn) {
+            if (startBtn && !gateContainer.querySelector('.xray-card')) {
                 startBtn.insertAdjacentHTML('afterend', xrayCardHtml);
             }
         }
@@ -603,7 +621,7 @@ function openSyncMatchGate() {
 function validateAndStartSyncMatch() {
     const orderIdInput = document.getElementById('syncOrderId');
     const ageInput = document.getElementById('syncChildAge');
-    const orderId = orderIdInput.value.trim();
+    const orderId = orderIdInput ? orderIdInput.value.trim() : '';
 
     if(!orderId || orderId.length < 3) {
         alert("Please enter a valid Order ID.");
@@ -613,8 +631,10 @@ function validateAndStartSyncMatch() {
     customerData.orderId = orderId; 
 
     if (orderId.startsWith('AS5-')) {
-        document.getElementById('upgradeBlock').classList.remove('hidden');
-        document.getElementById('startSyncBtn').classList.add('hidden');
+        const uBlock = document.getElementById('upgradeBlock');
+        if(uBlock) uBlock.classList.remove('hidden');
+        const sBtn = document.getElementById('startSyncBtn');
+        if(sBtn) sBtn.classList.add('hidden');
         const manualBlock = document.getElementById('manualSyncBlock');
         if(manualBlock) manualBlock.style.display = 'none';
         return; 
@@ -633,7 +653,7 @@ function validateAndStartSyncMatch() {
     const sessionData = JSON.parse(savedSession);
     answers = sessionData.answers;
     customerData = sessionData.customerData;
-    customerData.childAge = ageInput ? ageInput.value : customerData.childAge;
+    if(ageInput) customerData.childAge = ageInput.value;
 
     if (orderId.startsWith('AS1-') || orderId.startsWith('AS9-')) {
         isSyncMatchMode = true; 
@@ -669,14 +689,14 @@ function confirmManualSync() {
     const orderIdInput = document.getElementById('syncOrderId');
     const ageInput = document.getElementById('syncChildAge');
     
-    if (!boardSelect.value) {
+    if (!boardSelect || !boardSelect.value) {
         alert("Please select the Recommended Board from your report.");
         return;
     }
     
     injectVisionMarkers(boardSelect.value);
-    customerData.orderId = orderIdInput.value;
-    customerData.childAge = ageInput.value;
+    if(orderIdInput) customerData.orderId = orderIdInput.value;
+    if(ageInput) customerData.childAge = ageInput.value;
     isManualSync = true;
     isSyncMatchMode = true;
 
@@ -695,7 +715,7 @@ function showSyncTransition() {
     transition.classList.add('active');
     
     const transitionContainer = transition.querySelector('.details-form');
-    if (transitionContainer) {
+    if (transitionContainer && !transitionContainer.querySelector('.xray-card')) {
         const timerCont = transitionContainer.querySelector('.timer-circle-container');
         if (timerCont) {
             timerCont.insertAdjacentHTML('beforebegin', xrayCardHtml);
@@ -744,7 +764,7 @@ function loadGoogleMaps() {
             resolve(true);
         };
         script.onerror = () => {
-            console.error("Maps API Load Fail");
+            console.error("Maps API Load Fail - Check key and console for errors");
             reject(new Error("Maps Script Load Error"));
         };
         document.head.appendChild(script);
@@ -752,36 +772,63 @@ function loadGoogleMaps() {
     return mapsLoadedPromise;
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    loadGoogleMaps().catch(err => console.warn("Maps init failed:", err));
-    calculateCostOfConfusion(); 
+// --- UPDATED: ROBUST SCHOOL SCOUTING LOGIC ---
+async function fetchNearbySchools(board, area, pincode) {
+    const schoolBlock = document.getElementById('schoolFinderBlock');
+    if (!schoolBlock || typeof google === 'undefined') return;
 
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('bundle') === 'true') {
-        setTimeout(scrollToPricing, 800);
-    }
+    const py = new google.maps.places.PlacesService(document.createElement('div'));
+    const query = `${board} school near ${area} ${pincode}`;
     
-    const logos = document.querySelectorAll('#landingHeaderLogo');
-    logos.forEach(l => l.addEventListener('click', goToLandingPage));
-    
-    const elementsToUpdate = [
-        { id: 'detailsHeader', html: getIntermediateHeaderHtml() },
-        { id: 'detailsFooter', html: getIntermediateFooterHtml() },
-        { id: 'successHeader', html: getIntermediateHeaderHtml() },
-        { id: 'successFooter', html: getIntermediateFooterHtml() },
-        { id: 'paymentHeader', html: getIntermediateHeaderHtml() },
-        { id: 'paymentFooter', html: getIntermediateFooterHtml() },
-        { id: 'syncGateHeader', html: getIntermediateHeaderHtml() },
-        { id: 'syncGateFooter', html: getIntermediateFooterHtml() },
-        { id: 'syncTransitionHeader', html: getIntermediateHeaderHtml() },
-        { id: 'syncTransitionFooter', html: getIntermediateFooterHtml() }
-    ];
+    py.textSearch({ query: query }, async (results, status) => {
+        if (status !== google.maps.places.PlacesServiceStatus.OK || !results) {
+            schoolBlock.innerHTML = `<div class="report-header-bg">LOCAL SCHOOL SCOUT: ${board}</div><p style="padding:15px;">No high-confidence matches in ${area}.</p>`;
+            return;
+        }
 
-    elementsToUpdate.forEach(item => {
-        const element = document.getElementById(item.id);
-        if (element) element.innerHTML = item.html;
+        const top5 = results.slice(0, 5);
+        const userOrigin = await getCoords(`${area} ${pincode}`);
+        
+        // This function handles the commute times and table generation
+        await processSchoolResults(top5, userOrigin, board, area, schoolBlock);
     });
-});
+}
+
+async function processSchoolResults(top5, userOrigin, board, area, schoolBlock) {
+    try {
+        let rowsHtml = '';
+        if (userOrigin) {
+            const schoolDestinations = top5.map(s => ({
+                lat: s.geometry.location.lat(),
+                lng: s.geometry.location.lng()
+            }));
+
+            const matrixData = await getDistanceMatrixWithRoutesAPI([userOrigin], schoolDestinations);
+            
+            top5.forEach((school, i) => {
+                const info = (matrixData && matrixData.length > i) ? matrixData[i] : null;
+                const driveTime = info && info.duration ? Math.round(parseInt(info.duration) / 60) + " mins" : "N/A";
+                const busTime = info && info.duration ? Math.round((parseInt(info.duration) * 1.4) / 60) + " mins" : "N/A";
+                rowsHtml += `<tr><td style="font-weight:600; color:var(--navy-premium);">${school.name}</td><td>${driveTime}</td><td>${busTime}</td></tr>`;
+            });
+        } else {
+            top5.forEach(school => {
+                rowsHtml += `<tr><td style="font-weight:600;">${school.name}</td><td>See Maps</td><td>See Maps</td></tr>`;
+            });
+        }
+
+        schoolBlock.innerHTML = `
+            <div class="report-header-bg">LOCAL SCHOOL SCOUT (${board})</div>
+            <p style="font-size:0.85rem; color:#64748B; margin-bottom:15px;">Verified schools found near ${area}:</p>
+            <table class="data-table">
+                <thead><tr><th>School Name</th><th>Self Travel</th><th>Bus Travel</th></tr></thead>
+                <tbody>${rowsHtml}</tbody>
+            </table>`;
+    } catch (e) {
+        let fallbackRows = top5.map(s => `<tr><td style="font-weight:600;">${s.name}</td><td>See Maps</td><td>See Maps</td></tr>`).join('');
+        schoolBlock.innerHTML = `<div class="report-header-bg">LOCAL SCHOOL SCOUT (${board})</div><p style="padding:10px; font-size:0.85rem;">Found schools, travel analysis failed. Please use Maps for commute times.</p><table class="data-table"><tbody>${fallbackRows}</tbody></table>`;
+    }
+}
 
 // --- SCORING LOGIC ---
 function calculateFullRecommendation(ansSet) {
@@ -820,8 +867,12 @@ function calculateFullRecommendation(ansSet) {
     return { recommended: results[0], alternative: results[1], fullRanking: results };
 }
 
+// --- HELPER: GEOCODING ---
 async function getCoords(address) {
     await loadGoogleMaps();
+    if (typeof google === 'undefined' || !google.maps || !google.maps.Geocoder) {
+        throw new Error("Maps Service Unavailable");
+    }
     const geocoder = new google.maps.Geocoder();
     return new Promise((resolve, reject) => {
         geocoder.geocode({ address: address }, (results, status) => {
@@ -837,6 +888,7 @@ async function getCoords(address) {
     });
 }
 
+// --- HELPER: ROUTES API ---
 async function getDistanceMatrixWithRoutesAPI(origins, destinations) {
     const response = await fetch('https://routes.googleapis.com/distanceMatrix/v2:computeRouteMatrix', {
         method: 'POST',
@@ -857,6 +909,7 @@ async function getDistanceMatrixWithRoutesAPI(origins, destinations) {
     return await response.json();
 }
 
+// --- QUIZ FLOW ---
 function selectPackage(pkg, price) {
     if (price === 599) {
         hasSeenDowngradeModal = true;
@@ -1003,9 +1056,11 @@ function generateOrderId(prefix = '') {
     return typePrefix + Date.now().toString().slice(-8) + Math.floor(Math.random() * 100);
 }
 
+// --- AUDITED & CORRECTED FORM CAPTURE ---
 document.getElementById('customerForm')?.addEventListener('submit', function(e) {
     e.preventDefault();
     
+    // Check Disclaimer
     const disclaimerBox = document.getElementById('confirmDisclaimer');
     if(disclaimerBox && !disclaimerBox.checked) {
         alert("Please acknowledge the Disclaimer & Terms to proceed.");
@@ -1016,23 +1071,24 @@ document.getElementById('customerForm')?.addEventListener('submit', function(e) 
     const phoneValue = document.getElementById('phone')?.value;
 
     if (!validateInputs(emailValue, phoneValue)) {
-        alert("Please provide a valid email address and a 10-digit Indian mobile number (starting with 6-9).");
+        alert("Please provide a valid email and a 10-digit Indian mobile number.");
         return;
     }
 
-    const btn = document.getElementById('submitBtn');
-    const loadingMsg = document.getElementById('loadingMsg');
-    
-    if (btn && loadingMsg) {
-        btn.disabled = true; 
-        btn.innerText = "Saving Data...";
-        loadingMsg.style.display = 'block';
-    }
-
+    // Capture and Send Data to Netlify Forms (Lead/Ambassador/Partner ID)
+    const formData = new FormData(this);
     const newOrderId = generateOrderId();
-    const netlifyInput = document.getElementById('netlifyOrderId');
-    if(netlifyInput) netlifyInput.value = newOrderId;
-    
+    formData.set('orderId', newOrderId);
+
+    fetch("/", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams(formData).toString(),
+    })
+    .then(() => console.log("Lead captured successfully in Netlify Dashboard"))
+    .catch((error) => console.error("Netlify Lead Error:", error));
+
+    // Update Internal State
     customerData = {
         parentName: document.getElementById('parentName')?.value,
         childName: document.getElementById('childName')?.value,
@@ -1041,31 +1097,29 @@ document.getElementById('customerForm')?.addEventListener('submit', function(e) 
         childAge: document.getElementById('childAge')?.value,
         residentialArea: document.getElementById('residentialArea')?.value,
         pincode: document.getElementById('pincode')?.value,
+        partnerId: document.getElementById('partnerId')?.value, 
         package: selectedPackage,
         amount: selectedPrice,
         orderId: newOrderId
     };
     
+    // Transition to Payment UI
     setTimeout(() => {
         document.getElementById('detailsPage').classList.add('hidden');
-        document.getElementById('paymentPageContainer').classList.remove('hidden');
-        document.getElementById('paymentPageContainer').classList.add('active');
+        const pCont = document.getElementById('paymentPageContainer');
+        pCont.classList.remove('hidden');
+        pCont.classList.add('active');
         
         document.getElementById('summaryPackage').textContent = selectedPackage;
         document.getElementById('summaryPrice').textContent = `₹${selectedPrice}`;
         document.getElementById('summaryTotal').textContent = `₹${selectedPrice}`;
         document.getElementById('payButton').innerText = `Pay ₹${selectedPrice} via UPI / Card / Netbanking →`;
         
-        document.getElementById('payButton').classList.remove('hidden');
-        document.getElementById('paymentProcessing').style.display = 'none';
-        
-        if (loadingMsg) loadingMsg.style.display = 'none';
-        if (btn) { btn.disabled = false; btn.innerText = "Proceed to Payment →"; }
-        
         window.scrollTo({ top: 0, behavior: 'instant' });
-    }, 1000);
+    }, 800);
 });
 
+// --- OFFICIAL RAZORPAY INTEGRATION WITH LIVE VERIFICATION ---
 async function redirectToRazorpay() {
     const payButton = document.getElementById('payButton');
     const loadingMsg = document.getElementById('paymentProcessing');
@@ -1073,29 +1127,27 @@ async function redirectToRazorpay() {
     if(payButton) payButton.classList.add('hidden');
     if(loadingMsg) {
         loadingMsg.style.display = 'block';
-        loadingMsg.innerText = "Initiating Secure Checkout...";
-        loadingMsg.style.color = "var(--navy-premium)";
+        loadingMsg.innerText = "Securing Payment Gateway...";
     }
 
     try {
+        // 1. Ask Netlify to create a real order
         const orderResponse = await fetch('/.netlify/functions/create-order', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 amount: selectedPrice * 100,
                 internalOrderId: customerData.orderId
             })
         });
 
-        if (!orderResponse.ok) throw new Error("Could not create Razorpay order");
         const order = await orderResponse.json();
 
         const options = {
-            "key": RAZORPAY_KEY_ID,
-            "amount": selectedPrice * 100, 
+            "key": RAZORPAY_KEY_ID, // Uses your rzp_live key
+            "amount": order.amount,
             "currency": "INR",
             "name": "Apt Skola",
-            "description": `${selectedPackage} Package - ${customerData.orderId}`,
+            "description": `${selectedPackage} Package`,
             "order_id": order.id,
             "prefill": {
                 "name": customerData.parentName,
@@ -1105,44 +1157,19 @@ async function redirectToRazorpay() {
             "handler": async function (response) {
                 loadingMsg.innerText = "Verifying Payment with Bank...";
                 
-                try {
-                    const verifyResponse = await fetch('/.netlify/functions/verify-payment', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            razorpay_order_id: response.razorpay_order_id,
-                            razorpay_payment_id: response.razorpay_payment_id,
-                            razorpay_signature: response.razorpay_signature,
-                            internal_order_id: customerData.orderId
-                        })
-                    });
+                // 2. Ask Netlify to verify the payment signature
+                const verifyResponse = await fetch('/.netlify/functions/verify-payment', {
+                    method: 'POST',
+                    body: JSON.stringify(response)
+                });
 
-                    if (verifyResponse.status === 200) {
-                        loadingMsg.innerText = "Payment Verified. Generating Analysis...";
-                        loadingMsg.style.color = "var(--verified-green)";
-                        
-                        await renderReportToBrowser(); 
-                        await triggerAutomatedEmail();
-
-                        if (selectedPrice >= 999) {
-                            document.getElementById('bonusModal').classList.add('active');
-                        } else {
-                            showInstantSuccessPage();
-                        }
-                    } else {
-                        throw new Error("Verification failed");
-                    }
-                } catch (err) {
-                    console.error("Payment Verification Error:", err);
+                if (verifyResponse.ok) {
+                    loadingMsg.innerText = "Success! Generating Report...";
+                    await renderReportToBrowser(); 
+					await triggerAutomatedEmail();
+                    showInstantSuccessPage();
+                } else {
                     alert("Payment verification failed. Please contact support.");
-                    if(payButton) payButton.classList.remove('hidden');
-                    loadingMsg.style.display = 'none';
-                }
-            },
-            "modal": {
-                "ondismiss": function(){
-                    if(payButton) payButton.classList.remove('hidden');
-                    if(loadingMsg) loadingMsg.style.display = 'none';
                 }
             },
             "theme": { "color": "#FF6B35" }
@@ -1150,17 +1177,16 @@ async function redirectToRazorpay() {
 
         const rzp1 = new Razorpay(options);
         rzp1.open();
-
     } catch (err) {
-        console.error("Checkout Initiation Error:", err);
-        alert("Unable to reach payment gateway.");
+        console.error("Checkout Error:", err);
+        alert("Payment initialization failed. Please check your internet connection.");
         if(payButton) payButton.classList.remove('hidden');
-        if(loadingMsg) loadingMsg.style.display = 'none';
     }
 }
 
 async function triggerAutomatedEmail() {
     const reportElement = document.getElementById('reportPreview');
+    if(!reportElement) return;
     const canvas = await html2canvas(reportElement, { scale: 1.5, useCORS: true });
     const pdfData = canvas.toDataURL('image/jpeg', 0.7);
 
@@ -1175,8 +1201,9 @@ async function triggerAutomatedEmail() {
                 pdfBase64: pdfData
             })
         });
+        console.log("Report sent to email successfully.");
     } catch (e) {
-        console.warn("Email dispatch failed.", e);
+        console.warn("Email dispatch failed, but report is available for download.", e);
     }
 }
 
@@ -1190,9 +1217,22 @@ function processSyncUpgrade() {
         "handler": function (response) {
             customerData.package = 'Premium';
             const ageInput = document.getElementById('syncChildAge');
-            customerData.childAge = ageInput ? ageInput.value : '5-10';
+            if(ageInput) customerData.childAge = ageInput.value;
             isSyncMatchMode = true; 
+            
             localStorage.setItem(`aptskola_session_${customerData.orderId}`, JSON.stringify({ answers, customerData }));
+
+            const upgradeBlock = document.getElementById('upgradeBlock');
+            const startBtn = document.getElementById('startSyncBtn');
+            
+            if(upgradeBlock) upgradeBlock.classList.add('hidden');
+            if(startBtn) {
+                startBtn.classList.remove('hidden');
+                startBtn.innerText = "Access Unlocked! Start Sync Check →";
+                startBtn.style.background = "#10B981";
+            }
+            
+            alert("Upgrade Successful! Redirecting to Sync Match...");
             showSyncTransition();
         },
         "theme": { "color": "#FF6B35" }
@@ -1215,6 +1255,7 @@ function closeForensicModalAndShowSuccess() {
     showInstantSuccessPage();
 }
 
+// --- PERSISTENCE: SAVE STATE ---
 function showInstantSuccessPage() {
     const paymentPage = document.getElementById('paymentPageContainer');
     const successPage = document.getElementById('successPage');
@@ -1237,17 +1278,23 @@ function showInstantSuccessPage() {
         if (ticket) ticket.style.display = 'block';
     }
 
-    document.getElementById('successParentName').innerText = customerData.parentName || 'Parent';
+    const pNameEl = document.getElementById('successParentName');
+    if(pNameEl) pNameEl.innerText = customerData.parentName || 'Parent';
     
     const reportDiv = document.getElementById('reportPreview');
-    reportDiv.classList.remove('off-screen-render');
-    
-    const container = document.getElementById('downloadBtn').parentNode.parentNode;
-    container.insertBefore(reportDiv, document.getElementById('downloadBtn').parentNode.nextSibling);
+    if(reportDiv) {
+        reportDiv.classList.remove('off-screen-render');
+        const dlBtn = document.getElementById('downloadBtn');
+        if(dlBtn && dlBtn.parentNode && dlBtn.parentNode.parentNode) {
+            const container = dlBtn.parentNode.parentNode;
+            container.insertBefore(reportDiv, dlBtn.parentNode.nextSibling);
+        }
+    }
     
     window.scrollTo({ top: 0, behavior: 'instant' });
 }
 
+// --- SYNC MATCH CALCULATION ---
 function calculateSyncMatch() {
     const parentQuestions = ["q1", "q2", "q3", "q4", "q5", "q6", "q7", "q8", "q9", "q10", "q11", "q12", "q13", "q14", "q15"];
     const isParentDataMissing = parentQuestions.some(id => answers[id] === undefined);
@@ -1295,109 +1342,52 @@ function calculateSyncMatch() {
         </div>`;
 
     const successPage = document.getElementById('successPage');
-    successPage.innerHTML = `
-        ${getIntermediateHeaderHtml()}
-        <div class="success-content-wrapper">
-            <div class="success-container">
-                ${manualDisclaimer}
-                <h2 style="color:var(--navy-premium); text-align:center;">Sync Match Report 🔄</h2>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-top:30px;">
-                    <div style="background:#F0F9FF; padding:20px; border-radius:10px; border:1px solid #BAE6FD;">
-                        <h3 style="font-size:0.9rem; font-weight:bold; color:#0369A1; text-transform:uppercase;">Vision Match</h3>
-                        <div style="font-size:1.4rem; font-weight:800; color:#0C4A6E;">${parentRec}</div>
+    if(successPage) {
+        successPage.innerHTML = `
+            ${getIntermediateHeaderHtml()}
+            <div class="success-content-wrapper">
+                <div class="success-container">
+                    ${manualDisclaimer}
+                    <h2 style="color:var(--navy-premium); text-align:center;">Sync Match Report 🔄</h2>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-top:30px;">
+                        <div style="background:#F0F9FF; padding:20px; border-radius:10px; border:1px solid #BAE6FD;">
+                            <h3 style="font-size:0.9rem; font-weight:bold; color:#0369A1; text-transform:uppercase;">Vision Match</h3>
+                            <div style="font-size:1.4rem; font-weight:800; color:#0C4A6E;">${parentRec}</div>
+                        </div>
+                        <div style="background:#FFF7ED; padding:20px; border-radius:10px; border:1px solid #FFEDD5;">
+                            <h3 style="font-size:0.9rem; font-weight:bold; color:#C2410C; text-transform:uppercase;">DNA Verification</h3>
+                            <div style="font-size:1.4rem; font-weight:800; color:#7C2D12;">${normalizedDNA}</div>
+                        </div>
                     </div>
-                    <div style="background:#FFF7ED; padding:20px; border-radius:10px; border:1px solid #FFEDD5;">
-                        <h3 style="font-size:0.9rem; font-weight:bold; color:#C2410C; text-transform:uppercase;">DNA Verification</h3>
-                        <div style="font-size:1.4rem; font-weight:800; color:#7C2D12;">${normalizedDNA}</div>
-                    </div>
+                    ${bridgeHtml}
+                    ${ambassadorButtonHtml}
+                    ${xrayCardHtml}
+                    ${fovizBannerHtml}
+                    <button class="custom-cta-button" style="margin-top:30px;" onclick="endFullSession()">End Session</button>
                 </div>
-                ${bridgeHtml}
-                <button class="custom-cta-button" style="margin-top:30px;" onclick="goToLandingPage()">End Session</button>
             </div>
-        </div>
-        ${getIntermediateFooterHtml()}
-    `;
-    successPage.classList.remove('hidden');
-    successPage.classList.add('active');
-}
-
-async function fetchNearbySchools(board, area, pincode, retryCount = 0) {
-    const schoolBlock = document.getElementById('schoolFinderBlock');
-    if (!schoolBlock) return;
-
-    if (retryCount > 12) {
-        schoolBlock.innerHTML = `
-            <div class="report-header-bg">LOCAL SCHOOL SCOUT: ${board}</div>
-            <div style="padding:20px; text-align:center;">
-                <p style="margin-bottom:15px; font-size:0.9rem; color:#EF4444;">Maps engine took too long to load.</p>
-                <button onclick="fetchNearbySchools('${board}', '${area}', '${pincode}', 0)" class="btn-xray">🔍 Retry Search</button>
-            </div>`;
-        return;
-    }
-
-    if (typeof google === 'undefined' || !google.maps || !google.maps.places) {
-        setTimeout(() => fetchNearbySchools(board, area, pincode, retryCount + 1), 1000);
-        return;
-    }
-
-    try {
-        const locationQuery = `${area} ${pincode || ''}`.trim();
-        const userOrigin = await getCoords(locationQuery);
-        const py = new google.maps.places.PlacesService(schoolBlock);
-        
-        py.nearbySearch({
-            location: userOrigin,
-            radius: '10000',
-            keyword: board,
-            type: ['school']
-        }, async (results, status) => {
-            if (status !== google.maps.places.PlacesServiceStatus.OK || !results || results.length === 0) {
-                py.textSearch({ query: `${board} school in ${area}` }, async (textResults, textStatus) => {
-                    if (textStatus === 'OK' && textResults.length > 0) {
-                        processSchoolResults(textResults.slice(0, 5), userOrigin, board, area, schoolBlock);
-                    } else {
-                        schoolBlock.innerHTML = `<div class="report-header-bg">LOCAL SCHOOL SCOUT: ${board}</div><p style="padding:20px;">No schools found in ${area}.</p>`;
-                    }
-                });
-                return;
-            }
-            processSchoolResults(results.slice(0, 5), userOrigin, board, area, schoolBlock);
-        });
-    } catch (err) {
-        schoolBlock.innerHTML = `<p style="padding:20px; color:#EF4444;">Search engine delay.</p>`;
+            ${getIntermediateFooterHtml()}
+        `;
+        successPage.classList.remove('hidden');
+        successPage.classList.add('active');
     }
 }
 
-async function processSchoolResults(top5, userOrigin, board, area, schoolBlock) {
-    try {
-        const schoolDestinations = top5.map(s => ({
-            lat: s.geometry.location.lat(),
-            lng: s.geometry.location.lng()
-        }));
-
-        const matrixData = await getDistanceMatrixWithRoutesAPI([userOrigin], schoolDestinations);
-        let rowsHtml = top5.map((school, i) => {
-            const info = matrixData.find(item => item.destinationIndex === i);
-            const driveTime = info && info.duration ? Math.round(parseInt(info.duration) / 60) + " mins" : "N/A";
-            const busTime = info && info.duration ? Math.round((parseInt(info.duration) * 1.4) / 60) + " mins" : "N/A";
-            return `<tr><td style="font-weight:600;">${school.name}</td><td>${driveTime}</td><td>${busTime}</td></tr>`;
-        }).join('');
-
-        schoolBlock.innerHTML = `
-            <div class="report-header-bg">LOCAL SCHOOL SCOUT (${board})</div>
-            <table class="data-table">
-                <thead><tr><th>School Name</th><th>Self Travel</th><th>Bus Travel</th></tr></thead>
-                <tbody>${rowsHtml}</tbody>
-            </table>`;
-    } catch (e) {
-        schoolBlock.innerHTML = `<div class="report-header-bg">LOCAL SCHOOL SCOUT (${board})</div><p>Analysis failed. Use Google Maps.</p>`;
+function endFullSession() {
+    if (customerData.orderId && customerData.orderId !== 'N/A') {
+        localStorage.removeItem(`aptskola_session_${customerData.orderId}`);
     }
+    goToLandingPage();
 }
 
+// --- REPORT RENDERER ---
 async function renderReportToBrowser() {
     const res = calculateFullRecommendation(answers);
     const recBoard = res.recommended.name;
-    const boardKey = recBoard.toLowerCase().includes('cbse') ? 'cbse' : (recBoard.toLowerCase().includes('icse') ? 'icse' : (recBoard.toLowerCase().includes('ib') ? 'ib' : (recBoard.toLowerCase().includes('cambridge') ? 'Cambridge (IGCSE)' : 'State Board')));
+    const boardKey = recBoard.toLowerCase().includes('cbse') ? 'cbse' : 
+                     (recBoard.toLowerCase().includes('icse') ? 'icse' : 
+                     (recBoard.toLowerCase().includes('ib') ? 'ib' : 
+                     (recBoard.toLowerCase().includes('cambridge') ? 'Cambridge (IGCSE)' : 'State Board')));
     
     const data = MASTER_DATA[boardKey];
     const isPremiumTier = (selectedPrice >= 999);
@@ -1405,10 +1395,17 @@ async function renderReportToBrowser() {
 
     let html = `
         <div id="pdf-header" style="background:#0F172A; color:white; padding:30px; text-align:center; margin-bottom:30px; border-radius:12px;">
-            <div style="font-size:2rem; font-weight:800;">Apt Skola</div>
-            <div style="font-size:0.9rem; margin-top:10px;">Order ID: ${customerData.orderId}</div>
+            <div style="font-size:2rem; font-weight:800;">Apt <span style="color:var(--sunrise-primary);">Skola</span></div>
+            <div style="font-size:1.2rem;">${selectedPackage} Report</div>
+            <div style="font-size:0.9rem; margin-top:10px;">Prepared for: ${customerData.childName || 'Student'} | Order ID: ${customerData.orderId}</div>
         </div>
+    `;
+
+    if (!isPlatinumTier) html += xrayCardHtml;
+
+    html += `
         <div class="report-card" style="background:var(--navy-premium); color:white; border:none;">
+            <div style="font-size:1.1rem; opacity:0.8; text-transform:uppercase;">The Recommended Archetype</div>
             <div style="font-size:2.2rem; font-weight:800; margin:5px 0;">${data.title}</div>
             <div style="background:rgba(255,255,255,0.1); padding:10px; border-radius:8px; display:inline-block; margin-top:10px;">
                 Board Match: <span style="color:var(--sunrise-primary); font-weight:bold;">${recBoard}</span>
@@ -1416,11 +1413,11 @@ async function renderReportToBrowser() {
         </div>
         <div class="report-card">
             <div class="report-header-bg">STUDENT PERSONA & MATCH LOGIC</div>
-            <p>${data.profile}</p>
+            <div class="narrative-item"><h3 class="narrative-theme">Archetype: ${data.persona}</h3><p>${data.profile}</p></div>
         </div>
         <div id="schoolFinderBlock" class="report-card">
             <div class="report-header-bg">LOCAL SCHOOL SCOUT: ${recBoard}</div>
-            <p>Scanning schools in ${customerData.residentialArea}...</p>
+            <p style="font-size:0.9rem; color:#64748B;">Scanning for verified ${recBoard} schools in ${customerData.residentialArea || 'the area'}...</p>
         </div>
     `;
 
@@ -1429,28 +1426,49 @@ async function renderReportToBrowser() {
         preview.innerHTML = html;
         setTimeout(() => {
             fetchNearbySchools(recBoard, customerData.residentialArea, customerData.pincode, 0);
-        }, 1000);
+        }, 800);
     }
 }
 
 async function downloadReport() {
     const { jsPDF } = window.jspdf;
     const reportElement = document.getElementById('reportPreview');
-    const cards = reportElement.querySelectorAll('.report-card, #pdf-header');
+    if(!reportElement) return;
+    const cards = reportElement.querySelectorAll('.report-card, #pdf-header, .xray-card, .foviz-banner, .btn-ambassador');
+    
     const pdf = new jsPDF('p', 'mm', 'a4');
-    let currentY = 10;
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+    const margin = 10;
+    const contentWidth = pdfWidth - (2 * margin);
+    
+    let currentY = margin;
 
     for (let i = 0; i < cards.length; i++) {
-        const canvas = await html2canvas(cards[i], { scale: 2, useCORS: true });
+        const canvas = await html2canvas(cards[i], { scale: 2, useCORS: true, logging: false });
         const imgData = canvas.toDataURL('image/jpeg', 0.8);
-        const imgHeight = (canvas.height * 190) / canvas.width;
-        if (currentY + imgHeight > 280) { pdf.addPage(); currentY = 10; }
-        pdf.addImage(imgData, 'JPEG', 10, currentY, 190, imgHeight);
+        const imgProps = pdf.getImageProperties(imgData);
+        const imgHeight = (imgProps.height * contentWidth) / imgProps.width;
+
+        if (currentY + imgHeight > pdfHeight - margin) {
+            pdf.addPage();
+            currentY = margin;
+        }
+
+        pdf.addImage(imgData, 'JPEG', margin, currentY, contentWidth, imgHeight);
         currentY += imgHeight + 5;
     }
-    pdf.save(`Apt-Skola-Report.pdf`);
+    pdf.save(`Apt-Skola-${customerData.childName || 'Report'}.pdf`);
 }
 
 function sharePDF() {
     if (navigator.share) navigator.share({ title: 'Apt Skola Report', url: window.location.href });
 }
+
+// Global Initialization
+document.addEventListener('DOMContentLoaded', () => {
+    calculateCostOfConfusion();
+    loadGoogleMaps().catch(err => console.warn("Maps init failed:", err));
+    const logos = document.querySelectorAll('#landingHeaderLogo');
+    logos.forEach(l => l.addEventListener('click', goToLandingPage));
+});

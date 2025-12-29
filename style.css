@@ -618,3 +618,32 @@ footer .policy-links a { margin: 0 8px; color: #CBD5E1; text-decoration: none; f
 .icon-circle { stroke: #F97316; } /* Default Orange */
 .highlighted .icon-circle { stroke: #22C55E; } /* Highlighted Green */
 .feature-item svg { flex-shrink: 0; margin-top: 2px; }
+
+/* PDF Generation Fix: Elements must be "visible" but hidden from the user */
+.off-screen-render {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 800px;
+    z-index: -9999;
+    opacity: 0;
+    pointer-events: none;
+    background: white;
+}
+
+/* Validation Feedback */
+.input-error {
+    border: 2px solid #EF4444 !important;
+    background-color: #FEF2F2 !important;
+}
+
+/* Ensure the report looks professional in the PDF */
+.report-card {
+    width: 750px;
+    margin: 20px auto;
+    background: white;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
