@@ -1,4 +1,3 @@
-// netlify/functions/verify-payment.js
 const crypto = require("crypto");
 
 export const handler = async (event) => {
@@ -10,8 +9,7 @@ export const handler = async (event) => {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = JSON.parse(event.body);
     const secret = process.env.RAZORPAY_KEY_SECRET;
 
-    // Razorpay Signature Verification Logic
-    // Construct the string: order_id + "|" + payment_id
+    // Verify the signature using the Secret from your Netlify Environment Variables
     const generated_signature = crypto
       .createHmac("sha256", secret)
       .update(razorpay_order_id + "|" + razorpay_payment_id)
@@ -23,7 +21,8 @@ export const handler = async (event) => {
         body: JSON.stringify({ status: "success", message: "Payment Verified" }),
       };
     } else {
-      console.error("Signature Mismatch: Potential Fraud Attempt");
+      // This is where your error is currently triggering
+      console.error("Signature Mismatch detected for Order:", razorpay_order_id);
       return { statusCode: 400, body: JSON.stringify({ status: "failure", message: "Invalid Signature" }) };
     }
   } catch (error) {
