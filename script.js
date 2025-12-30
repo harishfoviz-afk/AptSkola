@@ -14,7 +14,7 @@ const PAYMENT_LINKS = {
     599: "https://rzp.io/rzp/fQ0kiUb",
     999: "https://rzp.io/rzp/JSA3F7g",
     1499: "https://rzp.io/rzp/1L9W83a",
-    299: "https://rzp.io/rzp/fQ0kiUb"
+    299: "https://rzp.io/rzp/Jq71ACDV"
 };
 
 
@@ -1249,7 +1249,7 @@ function redirectToRazorpay() {
     // Step 2: Route to the correct static link
     const link = PAYMENT_LINKS[selectedPrice] || PAYMENT_LINKS[599];
     // Bypass payment and trigger the full report/email engine immediately
-	renderReportToBrowser().then(() => { triggerAutomatedEmail(); showInstantSuccessPage(); });
+	window.location.href = link; 
 }
 
 // --- EMAIL DISPATCH ---
@@ -1437,10 +1437,8 @@ function endFullSession() {
     goToLandingPage();
 }
 
-// --- REPORT RENDERER ---
-// --- SURGICAL UPDATE: REFINED RENDERER ---
 async function renderReportToBrowser() {
-    // 1. Re-hydrate data to ensure location variables are fresh
+    // Re-hydrate data for accuracy
     const lastOrderId = localStorage.getItem('aptskola_last_order_id');
     const sessionData = JSON.parse(localStorage.getItem(`aptskola_session_${lastOrderId}`));
     if (sessionData) {
@@ -1466,7 +1464,7 @@ async function renderReportToBrowser() {
         </div>
     `;
 
-    // Tier-Based Content Injection [cite: 20, 33, 73]
+    // ARCHETYPE & MATCH LOGIC [cite: 9, 10, 86, 87, 123, 124]
     html += `
         <div class="report-card">
             <div class="report-header-bg">THE RECOMMENDED ARCHETYPE</div>
@@ -1477,17 +1475,101 @@ async function renderReportToBrowser() {
         </div>
         <div class="report-card">
             <div class="report-header-bg">STUDENT PERSONA & MATCH LOGIC</div>
-            <p><strong>Archetype:</strong> ${data.persona}</p>
-            <p style="margin-top:10px; line-height:1.6;">${data.profile}</p>
+            <p><strong>Archetype:</strong> ${data.persona}</p> [cite: 13, 90, 127]
+            <p style="margin-top:10px; line-height:1.6;">${data.profile}</p> [cite: 14, 91, 128]
             <div style="margin-top:15px; padding:15px; border-left:4px solid #EF4444; background:#FFF1F2;">
                 <h4 style="color:#991B1B; font-weight:bold; margin-bottom:5px;">The "Why Not" (Rejection Logic)</h4>
-                <p style="font-size:0.9rem;">${data.rejectionReason}</p>
+                <p style="font-size:0.9rem;">${data.rejectionReason}</p> [cite: 15, 16, 92, 93, 129, 130]
+            </div>
+            <div style="margin-top:15px; border-top: 1px solid #eee; padding-top:15px;">
+                <h4 style="color:#0F172A; font-weight:bold; margin-bottom:5px;">Projected Career Path</h4>
+                <p style="font-size:0.9rem; line-height:1.5;">${data.careerPath}</p> [cite: 18, 19, 95, 96, 131, 132, 133]
             </div>
         </div>
     `;
 
-    // Local School Scout (The Location Block) [cite: 32, 109, 170]
+    // NEW BLOCK: BOARD & OPTION COMPARISON [cite: 20, 21, 97, 98, 134, 135]
+	html += `
+		<div class="report-card">
+        <div class="report-header-bg">BOARD & OPTION COMPARISON</div>
+        <table class="data-table">
+            <thead>
+                <tr><th>Board</th><th>Match Quality</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+                ${res.fullRanking.slice(0, 3).map((r, i) => `
+                    <tr>
+                        <td style="font-weight:600;">${r.name}</td>
+                        <td class="progress-bar-cell">
+                            <div class="table-progress-track">
+                                <div class="table-progress-fill" style="width: ${r.percentage}%"></div>
+                            </div>
+                            <span class="percentage-label">${r.percentage}% Match</span>
+                        </td>
+                        <td style="color:${i === 0 ? '#10B981' : '#64748B'}; font-weight:bold;">
+                            ${i === 0 ? 'Recommended' : 'Alternative'}
+                        </td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+		</div>
+	`;
+
+    // NEW BLOCK: BOARD DEEP DIVE [cite: 22, 23, 24, 25, 99, 100, 101, 102, 136, 137, 138, 139]
     html += `
+        <div class="report-card">
+            <div class="report-header-bg">BOARD DEEP DIVE</div>
+            <div style="margin-bottom:15px;">
+                <p><strong>Philosophy:</strong> ${data.philosophy}</p> [cite: 23, 100, 137]
+            </div>
+            <div style="margin-bottom:15px;">
+                <p><strong>Pedagogy:</strong> ${data.teachingMethod}</p> [cite: 24, 101, 138]
+            </div>
+            <div style="padding:10px; border-radius:6px; background:${data.parentalRole.toLowerCase().includes('high') ? '#FEF2F2' : '#F0FDF4'}; border:1px solid ${data.parentalRole.toLowerCase().includes('high') ? '#FECDD3' : '#BBF7D0'};">
+                <p style="color:${data.parentalRole.toLowerCase().includes('high') ? '#991B1B' : '#166534'}; margin:0;">
+                    <strong>Parental Commitment:</strong> ${data.parentalRole} 
+                </p>
+            </div>
+        </div>
+    `;
+
+// Updated Local School Scout Block with proper Table Structure
+	html += `
+    <div id="schoolFinderBlock" class="report-card">
+        <div class="report-header-bg">LOCAL SCHOOL SCOUT (${recBoard})</div>
+        <p style="font-size:0.85rem; color:#64748B; margin-bottom:15px;">
+            Geospatial scan complete for ${customerData.residentialArea || 'your area'}:
+        </p>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>School Name</th>
+                    <th>Self Travel</th>
+                    <th>Bus Travel</th>
+                </tr>
+            </thead>
+            <tbody id="schoolListContainer">
+                <tr>
+                    <td colspan="3" style="text-align:center; padding:20px; color:#94A3B8;">
+                        Scanning nearby ${recBoard} institutes...
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+	`;
+
+    // INCLUSION & REMAINING BLOCKS
+    html += `
+        <div class="report-card">
+            <div class="report-header-bg">EXPERT NOTE: SPECIAL NEEDS & INCLUSION</div>
+            <p style="font-size:0.85rem; line-height:1.5; color:#475569;">
+                Rather than focusing solely on the board, prioritize finding a school that offers inclusive education and genuine flexibility[cite: 27, 104, 141]. 
+                A supportive school environment is often more critical than the syllabus itself[cite: 28, 105, 142]. 
+                For students requiring significant customization, Open Schooling (NIOS) is the most adaptable choice[cite: 29, 106, 143].
+            </p>
+        </div>
         <div id="schoolFinderBlock" class="report-card">
             <div class="report-header-bg">LOCAL SCHOOL SCOUT (${recBoard})</div>
             <div id="schoolListContainer">
@@ -1496,23 +1578,33 @@ async function renderReportToBrowser() {
         </div>
     `;
 
-    // PREMIUM Tiers (₹999 & ₹1499) [cite: 33, 75]
+    // TIER-SPECIFIC BLOCKS (999 & 1499) [cite: 33, 73, 75, 168, 169]
     if (amount >= 999) {
         html += `
             <div class="report-card">
                 <div class="report-header-bg">🧐 RISK MITIGATION & VETTING</div>
                 <ul style="list-style:none; padding:0; font-size:0.9rem;">
-                    ${MASTER_DATA.vetting.redFlags.map(f => `<li style="margin-bottom:8px;">🚩 ${f}</li>`).join('')}
+                    ${MASTER_DATA.vetting.redFlags.map(f => `<li style="margin-bottom:8px;">🚩 ${f}</li>`).join('')} [cite: 35, 36, 37, 149, 150, 151, 152, 153]
                 </ul>
             </div>
             <div class="report-card">
                 <div class="report-header-bg">15-YEAR FEE FORECASTER (10-12% Inflation)</div>
                 <table class="data-table">
-                    ${MASTER_DATA.financial.projectionTable.slice(0, 12).map(r => `<tr><td>${r.grade}</td><td>${r.fee}</td></tr>`).join('')}
+                    ${MASTER_DATA.financial.projectionTable.slice(0, 12).map(r => `<tr><td>${r.grade}</td><td>${r.fee}</td></tr>`).join('')} [cite: 75, 169]
                 </table>
             </div>
         `;
     }
+
+    // DISPATCH RENDER
+    const preview = document.getElementById('reportPreview');
+    if (preview) {
+        preview.innerHTML = html;
+        setTimeout(() => {
+            fetchNearbySchools(recBoard, customerData.residentialArea, customerData.pincode);
+        }, 800);
+    }
+}
 
     const preview = document.getElementById('reportPreview');
     if (preview) {
@@ -1651,36 +1743,8 @@ document.addEventListener('DOMContentLoaded', () => {
     loadGoogleMaps().catch(err => console.warn("Maps init failed:", err));
     const logos = document.querySelectorAll('#landingHeaderLogo');
     logos.forEach(l => l.addEventListener('click', goToLandingPage));
-
-    // NEW: Session Resurrection Logic
-    const lastOrderId = localStorage.getItem('aptskola_last_order_id');
-    const params = new URLSearchParams(window.location.search);
     
-    // Safety Check: Only show banner if we are not currently on a success redirect
-    if (lastOrderId && !params.get('razorpay_payment_id')) {
-        const banner = document.createElement('div');
-        banner.id = "sessionResurrectionBanner";
-        banner.style.cssText = "background:#FF6B35; color:white; padding:10px; text-align:center; font-weight:bold; cursor:pointer; position:relative; z-index:1000;";
-        banner.innerHTML = `⚡ You have an unsaved assessment. Click here to resume where you left off.`;
-        banner.onclick = () => recoverSessionManual(lastOrderId);
-        document.body.prepend(banner);
-    }
 });
-
-// Helper for banner to call standard recovery
-function recoverSessionManual(id) {
-    const banner = document.getElementById('sessionResurrectionBanner');
-    if (banner) banner.remove();
-    
-    // Simulate the recovery input
-    const mockInput = document.createElement('input');
-    mockInput.id = 'recoveryOrderId';
-    mockInput.value = id;
-    document.body.appendChild(mockInput);
-    
-    recoverSession();
-    mockInput.remove();
-}
 
    // SURGICAL INJECTION: Sync Match Deep-Link Handler
     const urlParams = new URLSearchParams(window.location.search);
@@ -1760,16 +1824,6 @@ function recoverSession() {
         alert("Order ID not found on this device. Please ensure you are using the same browser you used for the assessment.");
     }
 }
-
-// --- RECOVERY BY EMAIL LOGIC ---
-function recoverByEmail() {
-    const emailInput = document.getElementById('recoveryEmail');
-    const targetEmail = emailInput ? emailInput.value.trim().toLowerCase() : '';
-
-    if (!targetEmail) {
-        alert("Please enter your email to find your report.");
-        return;
-    }
 
     let foundSession = null;
 
