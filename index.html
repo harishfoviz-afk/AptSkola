@@ -139,15 +139,17 @@
         <button onclick="scrollToPricing()">Find Best Board</button>
     </div>
 	
-	<div id="sessionRecoverySection" class="mt-8 p-4 bg-slate-800/50 rounded-xl border border-slate-700 max-w-lg mx-auto">
-    <p class="text-slate-300 text-sm mb-3 font-medium">Already paid? Restore your report below:</p>
-    <div class="flex gap-2">
-        <input type="text" id="recoveryOrderId" placeholder="Enter Order ID (AS...)" 
-               class="flex-grow p-3 rounded-lg bg-slate-900 border border-slate-600 text-white text-sm focus:border-brand-orange outline-none">
-        <button onclick="recoverSession()" 
-                class="bg-brand-orange hover:bg-orange-600 text-white px-6 py-3 rounded-lg font-bold text-sm transition-all">
-            Restore
-        </button>
+	<div id="sessionRecoverySection" class="w-full bg-slate-900 border-b border-slate-700 py-3 px-4 sticky top-0 z-[1000]">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-center gap-4">
+        <span class="text-slate-400 text-xs font-bold uppercase tracking-widest">Returning Parent?</span>
+        <div class="flex gap-2 w-full md:w-auto">
+            <input type="email" id="recoveryEmail" placeholder="Enter your registered email" 
+                   class="bg-slate-800 border border-slate-600 text-white text-sm px-4 py-2 rounded-lg focus:border-brand-orange outline-none w-full md:w-64">
+            <button onclick="recoverByEmail()" 
+                    class="bg-brand-orange hover:bg-orange-600 text-white px-6 py-2 rounded-lg font-bold text-sm transition-all shadow-lg whitespace-nowrap">
+                Restore Session
+            </button>
+        </div>
     </div>
 	</div>
 
@@ -562,7 +564,8 @@
                     <input type="hidden" name="access_key" value="1930d1ce-5416-45d1-9b2b-5f129cb30dbd">
                     <input type="hidden" name="from_name" value="Apt Skola Lead">
                     <input type="hidden" id="netlifyOrderId" name="orderId" value="" />
-                    
+                    <input type="checkbox" name="botcheck" class="hidden" style="display: none;">
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="form-group">
                             <label>Parent's Full Name *</label>
@@ -601,25 +604,30 @@
 							<label>Partner/Referral ID (Optional)</label>
 							<input type="text" id="partnerId" name="partnerId" placeholder="e.g. PARTNER123" autocomplete="off">
 						</div>
-                        <div class="form-group">
-                            <label>Would you like to help other parents by sharing your school/college experience privately? *</label>
-                            <div class="flex items-center gap-6 mt-4">
-                                <div class="flex items-center gap-2">
-                                    <input type="radio" id="feedbackYes" name="shareFeedback" value="Yes" required style="width: auto;">
-                                    <label for="feedbackYes" class="mb-0 font-normal">Yes</label>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <input type="radio" id="feedbackNo" name="shareFeedback" value="No" required style="width: auto;">
-                                    <label for="feedbackNo" class="mb-0 font-normal">No</label>
-                                </div>
-								<div class="form-group flex items-center gap-2">
-									<input type="checkbox" id="saveForLater" name="save_for_later" class="w-auto">
-									<label for="saveForLater" class="text-sm font-medium text-slate-600">
-									Save my progress & email my Order ID for later access.
-									</label>
-								</div>
-                            </div>
-                        </div>
+							<div class="col-span-1 md:col-span-2 mt-6 p-6 bg-slate-50 rounded-2xl border border-slate-200">
+							<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+							<div>
+							<label class="text-sm font-bold text-slate-700 mb-3 block">Would like to share feedback about school/college experience privately? *</label>
+							<div class="flex items-center gap-8">
+							<label class="flex items-center gap-2 cursor-pointer">
+							<input type="radio" name="shareFeedback" value="Yes" required class="w-4 h-4 accent-brand-orange">
+							<span class="text-sm font-medium">Yes</span>
+							</label>
+							<label class="flex items-center gap-2 cursor-pointer">
+							<input type="radio" name="shareFeedback" value="No" required class="w-4 h-4 accent-brand-orange">
+							<span class="text-sm font-medium">No</span>
+							</label>
+							</div>
+						</div>
+
+						<div class="flex items-start gap-3">
+							<input type="checkbox" id="saveForLater" name="save_for_later" class="mt-1 w-5 h-5 accent-brand-orange cursor-pointer">
+							<label for="saveForLater" class="text-sm font-semibold text-slate-600 leading-tight">
+							Save my progress & email my assessment summary for later.
+							</label>
+						</div>
+    </div>
+</div>
                     </div>
 
                     <div class="form-group" id="disclaimerCheck" style="margin-top:20px; font-size:0.95rem;">

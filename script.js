@@ -1365,17 +1365,29 @@ function calculateSyncMatch() {
 
     const manualDisclaimer = isManualSync ? `<p style="text-align: center; font-size: 0.75rem; color: #94A3B8; margin-bottom: 10px;">⚠️ Sync generated via Manual Input from Phase 1 Report.</p>` : '';
 
-    let bridgeHtml = isConflict ? `
-        <div class="report-card" style="border: 2px solid var(--sunrise-primary); background: #FFF9F2; margin-top: 20px;">
-            <h3 style="color: var(--navy-premium); font-weight: 800; font-size: 1.2rem; margin-bottom: 10px;">Bridge Narrative</h3>
-            <p style="color: var(--navy-light); font-size: 1rem; line-height: 1.6; margin-bottom: 15px;">
-                Your aspiration is <strong>${parentRec}</strong>, but your child’s DNA shows high <strong>${traits[topDNA]}</strong> suggesting <strong>${normalizedDNA}</strong>.
-            </p>
-        </div>` : `
-        <div class="report-card" style="border: 2px solid #22C55E; background: #F0FDF4; margin-top: 20px;">
-            <h3 style="color: #166534; font-weight: 800; font-size: 1.2rem; margin-bottom: 10px;">✅ PERFECT ALIGNMENT</h3>
-            <p style="color: #166534; font-size: 1rem;">Your vision and your child's natural DNA are in sync.</p>
-        </div>`;
+    // REVISED: Forensic Bridge Narrative (Min 5 Lines)
+	let bridgeHtml = isConflict ? `
+		<div class="report-card" style="border: 2px solid var(--sunrise-primary); background: #FFF9F2; margin-top: 20px;">
+			<h3 style="color: var(--navy-premium); font-weight: 800; font-size: 1.2rem; margin-bottom: 10px;">Bridge Narrative: Conflict Resolution</h3>
+			<p style="color: var(--navy-light); font-size: 0.95rem; line-height: 1.6; margin-bottom: 10px;">
+				<strong>The Mismatch:</strong> Your strategic goal is <strong>${parentRec}</strong>, but our forensic DNA audit shows your child’s natural cognitive engine thrives on <strong>${traits[topDNA]}</strong>, which is the hallmark of the <strong>${normalizedDNA}</strong> ecosystem.
+			</p>
+			<p style="color: var(--navy-light); font-size: 0.95rem; line-height: 1.6; margin-bottom: 10px;">
+				<strong>Cognitive Risk:</strong> Forcing a child with high ${traits[topDNA]} into a purely ${parentRec} structure can lead to "Academic Burnout" by Grade 8, as their natural inquiry style is suppressed by rigid standardization.
+			</p>
+			<p style="color: var(--navy-light); font-size: 0.95rem; line-height: 1.6; margin-bottom: 10px;">
+				<strong>The Strategy:</strong> Do not abandon your vision; instead, look for a "Hybrid School". Select a ${parentRec} school that offers high-autonomy clubs, project-based labs, or ${normalizedDNA}-inspired electives to feed their natural instinct.
+			</p>
+			<p style="color: var(--navy-light); font-size: 0.95rem; line-height: 1.6;">
+				<strong>Final Verdict:</strong> Alignment is possible by choosing the board for the "Certificate" but selecting the specific school campus for the "Culture".
+			</p>
+		</div>` : `
+    <div class="report-card" style="border: 2px solid #22C55E; background: #F0FDF4; margin-top: 20px;">
+        <h3 style="color: #166534; font-weight: 800; font-size: 1.2rem; margin-bottom: 10px;">✅ PERFECT ALIGNMENT</h3>
+        <p style="color: #166534; font-size: 0.95rem; line-height: 1.6;">
+            Your parenting vision and your child’s cognitive DNA are in a rare state of "Scientific Sync." Your choice of <strong>${parentRec}</strong> perfectly supports their natural strength in <strong>${traits[topDNA]}</strong>. This foundation minimizes academic friction and maximizes their potential for high-tier university placements.
+        </p>
+    </div>`;
 
     const successPage = document.getElementById('successPage');
     if(successPage) {
@@ -1425,8 +1437,7 @@ async function renderReportToBrowser() {
                      (recBoard.toLowerCase().includes('ib') ? 'ib' : 
                      (recBoard.toLowerCase().includes('cambridge') ? 'Cambridge (IGCSE)' : 'State Board')));
     
-    const data = MASTER_DATA[boardKey];
-    // CTO Note: Crucial checks for Tier-based unlocking
+	const data = MASTER_DATA[boardKey];
     const isPremiumTier = (selectedPrice >= 999);
     const isPlatinumTier = (selectedPrice >= 1499);
 
@@ -1456,9 +1467,15 @@ async function renderReportToBrowser() {
                 <p>${data.rejectionReason}</p>
             </div>
         </div>
+    `;
+
+    // SURGICAL FIX: Appending the School Block properly
+    html += `
         <div id="schoolFinderBlock" class="report-card">
             <div class="report-header-bg">LOCAL SCHOOL SCOUT: ${recBoard}</div>
-            <p style="font-size:0.9rem; color:#64748B;">Scanning for verified ${recBoard} schools in ${customerData.residentialArea || 'the area'}...</p>
+            <div id="schoolListContainer">
+                <p style="font-size:0.9rem; color:#64748B;">Scanning for verified ${recBoard} schools in ${customerData.residentialArea || 'the area'}...</p>
+            </div>
         </div>
     `;
 
@@ -1496,17 +1513,17 @@ async function renderReportToBrowser() {
         // Logic for Nearby Schools
         setTimeout(() => {
             fetchNearbySchools(recBoard, customerData.residentialArea, customerData.pincode);
-        }, 800);
+        }, 1000);
     }
 }
 
-// --- OPTIMIZED: SMART PDF GENERATOR WITH VERTICAL TRACKING ---
+// --- OPTIMIZED: SMART PDF GENERATOR WITH NATIVE VECTOR HEADER ---
 async function downloadReport() {
     const { jsPDF } = window.jspdf;
     const reportElement = document.getElementById('reportPreview');
     
-    // Step 1: Target all content blocks specifically
-    const cards = reportElement.querySelectorAll('.report-card, #pdf-header, .xray-card, .foviz-banner, .btn-ambassador');
+    // Target content blocks specifically, EXCLUDING the original visual header
+    const cards = reportElement.querySelectorAll('.report-card, .xray-card, .foviz-banner, .btn-ambassador');
     
     const pdf = new jsPDF('p', 'mm', 'a4');
     const pdfWidth = pdf.internal.pageSize.getWidth();
@@ -1514,12 +1531,28 @@ async function downloadReport() {
     const margin = 10;
     const contentWidth = pdfWidth - (2 * margin);
     
-    let currentY = margin; // Track the vertical position on the current page
+    // --- NATIVE VECTOR HEADER RENDERING ---
+    // Brand Name
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(24);
+    pdf.setTextColor(15, 23, 42); // Navy
+    pdf.text("Apt", margin, 20);
+    pdf.setTextColor(255, 107, 53); // Orange
+    pdf.text("Skola", margin + 16, 20);
+    
+    // Identity Details
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(10);
+    pdf.setTextColor(100, 116, 139); // Slate-500
+    pdf.text(`Prepared for: ${customerData.childName || 'Student'}`, margin, 28);
+    pdf.text(`Order ID: ${customerData.orderId}`, margin, 33);
+    pdf.text(`Package: ${selectedPackage} Report`, margin, 38);
 
-    // Step 2: Loop through each card and render to canvas
+    let currentY = 45; // Offset logic: First card starts exactly below text header
+
     for (let i = 0; i < cards.length; i++) {
         const canvas = await html2canvas(cards[i], {
-            scale: 2, // Higher quality for printing
+            scale: 2,
             useCORS: true,
             logging: false
         });
@@ -1528,27 +1561,80 @@ async function downloadReport() {
         const imgProps = pdf.getImageProperties(imgData);
         const imgHeight = (imgProps.height * contentWidth) / imgProps.width;
 
-        // Step 3: MULTI-PAGE OVERFLOW CHECK
-        // If current block height exceeds remaining page space, move to next page
         if (currentY + imgHeight > pdfHeight - margin) {
             pdf.addPage();
-            currentY = margin; // Reset tracking for the new page
+            currentY = margin; 
         }
 
         pdf.addImage(imgData, 'JPEG', margin, currentY, contentWidth, imgHeight);
-        
-        // Step 4: Advance vertical tracker by image height plus a 5mm gap
         currentY += imgHeight + 5;
     }
 
-    // Step 5: Save with dynamic naming
     const res = calculateFullRecommendation(answers);
     const recBoard = res.recommended.name;
     pdf.save(`Apt-Skola-${customerData.childName || 'Report'}-${recBoard}.pdf`);
 }
 
-function sharePDF() {
-    if (navigator.share) navigator.share({ title: 'Apt Skola Report', url: window.location.href });
+async function sharePDF() {
+    if (!navigator.canShare || !navigator.share) {
+        alert("Your browser doesn't support direct file sharing. Please use the Download button.");
+        return;
+    }
+
+    const { jsPDF } = window.jspdf;
+    const reportElement = document.getElementById('reportPreview');
+    const cards = reportElement.querySelectorAll('.report-card, .xray-card, .foviz-banner, .btn-ambassador');
+    
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+    const margin = 10;
+    const contentWidth = pdfWidth - (2 * margin);
+    
+    // NATIVE HEADER (SYNCED WITH DOWNLOAD LOGIC)
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(24);
+    pdf.setTextColor(15, 23, 42);
+    pdf.text("Apt", margin, 20);
+    pdf.setTextColor(255, 107, 53);
+    pdf.text("Skola", margin + 16, 20);
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(10);
+    pdf.setTextColor(100, 116, 139);
+    pdf.text(`Prepared for: ${customerData.childName || 'Student'}`, margin, 28);
+    pdf.text(`Order ID: ${customerData.orderId}`, margin, 33);
+    pdf.text(`Package: ${selectedPackage} Report`, margin, 38);
+
+    let currentY = 45;
+
+    for (let i = 0; i < cards.length; i++) {
+        const canvas = await html2canvas(cards[i], { scale: 2, useCORS: true, logging: false });
+        const imgData = canvas.toDataURL('image/jpeg', 0.8);
+        const imgProps = pdf.getImageProperties(imgData);
+        const imgHeight = (imgProps.height * contentWidth) / imgProps.width;
+
+        if (currentY + imgHeight > pdfHeight - margin) {
+            pdf.addPage();
+            currentY = margin;
+        }
+        pdf.addImage(imgData, 'JPEG', margin, currentY, contentWidth, imgHeight);
+        currentY += imgHeight + 5;
+    }
+
+    const pdfBlob = pdf.output('blob');
+    const fileName = `Apt-Skola-${customerData.childName || 'Report'}.pdf`;
+    const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
+
+    try {
+        await navigator.share({
+            files: [file],
+            title: 'Apt Skola Board Match Report',
+            text: `Here is the scientific board match report for ${customerData.childName}.`
+        });
+    } catch (err) {
+        console.error("Sharing failed:", err);
+        downloadReport(); 
+    }
 }
 
 // Global Initialization (SURGICAL UPDATE FOR SESSION RESURRECTION)
@@ -1665,5 +1751,48 @@ function recoverSession() {
         });
     } else {
         alert("Order ID not found on this device. Please ensure you are using the same browser you used for the assessment.");
+    }
+}
+
+// --- RECOVERY BY EMAIL LOGIC ---
+function recoverByEmail() {
+    const emailInput = document.getElementById('recoveryEmail');
+    const targetEmail = emailInput ? emailInput.value.trim().toLowerCase() : '';
+
+    if (!targetEmail) {
+        alert("Please enter your email to find your report.");
+        return;
+    }
+
+    let foundSession = null;
+
+    // Step 1: Scan all localStorage keys for Apt Skola sessions
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key.startsWith('aptskola_session_')) {
+            const sessionData = JSON.parse(localStorage.getItem(key));
+            // Step 2: Match the email
+            if (sessionData.customerData && sessionData.customerData.email.toLowerCase() === targetEmail) {
+                foundSession = sessionData;
+                break; // Stop at the first (latest) match
+            }
+        }
+    }
+
+    if (foundSession) {
+        // Step 3: Restore State
+        answers = foundSession.answers;
+        customerData = foundSession.customerData;
+        selectedPrice = customerData.amount || 599;
+        selectedPackage = customerData.package || 'Essential';
+
+        // Step 4: UI Transition
+        document.getElementById('landingPage').classList.add('hidden');
+        renderReportToBrowser().then(() => {
+            showInstantSuccessPage();
+            console.log("CTO: Session recovered via email match.");
+        });
+    } else {
+        alert("No assessment found for this email on this device. Please use the same browser you used for the test.");
     }
 }
