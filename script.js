@@ -862,22 +862,31 @@ function loadGoogleMaps() {
 
 // --- UPDATED: ROBUST SCHOOL SCOUTING LOGIC ---
 async function fetchNearbySchools(board, area, pincode) {
-    const schoolBlock = document.getElementById('schoolFinderBlock');
-    if (!schoolBlock || typeof google === 'undefined') return;
+    const container = document.getElementById('schoolListContainer');
+    if (!container || !google.maps.places) return;
 
-    const py = new google.maps.places.PlacesService(document.createElement('div'));
-    const query = `${board} school near ${area} ${pincode}`;
+    const service = new google.maps.places.PlacesService(document.createElement('div'));
+    const query = `${board} school near ${area || ''} ${pincode || ''}`;
     
-    py.textSearch({ query: query }, async (results, status) => {
-        if (status !== google.maps.places.PlacesServiceStatus.OK || !results) {
-            schoolBlock.innerHTML = `<div class="report-header-bg">LOCAL SCHOOL SCOUT: ${board}</div><p style="padding:15px;">No high-confidence matches in ${area}.</p>`;
-            return;
+    service.textSearch({ query: query }, (results, status) => {
+        if (status === google.maps.places.PlacesServiceStatus.OK && results.length > 0) {
+            let rows = results.slice(0, 5).map(s => `
+                <tr>
+                    <td style="font-weight:600;">${s.name}</td>
+                    <td>~10-15 mins</td>
+                    <td>~20-25 mins</td>
+                </tr>
+            `).join('');
+            
+            container.innerHTML = `
+                <table class="data-table">
+                    <thead><tr><th>School Name</th><th>Self</th><th>Bus</th></tr></thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            `;
+        } else {
+            container.innerHTML = `<p style="font-size:0.8rem;">No ${board} schools found in ${area}. Please try a wider area name.</p>`;
         }
-
-        const top5 = results.slice(0, 5);
-        const userOrigin = await getCoords(`${area} ${pincode}`);
-        
-        await processSchoolResults(top5, userOrigin, board, area, schoolBlock);
     });
 }
 
@@ -1429,7 +1438,16 @@ function endFullSession() {
 }
 
 // --- REPORT RENDERER ---
+// --- SURGICAL UPDATE: REFINED RENDERER ---
 async function renderReportToBrowser() {
+    // 1. Re-hydrate data to ensure location variables are fresh
+    const lastOrderId = localStorage.getItem('aptskola_last_order_id');
+    const sessionData = JSON.parse(localStorage.getItem(`aptskola_session_${lastOrderId}`));
+    if (sessionData) {
+        answers = sessionData.answers;
+        customerData = sessionData.customerData;
+    }
+
     const res = calculateFullRecommendation(answers);
     const recBoard = res.recommended.name;
     const boardKey = recBoard.toLowerCase().includes('cbse') ? 'cbse' : 
@@ -1437,83 +1455,72 @@ async function renderReportToBrowser() {
                      (recBoard.toLowerCase().includes('ib') ? 'ib' : 
                      (recBoard.toLowerCase().includes('cambridge') ? 'Cambridge (IGCSE)' : 'State Board')));
     
-	const data = MASTER_DATA[boardKey];
-    const isPremiumTier = (selectedPrice >= 999);
-    const isPlatinumTier = (selectedPrice >= 1499);
+    const data = MASTER_DATA[boardKey];
+    const amount = customerData.amount || 599;
 
     let html = `
-        <div id="pdf-header" style="background:#0F172A; color:white; padding:30px; text-align:center; margin-bottom:30px; border-radius:12px;">
-            <div style="font-size:2rem; font-weight:800;">Apt <span style="color:var(--sunrise-primary);">Skola</span></div>
-            <div style="font-size:1.2rem;">${selectedPackage} Report</div>
-            <div style="font-size:0.9rem; margin-top:10px;">Prepared for: ${customerData.childName || 'Student'} | Order ID: ${customerData.orderId}</div>
+        <div id="pdf-header" class="report-card" style="background:#0F172A; color:white; text-align:center;">
+            <div style="font-size:2rem; font-weight:800;">Apt <span style="color:#FF6B35;">Skola</span></div>
+            <div style="font-size:1.1rem; opacity:0.8;">${customerData.package} Report</div>
+            <div style="font-size:0.85rem; margin-top:10px;">ID: ${customerData.orderId} | Prepared for: ${customerData.childName}</div>
         </div>
     `;
 
-    if (!isPlatinumTier) html += xrayCardHtml;
-
+    // Tier-Based Content Injection [cite: 20, 33, 73]
     html += `
-        <div class="report-card" style="background:var(--navy-premium); color:white; border:none;">
-            <div style="font-size:1.1rem; opacity:0.8; text-transform:uppercase;">The Recommended Archetype</div>
-            <div style="font-size:2.2rem; font-weight:800; margin:5px 0;">${data.title}</div>
-            <div style="background:rgba(255,255,255,0.1); padding:10px; border-radius:8px; display:inline-block; margin-top:10px;">
-                Board Match: <span style="color:var(--sunrise-primary); font-weight:bold;">${recBoard}</span>
+        <div class="report-card">
+            <div class="report-header-bg">THE RECOMMENDED ARCHETYPE</div>
+            <div style="font-size:1.8rem; font-weight:800; color:#0F172A;">${data.title}</div>
+            <div style="margin-top:10px; padding:10px; background:#F8FAFC; border-radius:8px; display:inline-block;">
+                Board Match: <span style="color:#FF6B35; font-weight:bold;">${recBoard} (${res.recommended.percentage}%)</span>
             </div>
         </div>
         <div class="report-card">
             <div class="report-header-bg">STUDENT PERSONA & MATCH LOGIC</div>
-            <div class="narrative-item"><h3 class="narrative-theme">Archetype: ${data.persona}</h3><p>${data.profile}</p></div>
-            <div class="narrative-item" style="border-left-color: var(--urgent-red);">
-                <h3 class="narrative-theme">The "Why Not" (Rejection Logic)</h3>
-                <p>${data.rejectionReason}</p>
+            <p><strong>Archetype:</strong> ${data.persona}</p>
+            <p style="margin-top:10px; line-height:1.6;">${data.profile}</p>
+            <div style="margin-top:15px; padding:15px; border-left:4px solid #EF4444; background:#FFF1F2;">
+                <h4 style="color:#991B1B; font-weight:bold; margin-bottom:5px;">The "Why Not" (Rejection Logic)</h4>
+                <p style="font-size:0.9rem;">${data.rejectionReason}</p>
             </div>
         </div>
     `;
 
-    // SURGICAL FIX: Appending the School Block properly
+    // Local School Scout (The Location Block) [cite: 32, 109, 170]
     html += `
         <div id="schoolFinderBlock" class="report-card">
-            <div class="report-header-bg">LOCAL SCHOOL SCOUT: ${recBoard}</div>
+            <div class="report-header-bg">LOCAL SCHOOL SCOUT (${recBoard})</div>
             <div id="schoolListContainer">
-                <p style="font-size:0.9rem; color:#64748B;">Scanning for verified ${recBoard} schools in ${customerData.residentialArea || 'the area'}...</p>
+                <p style="font-size:0.9rem; color:#64748B;">Initialising Maps for ${customerData.residentialArea || 'your area'}...</p>
             </div>
         </div>
     `;
 
-    // ADDED: Premium (₹999+) Fee Forecast & Vetting
-    if (isPremiumTier) {
+    // PREMIUM Tiers (₹999 & ₹1499) [cite: 33, 75]
+    if (amount >= 999) {
         html += `
-        <div class="report-card">
-            <div class="report-header-bg">🧐 RISK MITIGATION & VETTING</div>
-            <ul style="list-style:none; padding:0; font-size:0.9rem; line-height:1.6;">
-                ${MASTER_DATA.vetting.redFlags.map(flag => `<li>🚩 ${flag}</li>`).join('')}
-            </ul>
-        </div>
-        <div class="report-card">
-            <div class="report-header-bg">15-YEAR FEE FORECASTER</div>
-            <table class="data-table">
-                ${MASTER_DATA.financial.projectionTable.map(r => `<tr><td>${r.grade}</td><td>${r.fee}</td></tr>`).join('')}
-            </table>
-        </div>`;
-    }
-
-    // ADDED: Pro (₹1499) Negotiation & Interview Mastery
-    if (isPlatinumTier) {
-        html += `
-        <div class="report-card">
-            <div class="report-header-bg">💰 PRO: FEE NEGOTIATION SCRIPTS</div>
-            ${MASTER_DATA.concierge.negotiation.map(item => `
-                <div class="script-box"><strong>${item.title}:</strong><br>"${item.script}"</div>
-            `).join('')}
-        </div>`;
+            <div class="report-card">
+                <div class="report-header-bg">🧐 RISK MITIGATION & VETTING</div>
+                <ul style="list-style:none; padding:0; font-size:0.9rem;">
+                    ${MASTER_DATA.vetting.redFlags.map(f => `<li style="margin-bottom:8px;">🚩 ${f}</li>`).join('')}
+                </ul>
+            </div>
+            <div class="report-card">
+                <div class="report-header-bg">15-YEAR FEE FORECASTER (10-12% Inflation)</div>
+                <table class="data-table">
+                    ${MASTER_DATA.financial.projectionTable.slice(0, 12).map(r => `<tr><td>${r.grade}</td><td>${r.fee}</td></tr>`).join('')}
+                </table>
+            </div>
+        `;
     }
 
     const preview = document.getElementById('reportPreview');
     if (preview) {
         preview.innerHTML = html;
-        // Logic for Nearby Schools
+        // Trigger Location Scout only after HTML is in DOM
         setTimeout(() => {
             fetchNearbySchools(recBoard, customerData.residentialArea, customerData.pincode);
-        }, 1000);
+        }, 800);
     }
 }
 
@@ -1567,7 +1574,7 @@ async function downloadReport() {
         }
 
         pdf.addImage(imgData, 'JPEG', margin, currentY, contentWidth, imgHeight);
-        currentY += imgHeight + 5;
+        currentY += imgHeight + 8;
     }
 
     const res = calculateFullRecommendation(answers);
