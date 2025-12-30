@@ -584,7 +584,14 @@ function calculateCostOfConfusion() {
 // --- CORE UI ACTIONS ---
 function scrollToPricing() {
     const pricing = document.getElementById('pricing');
-    if (pricing) pricing.scrollIntoView({ behavior: 'smooth' });
+    if (pricing) {
+        // We add a -20 offset to ensure the header doesn't cut off the title
+        const yOffset = -20; 
+        const y = pricing.getBoundingClientRect().top + window.pageYOffset + yOffset;
+        window.scrollTo({ top: y, behavior: 'smooth' });
+    } else {
+        console.error("CTO Error: Pricing section #pricing not found in HTML.");
+    }
 }
 
 window.addEventListener('scroll', () => {
@@ -689,21 +696,25 @@ function getIntermediateFooterHtml() {
 function openSyncMatchGate() {
     const landing = document.getElementById('landingPage');
     const gate = document.getElementById('syncMatchGate');
-    if (landing) landing.classList.add('hidden');
-    if (gate) {
+    
+    if (landing && gate) {
+        landing.classList.add('hidden');
         gate.classList.remove('hidden');
         gate.classList.add('active'); 
         
-        const gateContainer = gate.querySelector('.details-form');
-        if (gateContainer && !gateContainer.querySelector('.foviz-banner')) {
-            gateContainer.insertAdjacentHTML('afterbegin', fovizBannerHtml);
-            const startBtn = document.getElementById('startSyncBtn');
-            if (startBtn && !gateContainer.querySelector('.xray-card')) {
-                startBtn.insertAdjacentHTML('afterend', xrayCardHtml);
+        // --- CTO FIX: Injecting the missing ads into the gate ---
+        const gateContent = gate.querySelector('.details-form');
+        if (gateContent && !gateContent.querySelector('.xray-card')) {
+            // We inject the X-ray card and Foviz banner before the "Go Back Home" link
+            const backLink = gateContent.querySelector('p[onclick*="goToLandingPage"]');
+            if (backLink) {
+                backLink.insertAdjacentHTML('beforebegin', xrayCardHtml);
+                backLink.insertAdjacentHTML('beforebegin', fovizBannerHtml);
             }
         }
+        
+        window.scrollTo(0, 0);
     }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function validateAndStartSyncMatch() {
@@ -804,9 +815,10 @@ function showSyncTransition() {
     
     const transitionContainer = transition.querySelector('.details-form');
     if (transitionContainer && !transitionContainer.querySelector('.xray-card')) {
+        // Find the timer circle to place the ads below it
         const timerCont = transitionContainer.querySelector('.timer-circle-container');
         if (timerCont) {
-            timerCont.insertAdjacentHTML('beforebegin', xrayCardHtml);
+            timerCont.insertAdjacentHTML('afterend', xrayCardHtml + fovizBannerHtml);
         }
     }
     
@@ -1438,7 +1450,7 @@ function endFullSession() {
 }
 
 async function renderReportToBrowser() {
-    // Re-hydrate data for accuracy
+    // 1. Re-hydrate data from LocalStorage
     const lastOrderId = localStorage.getItem('aptskola_last_order_id');
     const sessionData = JSON.parse(localStorage.getItem(`aptskola_session_${lastOrderId}`));
     if (sessionData) {
@@ -1456,16 +1468,14 @@ async function renderReportToBrowser() {
     const data = MASTER_DATA[boardKey];
     const amount = customerData.amount || 599;
 
+    // --- BASE BLOCKS (Included in all tiers: ₹599, ₹999, ₹1499) ---
     let html = `
         <div id="pdf-header" class="report-card" style="background:#0F172A; color:white; text-align:center;">
             <div style="font-size:2rem; font-weight:800;">Apt <span style="color:#FF6B35;">Skola</span></div>
             <div style="font-size:1.1rem; opacity:0.8;">${customerData.package} Report</div>
             <div style="font-size:0.85rem; margin-top:10px;">ID: ${customerData.orderId} | Prepared for: ${customerData.childName}</div>
         </div>
-    `;
 
-    // ARCHETYPE & MATCH LOGIC [cite: 9, 10, 86, 87, 123, 124]
-    html += `
         <div class="report-card">
             <div class="report-header-bg">THE RECOMMENDED ARCHETYPE</div>
             <div style="font-size:1.8rem; font-weight:800; color:#0F172A;">${data.title}</div>
@@ -1473,143 +1483,118 @@ async function renderReportToBrowser() {
                 Board Match: <span style="color:#FF6B35; font-weight:bold;">${recBoard} (${res.recommended.percentage}%)</span>
             </div>
         </div>
+
         <div class="report-card">
             <div class="report-header-bg">STUDENT PERSONA & MATCH LOGIC</div>
-            <p><strong>Archetype:</strong> ${data.persona}</p> [cite: 13, 90, 127]
-            <p style="margin-top:10px; line-height:1.6;">${data.profile}</p> [cite: 14, 91, 128]
+            <p><strong>Archetype:</strong> ${data.persona}</p>
+            <p style="margin-top:10px; line-height:1.6;">${data.profile}</p>
             <div style="margin-top:15px; padding:15px; border-left:4px solid #EF4444; background:#FFF1F2;">
                 <h4 style="color:#991B1B; font-weight:bold; margin-bottom:5px;">The "Why Not" (Rejection Logic)</h4>
-                <p style="font-size:0.9rem;">${data.rejectionReason}</p> [cite: 15, 16, 92, 93, 129, 130]
+                <p style="font-size:0.9rem;">${data.rejectionReason}</p>
             </div>
             <div style="margin-top:15px; border-top: 1px solid #eee; padding-top:15px;">
                 <h4 style="color:#0F172A; font-weight:bold; margin-bottom:5px;">Projected Career Path</h4>
-                <p style="font-size:0.9rem; line-height:1.5;">${data.careerPath}</p> [cite: 18, 19, 95, 96, 131, 132, 133]
+                <p style="font-size:0.9rem; line-height:1.5;">${data.careerPath}</p>
             </div>
         </div>
-    `;
 
-    // NEW BLOCK: BOARD & OPTION COMPARISON [cite: 20, 21, 97, 98, 134, 135]
-	html += `
-		<div class="report-card">
-        <div class="report-header-bg">BOARD & OPTION COMPARISON</div>
-        <table class="data-table">
-            <thead>
-                <tr><th>Board</th><th>Match Quality</th><th>Status</th></tr>
-            </thead>
-            <tbody>
-                ${res.fullRanking.slice(0, 3).map((r, i) => `
-                    <tr>
-                        <td style="font-weight:600;">${r.name}</td>
-                        <td class="progress-bar-cell">
-                            <div class="table-progress-track">
-                                <div class="table-progress-fill" style="width: ${r.percentage}%"></div>
-                            </div>
-                            <span class="percentage-label">${r.percentage}% Match</span>
-                        </td>
-                        <td style="color:${i === 0 ? '#10B981' : '#64748B'}; font-weight:bold;">
-                            ${i === 0 ? 'Recommended' : 'Alternative'}
-                        </td>
-                    </tr>
-                `).join('')}
-            </tbody>
-        </table>
-		</div>
-	`;
+        <div class="report-card">
+            <div class="report-header-bg">BOARD & OPTION COMPARISON</div>
+            <table class="data-table">
+                <thead><tr><th>Board</th><th>Match Quality</th><th>Status</th></tr></thead>
+                <tbody>
+                    ${res.fullRanking.slice(0, 3).map((r, i) => `
+                        <tr>
+                            <td style="font-weight:600;">${r.name}</td>
+                            <td class="progress-bar-cell">
+                                <div class="table-progress-track"><div class="table-progress-fill" style="width: ${r.percentage}%"></div></div>
+                                <span class="percentage-label">${r.percentage}% Match</span>
+                            </td>
+                            <td style="color:${i === 0 ? '#10B981' : '#64748B'}; font-weight:bold;">${i === 0 ? 'Recommended' : 'Alternative'}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
 
-    // NEW BLOCK: BOARD DEEP DIVE [cite: 22, 23, 24, 25, 99, 100, 101, 102, 136, 137, 138, 139]
-    html += `
         <div class="report-card">
             <div class="report-header-bg">BOARD DEEP DIVE</div>
-            <div style="margin-bottom:15px;">
-                <p><strong>Philosophy:</strong> ${data.philosophy}</p> [cite: 23, 100, 137]
-            </div>
-            <div style="margin-bottom:15px;">
-                <p><strong>Pedagogy:</strong> ${data.teachingMethod}</p> [cite: 24, 101, 138]
-            </div>
-            <div style="padding:10px; border-radius:6px; background:${data.parentalRole.toLowerCase().includes('high') ? '#FEF2F2' : '#F0FDF4'}; border:1px solid ${data.parentalRole.toLowerCase().includes('high') ? '#FECDD3' : '#BBF7D0'};">
+            <p><strong>Philosophy:</strong> ${data.philosophy}</p>
+            <p style="margin-top:10px;"><strong>Pedagogy:</strong> ${data.teachingMethod}</p>
+            <div style="margin-top:10px; padding:10px; border-radius:6px; background:${data.parentalRole.toLowerCase().includes('high') ? '#FEF2F2' : '#F0FDF4'}; border:1px solid ${data.parentalRole.toLowerCase().includes('high') ? '#FECDD3' : '#BBF7D0'};">
                 <p style="color:${data.parentalRole.toLowerCase().includes('high') ? '#991B1B' : '#166534'}; margin:0;">
                     <strong>Parental Commitment:</strong> ${data.parentalRole} 
                 </p>
             </div>
         </div>
-    `;
 
-// Updated Local School Scout Block with proper Table Structure
-	html += `
-    <div id="schoolFinderBlock" class="report-card">
-        <div class="report-header-bg">LOCAL SCHOOL SCOUT (${recBoard})</div>
-        <p style="font-size:0.85rem; color:#64748B; margin-bottom:15px;">
-            Geospatial scan complete for ${customerData.residentialArea || 'your area'}:
-        </p>
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>School Name</th>
-                    <th>Self Travel</th>
-                    <th>Bus Travel</th>
-                </tr>
-            </thead>
-            <tbody id="schoolListContainer">
-                <tr>
-                    <td colspan="3" style="text-align:center; padding:20px; color:#94A3B8;">
-                        Scanning nearby ${recBoard} institutes...
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-	`;
+        <div id="schoolFinderBlock" class="report-card">
+            <div class="report-header-bg">LOCAL SCHOOL SCOUT (${recBoard})</div>
+            <p style="font-size:0.85rem; color:#64748B; margin-bottom:15px;">Geospatial scan complete for ${customerData.residentialArea || 'your area'}:</p>
+            <table class="data-table">
+                <thead><tr><th>School Name</th><th>Self Travel</th><th>Bus Travel</th></tr></thead>
+                <tbody id="schoolListContainer"><tr><td colspan="3" style="text-align:center; padding:20px; color:#94A3B8;">Scanning nearby institutes...</td></tr></tbody>
+            </table>
+        </div>
 
-    // INCLUSION & REMAINING BLOCKS
-    html += `
         <div class="report-card">
             <div class="report-header-bg">EXPERT NOTE: SPECIAL NEEDS & INCLUSION</div>
             <p style="font-size:0.85rem; line-height:1.5; color:#475569;">
-                Rather than focusing solely on the board, prioritize finding a school that offers inclusive education and genuine flexibility[cite: 27, 104, 141]. 
-                A supportive school environment is often more critical than the syllabus itself[cite: 28, 105, 142]. 
-                For students requiring significant customization, Open Schooling (NIOS) is the most adaptable choice[cite: 29, 106, 143].
+                A supportive school environment is often more critical than the syllabus itself. For students requiring significant customization, Open Schooling (NIOS) is the most adaptable choice.
             </p>
-        </div>
-        <div id="schoolFinderBlock" class="report-card">
-            <div class="report-header-bg">LOCAL SCHOOL SCOUT (${recBoard})</div>
-            <div id="schoolListContainer">
-                <p style="font-size:0.9rem; color:#64748B;">Initialising Maps for ${customerData.residentialArea || 'your area'}...</p>
-            </div>
         </div>
     `;
 
-    // TIER-SPECIFIC BLOCKS (999 & 1499) [cite: 33, 73, 75, 168, 169]
+    // --- PREMIUM BLOCKS (₹999 and above) ---
     if (amount >= 999) {
         html += `
             <div class="report-card">
                 <div class="report-header-bg">🧐 RISK MITIGATION & VETTING</div>
                 <ul style="list-style:none; padding:0; font-size:0.9rem;">
-                    ${MASTER_DATA.vetting.redFlags.map(f => `<li style="margin-bottom:8px;">🚩 ${f}</li>`).join('')} [cite: 35, 36, 37, 149, 150, 151, 152, 153]
+                    ${MASTER_DATA.vetting.redFlags.map(f => `<li style="margin-bottom:8px;">🚩 ${f}</li>`).join('')}
                 </ul>
             </div>
             <div class="report-card">
-                <div class="report-header-bg">15-YEAR FEE FORECASTER (10-12% Inflation)</div>
+                <div class="report-header-bg">15-YEAR FEE FORECASTER (12% Inflation)</div>
                 <table class="data-table">
-                    ${MASTER_DATA.financial.projectionTable.slice(0, 12).map(r => `<tr><td>${r.grade}</td><td>${r.fee}</td></tr>`).join('')} [cite: 75, 169]
+                    ${MASTER_DATA.financial.projectionTable.slice(0, 12).map(r => `<tr><td>${r.grade}</td><td>${r.fee}</td></tr>`).join('')}
                 </table>
             </div>
         `;
     }
 
-    // DISPATCH RENDER
-    const preview = document.getElementById('reportPreview');
-    if (preview) {
-        preview.innerHTML = html;
-        setTimeout(() => {
-            fetchNearbySchools(recBoard, customerData.residentialArea, customerData.pincode);
-        }, 800);
+    // --- PRO BLOCKS (₹1499 only) ---
+    if (amount >= 1499) {
+        html += `
+            <div class="report-card">
+                <div class="report-header-bg">🤝 FEE NEGOTIATION STRATEGIES</div>
+                ${MASTER_DATA.concierge.negotiation.map(n => `
+                    <div class="narrative-item">
+                        <h4 class="narrative-theme">${n.title}</h4>
+                        <p style="font-size:0.85rem; margin-bottom:10px;"><strong>Scenario:</strong> ${n.scenario}</p>
+                        <div class="script-box">"${n.script}"</div>
+                    </div>
+                `).join('')}
+            </div>
+            <div class="report-card">
+                <div class="report-header-bg">🎙️ PARENT INTERVIEW MASTERY</div>
+                <div class="interview-grid">
+                    ${MASTER_DATA.interviewMastery.part2.slice(0, 6).map(i => `
+                        <div class="interview-card">
+                            <div class="interview-card-q">${i.q}</div>
+                            <div class="interview-card-strategy">💡 Strategy: ${i.strategy}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
     }
-}
 
+    // 2. Dispatch Render to Screen
     const preview = document.getElementById('reportPreview');
     if (preview) {
         preview.innerHTML = html;
-        // Trigger Location Scout only after HTML is in DOM
+        // Trigger the School Search API
         setTimeout(() => {
             fetchNearbySchools(recBoard, customerData.residentialArea, customerData.pincode);
         }, 800);
@@ -1667,6 +1652,8 @@ async function downloadReport() {
 
         pdf.addImage(imgData, 'JPEG', margin, currentY, contentWidth, imgHeight);
         currentY += imgHeight + 8;
+		
+		canvas.width = 0; canvas.height = 0; // Force memory release
     }
 
     const res = calculateFullRecommendation(answers);
@@ -1824,7 +1811,7 @@ function recoverSession() {
         alert("Order ID not found on this device. Please ensure you are using the same browser you used for the assessment.");
     }
 }
-
+	function recoverSessionEmail(targetEmail) { // Add this line
     let foundSession = null;
 
     // Step 1: Scan all localStorage keys for Apt Skola sessions
@@ -1857,3 +1844,32 @@ function recoverSession() {
         alert("No assessment found for this email on this device. Please use the same browser you used for the test.");
     }
 }
+// Ensure all buttons are clickable and section is visible after DOM load
+document.addEventListener('DOMContentLoaded', () => {
+    calculateCostOfConfusion();
+    checkPaymentStatus(); 
+    loadGoogleMaps().catch(err => console.warn("Maps init failed:", err));
+    
+    // Wire up logo clicks
+    const logos = document.querySelectorAll('#landingHeaderLogo');
+    logos.forEach(l => l.addEventListener('click', goToLandingPage));
+
+    // Force pricing visibility
+    const pricingSection = document.getElementById('pricing');
+    if (pricingSection) {
+        pricingSection.style.display = 'block'; 
+    }
+
+    // Handle Sync Deep-links
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('unlock') === 'sync') {
+        setTimeout(() => {
+            openSyncMatchGate();
+            const syncInput = document.getElementById('syncOrderId');
+            if (syncInput) {
+                syncInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                syncInput.focus();
+            }
+        }, 500);
+    }
+});
