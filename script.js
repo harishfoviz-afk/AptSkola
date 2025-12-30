@@ -596,7 +596,7 @@ function scrollToPricing() {
     const pricing = document.getElementById('pricing');
     if (pricing) {
         // We add a -20 offset to ensure the header doesn't cut off the title
-        const yOffset = -20; 
+        const yOffset = -1; 
         const y = pricing.getBoundingClientRect().top + window.pageYOffset + yOffset;
         window.scrollTo({ top: y, behavior: 'smooth' });
     } else {
@@ -1854,22 +1854,6 @@ function recoverSession() {
         alert("No assessment found for this email on this device. Please use the same browser you used for the test.");
     }
 }
-// Ensure all buttons are clickable and section is visible after DOM load
-document.addEventListener('DOMContentLoaded', () => {
-    calculateCostOfConfusion();
-    checkPaymentStatus(); 
-    loadGoogleMaps().catch(err => console.warn("Maps init failed:", err));
-    
-    // Wire up logo clicks
-    const logos = document.querySelectorAll('#landingHeaderLogo');
-    logos.forEach(l => l.addEventListener('click', goToLandingPage));
-
-    // Force pricing visibility
-    const pricingSection = document.getElementById('pricing');
-    if (pricingSection) {
-        pricingSection.style.display = 'block'; 
-    }
-
     // Handle Sync Deep-links
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('unlock') === 'sync') {
@@ -1883,4 +1867,3 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 500);
     }
 });
-
