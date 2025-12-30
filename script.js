@@ -4,6 +4,7 @@ const GMAPS_API_KEY = "AIzaSyCS0hE4xa32DpKoNs5Na3KDX3HrazBvwiU";
 const EMAILJS_PUBLIC_KEY = "GJEWFtAL7s231EDrk"; // REPLACE WITH YOUR KEY
 const EMAILJS_SERVICE_ID = "0KkpEGHACdzjKCK1wicJj"; // REPLACE WITH YOUR SERVICE ID
 const EMAILJS_TEMPLATE_ID = "template_qze00kx"; // REPLACE WITH YOUR TEMPLATE ID
+const EMAILJS_LEAD_TEMPLATE_ID = "template_lead_summary"; // NEW: For Save for Later
 
 // Prices in PAISE (1 Rupee = 100 Paise)
 const PACKAGE_PRICES = { 'Essential': 59900, 'Premium': 99900, 'The Smart Parent Pro': 149900 };
@@ -50,7 +51,7 @@ const xrayCardHtml = `
         <h3>Apt Skola Exclusive: AI Forensic School X-ray</h3>
         <div class="price">₹99 <span style="font-size: 0.9rem; color: #64748B; text-decoration: line-through;">₹399</span></div>
         <p style="font-size: 0.85rem; color: #475569; margin-bottom: 15px;">Spot hidden red flags, library authenticity, and teacher turnover using our proprietary AI vision tool.</p>
-        <a href="https://aptskola.com/X-ray" target="_blank" class="btn-xray">Get X-ray (75% OFF)</a>
+        <a href="https://aiaudit.aptskola.com" target="_blank" class="btn-xray">Get X-ray (75% OFF)</a>
     </div>
 `;
 
@@ -475,45 +476,50 @@ function checkPaymentStatus() {
     const razorpayId = params.get('razorpay_payment_id');
 
     if (razorpayId) {
-        console.log("Payment detected via URL sniffing. Restoring session...");
+        // Step 1: Show the Overlay
+        const overlay = document.getElementById('redirectLoadingOverlay');
+        const statusText = document.getElementById('redirectStatusText');
+        const progressBar = document.getElementById('redirectProgressBar');
         
-        // Find session in localStorage
-        let sessionKey = null;
-        const orderIdParam = params.get('order_id');
-        
-        if (orderIdParam) {
-            sessionKey = `aptskola_session_${orderIdParam}`;
+        if (overlay) overlay.style.display = 'flex';
+
+        // Step 2: Identify the session
+        const lastOrderId = localStorage.getItem('aptskola_last_order_id');
+        const sessionKey = lastOrderId ? `aptskola_session_${lastOrderId}` : null;
+        const savedSession = localStorage.getItem(sessionKey);
+
+        if (savedSession) {
+            const data = JSON.parse(savedSession);
+            answers = data.answers;
+            customerData = data.customerData;
+            selectedPrice = customerData.amount;
+            selectedPackage = customerData.package;
+
+            if(statusText) statusText.innerText = "Generating School Board Analytics...";
+            if(progressBar) progressBar.style.width = "30%";
+
+            // Step 3: Run the Processing Sequence
+            renderReportToBrowser().then(() => {
+                if(statusText) statusText.innerText = "Mapping Nearby Schools & Commute Times...";
+                if(progressBar) progressBar.style.width = "60%";
+                
+                // Wait briefly for Maps/Routes API to stabilize
+                setTimeout(() => {
+                    if(statusText) statusText.innerText = "Dispatching Full Report to your Inbox...";
+                    if(progressBar) progressBar.style.width = "90%";
+                    
+                    triggerAutomatedEmail().then(() => {
+                        // Success State
+                        if(overlay) overlay.style.display = 'none';
+                        showInstantSuccessPage();
+                        console.log("CTO: Post-payment processing complete.");
+                    });
+                }, 1500);
+            });
         } else {
-            // Fallback: search for any existing aptskola session
-            for (let i = 0; i < localStorage.length; i++) {
-                const key = localStorage.key(i);
-                if (key.startsWith('aptskola_session_')) {
-                    sessionKey = key;
-                    break;
-                }
-            }
+            if (overlay) overlay.style.display = 'none';
+            alert("Payment successful, but we couldn't find your local data. Please check your email or contact support.");
         }
-
-        // --- Update this specific block in your checkPaymentStatus() ---
-		const savedSession = localStorage.getItem(sessionKey);
-		if (savedSession) {
-			const data = JSON.parse(savedSession);
-			answers = data.answers;
-			customerData = data.customerData;
-			selectedPrice = customerData.amount;
-			selectedPackage = customerData.package;
-
-			document.getElementById('landingPage').classList.add('hidden');
-
-			renderReportToBrowser().then(() => {
-			triggerAutomatedEmail();
-			showInstantSuccessPage();
-    });
-} else {
-    // THIS IS THE MISSING SAFETY GEAR
-    console.error("Payment received, but no local session data found.");
-    alert("Payment successful! However, we couldn't find your assessment data on this device. Please check your email for the report or contact support with your Order ID.");
-}
     }
 }
 
@@ -1137,7 +1143,7 @@ function generateOrderId(prefix = '') {
     return typePrefix + Date.now().toString().slice(-8) + Math.floor(Math.random() * 100);
 }
 
-// --- FORM CAPTURE ---
+// --- FORM CAPTURE (SURGICAL UPDATE FOR LEAD MAGNET) ---
 document.getElementById('customerForm')?.addEventListener('submit', function(e) {
     e.preventDefault();
     
@@ -1155,7 +1161,9 @@ document.getElementById('customerForm')?.addEventListener('submit', function(e) 
         return;
     }
 
+    // Step 1: Initialize Data
     const newOrderId = generateOrderId();
+    const isSaveForLater = document.getElementById('saveForLater')?.checked;
     
     customerData = {
         parentName: document.getElementById('parentName')?.value,
@@ -1171,10 +1179,22 @@ document.getElementById('customerForm')?.addEventListener('submit', function(e) 
         orderId: newOrderId
     };
 
+    // Step 2: Silent Persistence
     localStorage.setItem(`aptskola_session_${newOrderId}`, JSON.stringify({
         answers: answers,
         customerData: customerData
     }));
+    localStorage.setItem('aptskola_last_order_id', newOrderId);
+
+    // Step 3: Optional Lead Capture Dispatch (Save for Later)
+    if (isSaveForLater && typeof emailjs !== 'undefined') {
+        emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_LEAD_TEMPLATE_ID, {
+            user_name: customerData.parentName,
+            user_email: customerData.email,
+            child_name: customerData.childName,
+            package_name: customerData.package
+        }).then(() => console.log("Lead summary sent via EmailJS")).catch(e => console.warn("Lead email fail:", e));
+    }
 
     const formData = new FormData(this);
     formData.append('orderId', newOrderId);
@@ -1189,43 +1209,73 @@ document.getElementById('customerForm')?.addEventListener('submit', function(e) 
     setTimeout(() => {
         document.getElementById('detailsPage').classList.add('hidden');
         const pCont = document.getElementById('paymentPageContainer');
-        pCont.classList.remove('hidden');
-        pCont.classList.add('active');
-        
-        document.getElementById('summaryPackage').textContent = selectedPackage;
-        document.getElementById('summaryPrice').textContent = `₹${selectedPrice}`;
-        document.getElementById('summaryTotal').textContent = `₹${selectedPrice}`;
-        document.getElementById('payButton').innerText = `Pay ₹${selectedPrice} via Razorpay Link →`;
-        
+        if(pCont) {
+            pCont.classList.remove('hidden');
+            pCont.classList.add('active');
+            
+            document.getElementById('summaryPackage').textContent = selectedPackage;
+            document.getElementById('summaryPrice').textContent = `₹${selectedPrice}`;
+            document.getElementById('summaryTotal').textContent = `₹${selectedPrice}`;
+            document.getElementById('payButton').innerText = `Pay ₹${selectedPrice} via Razorpay Link →`;
+        }
         window.scrollTo({ top: 0, behavior: 'instant' });
     }, 500);
 });
 
 function redirectToRazorpay() {
     const payButton = document.getElementById('payButton');
+    
+    // Step 1: Secure the data BEFORE redirecting
+    if (customerData.orderId && customerData.orderId !== 'N/A') {
+        localStorage.setItem(`aptskola_session_${customerData.orderId}`, JSON.stringify({
+            answers: answers,
+            customerData: customerData
+        }));
+        // Also save a "Last Order" pointer for easier recovery
+        localStorage.setItem('aptskola_last_order_id', customerData.orderId);
+    }
+
     if(payButton) payButton.innerText = "Redirecting to Secure Payment...";
+    
+    // Step 2: Route to the correct static link
     const link = PAYMENT_LINKS[selectedPrice] || PAYMENT_LINKS[599];
-    window.location.href = link;
+    // Bypass payment and trigger the full report/email engine immediately
+	renderReportToBrowser().then(() => { triggerAutomatedEmail(); showInstantSuccessPage(); });
 }
 
 // --- EMAIL DISPATCH ---
 async function triggerAutomatedEmail() {
     const reportElement = document.getElementById('reportPreview');
+    // Guard clause: ensure EmailJS and report element exist
     if(!reportElement || typeof emailjs === 'undefined') return;
     
-    const canvas = await html2canvas(reportElement, { scale: 1.5, useCORS: true });
-    const pdfData = canvas.toDataURL('image/jpeg', 0.7);
+    // Step 1: High-fidelity capture 
+    // We use scale 2.0 to match the crispness of your downloaded PDF
+    const canvas = await html2canvas(reportElement, { 
+        scale: 2.0, 
+        useCORS: true,
+        logging: false 
+    });
+    
+    // Step 2: Convert to high-quality JPEG
+    // JPEG is better for email size constraints than PNG
+    const reportImageData = canvas.toDataURL('image/jpeg', 0.8);
 
     try {
+        // Step 3: Dispatch via EmailJS
         await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
             user_email: customerData.email,
             user_name: customerData.parentName,
             order_id: customerData.orderId,
-            report_image: pdfData 
+			child_name: customerData.childName,
+            package_name: customerData.package,
+            // Ensure your EmailJS template has a variable {{report_image}} 
+            // set up inside an <img src="{{report_image}}"> tag
+            report_image: reportImageData 
         });
-        console.log("EmailJS: Report dispatch success.");
+        console.log("CTO Update: EmailJS report dispatch successful.");
     } catch (e) {
-        console.warn("EmailJS failed.", e);
+        console.warn("CTO Warning: EmailJS failed to dispatch.", e);
     }
 }
 
@@ -1376,6 +1426,7 @@ async function renderReportToBrowser() {
                      (recBoard.toLowerCase().includes('cambridge') ? 'Cambridge (IGCSE)' : 'State Board')));
     
     const data = MASTER_DATA[boardKey];
+    // CTO Note: Crucial checks for Tier-based unlocking
     const isPremiumTier = (selectedPrice >= 999);
     const isPlatinumTier = (selectedPrice >= 1499);
 
@@ -1400,6 +1451,10 @@ async function renderReportToBrowser() {
         <div class="report-card">
             <div class="report-header-bg">STUDENT PERSONA & MATCH LOGIC</div>
             <div class="narrative-item"><h3 class="narrative-theme">Archetype: ${data.persona}</h3><p>${data.profile}</p></div>
+            <div class="narrative-item" style="border-left-color: var(--urgent-red);">
+                <h3 class="narrative-theme">The "Why Not" (Rejection Logic)</h3>
+                <p>${data.rejectionReason}</p>
+            </div>
         </div>
         <div id="schoolFinderBlock" class="report-card">
             <div class="report-header-bg">LOCAL SCHOOL SCOUT: ${recBoard}</div>
@@ -1407,19 +1462,50 @@ async function renderReportToBrowser() {
         </div>
     `;
 
+    // ADDED: Premium (₹999+) Fee Forecast & Vetting
+    if (isPremiumTier) {
+        html += `
+        <div class="report-card">
+            <div class="report-header-bg">🧐 RISK MITIGATION & VETTING</div>
+            <ul style="list-style:none; padding:0; font-size:0.9rem; line-height:1.6;">
+                ${MASTER_DATA.vetting.redFlags.map(flag => `<li>🚩 ${flag}</li>`).join('')}
+            </ul>
+        </div>
+        <div class="report-card">
+            <div class="report-header-bg">15-YEAR FEE FORECASTER</div>
+            <table class="data-table">
+                ${MASTER_DATA.financial.projectionTable.map(r => `<tr><td>${r.grade}</td><td>${r.fee}</td></tr>`).join('')}
+            </table>
+        </div>`;
+    }
+
+    // ADDED: Pro (₹1499) Negotiation & Interview Mastery
+    if (isPlatinumTier) {
+        html += `
+        <div class="report-card">
+            <div class="report-header-bg">💰 PRO: FEE NEGOTIATION SCRIPTS</div>
+            ${MASTER_DATA.concierge.negotiation.map(item => `
+                <div class="script-box"><strong>${item.title}:</strong><br>"${item.script}"</div>
+            `).join('')}
+        </div>`;
+    }
+
     const preview = document.getElementById('reportPreview');
     if (preview) {
         preview.innerHTML = html;
+        // Logic for Nearby Schools
         setTimeout(() => {
-            fetchNearbySchools(recBoard, customerData.residentialArea, customerData.pincode, 0);
+            fetchNearbySchools(recBoard, customerData.residentialArea, customerData.pincode);
         }, 800);
     }
 }
 
+// --- OPTIMIZED: SMART PDF GENERATOR WITH VERTICAL TRACKING ---
 async function downloadReport() {
     const { jsPDF } = window.jspdf;
     const reportElement = document.getElementById('reportPreview');
-    if(!reportElement) return;
+    
+    // Step 1: Target all content blocks specifically
     const cards = reportElement.querySelectorAll('.report-card, #pdf-header, .xray-card, .foviz-banner, .btn-ambassador');
     
     const pdf = new jsPDF('p', 'mm', 'a4');
@@ -1428,34 +1514,156 @@ async function downloadReport() {
     const margin = 10;
     const contentWidth = pdfWidth - (2 * margin);
     
-    let currentY = margin;
+    let currentY = margin; // Track the vertical position on the current page
 
+    // Step 2: Loop through each card and render to canvas
     for (let i = 0; i < cards.length; i++) {
-        const canvas = await html2canvas(cards[i], { scale: 2, useCORS: true, logging: false });
+        const canvas = await html2canvas(cards[i], {
+            scale: 2, // Higher quality for printing
+            useCORS: true,
+            logging: false
+        });
+
         const imgData = canvas.toDataURL('image/jpeg', 0.8);
         const imgProps = pdf.getImageProperties(imgData);
         const imgHeight = (imgProps.height * contentWidth) / imgProps.width;
 
+        // Step 3: MULTI-PAGE OVERFLOW CHECK
+        // If current block height exceeds remaining page space, move to next page
         if (currentY + imgHeight > pdfHeight - margin) {
             pdf.addPage();
-            currentY = margin;
+            currentY = margin; // Reset tracking for the new page
         }
 
         pdf.addImage(imgData, 'JPEG', margin, currentY, contentWidth, imgHeight);
+        
+        // Step 4: Advance vertical tracker by image height plus a 5mm gap
         currentY += imgHeight + 5;
     }
-    pdf.save(`Apt-Skola-${customerData.childName || 'Report'}.pdf`);
+
+    // Step 5: Save with dynamic naming
+    const res = calculateFullRecommendation(answers);
+    const recBoard = res.recommended.name;
+    pdf.save(`Apt-Skola-${customerData.childName || 'Report'}-${recBoard}.pdf`);
 }
 
 function sharePDF() {
     if (navigator.share) navigator.share({ title: 'Apt Skola Report', url: window.location.href });
 }
 
-// Global Initialization
+// Global Initialization (SURGICAL UPDATE FOR SESSION RESURRECTION)
 document.addEventListener('DOMContentLoaded', () => {
     calculateCostOfConfusion();
     checkPaymentStatus(); 
     loadGoogleMaps().catch(err => console.warn("Maps init failed:", err));
     const logos = document.querySelectorAll('#landingHeaderLogo');
     logos.forEach(l => l.addEventListener('click', goToLandingPage));
+
+    // NEW: Session Resurrection Logic
+    const lastOrderId = localStorage.getItem('aptskola_last_order_id');
+    const params = new URLSearchParams(window.location.search);
+    
+    // Safety Check: Only show banner if we are not currently on a success redirect
+    if (lastOrderId && !params.get('razorpay_payment_id')) {
+        const banner = document.createElement('div');
+        banner.id = "sessionResurrectionBanner";
+        banner.style.cssText = "background:#FF6B35; color:white; padding:10px; text-align:center; font-weight:bold; cursor:pointer; position:relative; z-index:1000;";
+        banner.innerHTML = `⚡ You have an unsaved assessment. Click here to resume where you left off.`;
+        banner.onclick = () => recoverSessionManual(lastOrderId);
+        document.body.prepend(banner);
+    }
 });
+
+// Helper for banner to call standard recovery
+function recoverSessionManual(id) {
+    const banner = document.getElementById('sessionResurrectionBanner');
+    if (banner) banner.remove();
+    
+    // Simulate the recovery input
+    const mockInput = document.createElement('input');
+    mockInput.id = 'recoveryOrderId';
+    mockInput.value = id;
+    document.body.appendChild(mockInput);
+    
+    recoverSession();
+    mockInput.remove();
+}
+
+   // SURGICAL INJECTION: Sync Match Deep-Link Handler
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('unlock') === 'sync') {
+        // Wait briefly for the DOM to be fully ready
+        setTimeout(() => {
+            openSyncMatchGate(); // Triggers the existing function to show the gate
+            
+            const syncInput = document.getElementById('syncOrderId');
+            if (syncInput) {
+                // Scroll to the form and focus the input field
+                syncInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                syncInput.focus();
+            }
+        }, 500); // 500ms delay ensures transitions don't clash
+    }
+    
+// SURGICAL INJECTION: Clipboard Paste Logic
+async function pasteOrderId() {
+    try {
+        // Step 1: Request text from the system clipboard
+        const text = await navigator.clipboard.readText();
+        
+        // Step 2: Target the input field
+        const syncInput = document.getElementById('syncOrderId');
+        
+        if (syncInput && text) {
+            // Step 3: Clean the text (remove spaces/newlines) and paste
+            syncInput.value = text.trim();
+            
+            // Step 4: Visual feedback for the user
+            syncInput.style.borderColor = "#10B981"; // Success Green
+            setTimeout(() => {
+                syncInput.style.borderColor = ""; // Reset after 1 second
+            }, 1000);
+            
+            console.log("CTO Update: Order ID pasted successfully.");
+        }
+    } catch (err) {
+        // Fallback for denied permissions or non-secure contexts
+        console.warn("Clipboard access denied or unavailable.", err);
+        alert("Please long-press the field to paste manually. (Clipboard access requires HTTPS and user permission).");
+    }
+}
+
+// --- SESSION RECOVERY LOGIC ---
+function recoverSession() {
+    const recoveryInput = document.getElementById('recoveryOrderId');
+    const orderId = recoveryInput ? recoveryInput.value.trim() : '';
+
+    if (!orderId) {
+        alert("Please enter your Order ID to restore your session.");
+        return;
+    }
+
+    // Step 1: Search for the specific session key
+    const savedSession = localStorage.getItem(`aptskola_session_${orderId}`);
+
+    if (savedSession) {
+        const data = JSON.parse(savedSession);
+        
+        // Step 2: Restore Global State from backup
+        answers = data.answers;
+        customerData = data.customerData;
+        selectedPrice = customerData.amount || 599;
+        selectedPackage = customerData.package || 'Essential';
+
+        // Step 3: Clear landing page and re-render
+        document.getElementById('landingPage').classList.add('hidden');
+        
+        // Use the optimized renderer to rebuild the UI
+        renderReportToBrowser().then(() => {
+            showInstantSuccessPage();
+            console.log("CTO Update: Session recovered for " + orderId);
+        });
+    } else {
+        alert("Order ID not found on this device. Please ensure you are using the same browser you used for the assessment.");
+    }
+}

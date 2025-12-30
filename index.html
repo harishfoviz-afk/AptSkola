@@ -118,6 +118,18 @@
     }
     </script>
 </head>
+
+<div id="redirectLoadingOverlay" class="payment-modal" style="display: none; flex-direction: column; background: rgba(15, 23, 42, 0.95); z-index: 5000;">
+    <div class="spinner" style="width: 60px; height: 60px; border-top-color: #FF6B35;"></div>
+    <h2 style="color: white; font-weight: 800; margin-top: 20px; font-size: 1.5rem;">Authenticating Payment...</h2>
+    <p id="redirectStatusText" style="color: #CBD5E1; font-size: 0.9rem; margin-top: 10px; text-align: center; max-width: 300px;">
+        DNA Validation in progress. Please do not refresh this page.
+    </p>
+    <div style="width: 200px; height: 4px; background: #334155; border-radius: 10px; margin-top: 20px; overflow: hidden;">
+        <div id="redirectProgressBar" style="width: 0%; height: 100%; background: #FF6B35; transition: width 0.4s ease;"></div>
+    </div>
+</div>
+
 <body>
     <div id="stickyCTA" class="sticky-cta md:hidden">
         <div class="flex flex-col">
@@ -126,6 +138,18 @@
         </div>
         <button onclick="scrollToPricing()">Find Best Board</button>
     </div>
+	
+	<div id="sessionRecoverySection" class="mt-8 p-4 bg-slate-800/50 rounded-xl border border-slate-700 max-w-lg mx-auto">
+    <p class="text-slate-300 text-sm mb-3 font-medium">Already paid? Restore your report below:</p>
+    <div class="flex gap-2">
+        <input type="text" id="recoveryOrderId" placeholder="Enter Order ID (AS...)" 
+               class="flex-grow p-3 rounded-lg bg-slate-900 border border-slate-600 text-white text-sm focus:border-brand-orange outline-none">
+        <button onclick="recoverSession()" 
+                class="bg-brand-orange hover:bg-orange-600 text-white px-6 py-3 rounded-lg font-bold text-sm transition-all">
+            Restore
+        </button>
+    </div>
+	</div>
 
     <div id="landingPage">
         <header>
@@ -148,7 +172,7 @@
                     <button onclick="openSyncMatchGate()" class="hero-btn-secondary" style="background: transparent; border: 2px solid #F59E0B; color: #F59E0B; font-weight: 800; display: flex; align-items: center; gap: 8px;">
                         <span>🔓</span> Unlock Parent & Child Sync Check
                     </button>
-                    <button onclick="window.open('https://aistudio.google.com/apps/drive/13P-uy_8m_uPrGY9b9VfAvnABqK6KwLj0?showAssistant=true&showPreview=true&resourceKey=&fullscreenApplet=true', '_blank')" class="hero-btn-secondary" style="background: transparent; border: 2px solid #3B82F6; color: #3B82F6; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+                    <button onclick="window.open('https://aiaudit.aptskola/com', '_blank')" class="hero-btn-secondary" style="background: transparent; border: 2px solid #3B82F6; color: #3B82F6; font-weight: 800; display: flex; align-items: center; gap: 8px;">
                         <span>🔎</span> AI School/College Forensic Report
                     </button>
 					<p class="text-xs text-slate-400 mt-2 font-medium tracking-wide">⚡ Cloud-Diagnostic: No download required. Access instantly on any device.</p>
@@ -475,9 +499,17 @@
                 <p style="margin-bottom:20px;">Enter your Order ID to access the advanced child-observation module.</p>
                 
                 <div class="form-group">
-                    <label>Order ID (From your email/report)</label>
-                    <input type="text" id="syncOrderId" placeholder="AS..." required>
-                </div>
+				<label>Order ID (From your email/report)</label>
+				<div style="position: relative; display: flex; align-items: center;">
+				<input type="text" id="syncOrderId" placeholder="AS..." required style="padding-right: 80px;">
+				<button type="button" onclick="pasteOrderId()" 
+                style="position: absolute; right: 8px; background: #F1F5F9; border: 1px solid #CBD5E1; 
+                       padding: 6px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; 
+                       color: #475569; cursor: pointer;">
+            📋 Paste
+			</button>
+		</div>
+	</div>
                 <div class="form-group">
                     <label>Child's Age Bracket</label>
                     <select id="syncChildAge">
@@ -580,6 +612,12 @@
                                     <input type="radio" id="feedbackNo" name="shareFeedback" value="No" required style="width: auto;">
                                     <label for="feedbackNo" class="mb-0 font-normal">No</label>
                                 </div>
+								<div class="form-group flex items-center gap-2">
+									<input type="checkbox" id="saveForLater" name="save_for_later" class="w-auto">
+									<label for="saveForLater" class="text-sm font-medium text-slate-600">
+									Save my progress & email my Order ID for later access.
+									</label>
+								</div>
                             </div>
                         </div>
                     </div>
