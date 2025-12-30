@@ -544,32 +544,106 @@ header .subheadline {
 /* FOOTER */
 footer { background: var(--navy-premium); color: white; padding: 50px 20px; text-align: center; margin-top: auto; }
 footer .policy-links a { margin: 0 8px; color: #CBD5E1; text-decoration: none; font-size: 0.85rem; }
-/* Optimized for PDF Generation */
-.off-screen-render {
-    position: absolute;
-    left: -9999px; /* Absolute push off-screen */
-    top: 0;
-    width: 750px !important; 
-    max-width: 750px !important; 
-    background: white;
-    z-index: -1;
-    opacity: 1; /* Must be 1 for html2canvas to "see" it */
+
+/* NEW COMPONENTS */
+.foviz-banner {
+    background: #0A0E1A;
+    color: white;
+    padding: 24px;
+    border-radius: 24px;
+    text-align: center;
+    margin: 30px 0;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+}
+.foviz-banner h3 {
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin-bottom: 8px;
+    letter-spacing: -0.025em;
+}
+.foviz-banner p {
+    font-size: 0.95rem;
+    color: #94A3B8;
+    margin-bottom: 0;
 }
 
+.xray-card {
+    border: 2px solid #FF6B35;
+    background: white;
+    padding: 24px;
+    border-radius: 16px;
+    text-align: center;
+    margin: 20px 0;
+}
+.xray-card h3 {
+    color: #FF6B35;
+    font-weight: 800;
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+}
+.xray-card .price {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: #0F172A;
+    margin-bottom: 12px;
+}
+.xray-card .btn-xray {
+    display: inline-block;
+    background: #FF6B35;
+    color: white;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: transform 0.2s;
+}
+.xray-card .btn-xray:hover {
+    transform: scale(1.05);
+}
+
+.hidden { display: none !important; }
+
+@media (max-width: 768px) {
+    header { padding: 30px 15px 50px; clip-path: polygon(0 0, 100% 0, 100% 97%, 0 100%); }
+    header h1 { font-size: 2rem; line-height: 1.2; }
+    .section-title { font-size: 2rem; }
+    .details-form, .success-container { padding: 25px 20px; }
+    .calculator-card { padding: 25px 15px; }
+    input, select, textarea { font-size: 16px !important; }
+}
+
+/* NEW: SVG Pricing Features */
+.feature-list { list-style: none; padding: 0; }
+.feature-item { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; font-size: 0.95rem; font-weight: 600; color: #1e1b4b; line-height: 1.4; }
+.icon-circle { stroke: #F97316; } /* Default Orange */
+.highlighted .icon-circle { stroke: #22C55E; } /* Highlighted Green */
+.feature-item svg { flex-shrink: 0; margin-top: 2px; }
+
+/* PDF Generation Fix: Elements must be "visible" but hidden from the user */
+.off-screen-render {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 800px;
+    z-index: -9999;
+    opacity: 0;
+    pointer-events: none;
+    background: white;
+}
+
+/* Validation Feedback */
+.input-error {
+    border: 2px solid #EF4444 !important;
+    background-color: #FEF2F2 !important;
+}
+
+/* Ensure the report looks professional in the PDF */
 .report-card {
-    width: 100%; /* Responsive on screen */
-    max-width: 700px;
+    width: 750px;
     margin: 20px auto;
     background: white;
     border: 1px solid #E2E8F0;
     border-radius: 12px;
     padding: 30px;
     box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-    overflow: hidden;
-}
-
-/* Ensure report looks professional in PDF mode */
-.off-screen-render .report-card {
-    width: 700px !important;
-    margin-bottom: 25px;
 }
