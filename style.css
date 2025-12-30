@@ -674,3 +674,8 @@ footer .policy-links a { margin: 0 8px; color: #CBD5E1; text-decoration: none; f
     font-weight: 800;
     color: var(--navy-premium);
 }
+
+/* CTO Hack: Hide home page instantly if payment is detected in URL */
+:has(canvas) #landingPage { display: none; } /* Experimental selector */
+
+/* Safer Method: If you see a payment ID, hide home via script injection */

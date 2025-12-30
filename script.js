@@ -470,55 +470,44 @@ const questions = [
     }
 ];
 
-// --- STATIC SITE POST-PAYMENT DETECTION (UPDATED) ---
 function checkPaymentStatus() {
     const params = new URLSearchParams(window.location.search);
     const razorpayId = params.get('razorpay_payment_id');
 
+    // CTO's Verdict: Only run this logic if we see a Razorpay ID in the URL
     if (razorpayId) {
-        // Step 1: Show the Overlay
-        const overlay = document.getElementById('redirectLoadingOverlay');
-        const statusText = document.getElementById('redirectStatusText');
-        const progressBar = document.getElementById('redirectProgressBar');
+        console.log("CTO: Payment Success Detected. Executing Redirect Resurrector...");
         
+        // Step 1: Immediately hide the landing page
+        const landing = document.getElementById('landingPage');
+        if (landing) landing.classList.add('hidden');
+
+        // Step 2: Show the Authenticating Overlay
+        const overlay = document.getElementById('redirectLoadingOverlay');
         if (overlay) overlay.style.display = 'flex';
 
-        // Step 2: Identify the session
+        // Step 3: Identify the session from LocalStorage
         const lastOrderId = localStorage.getItem('aptskola_last_order_id');
         const sessionKey = lastOrderId ? `aptskola_session_${lastOrderId}` : null;
         const savedSession = localStorage.getItem(sessionKey);
 
         if (savedSession) {
             const data = JSON.parse(savedSession);
-            answers = data.answers;
-            customerData = data.customerData;
-            selectedPrice = customerData.amount;
-            selectedPackage = customerData.package;
+            answers = data.answers; // Restore user's test answers
+            customerData = data.customerData; // Restore user's profile
 
-            if(statusText) statusText.innerText = "Generating School Board Analytics...";
-            if(progressBar) progressBar.style.width = "30%";
-
-            // Step 3: Run the Processing Sequence
+            // Step 4: Rebuild report and send email
             renderReportToBrowser().then(() => {
-                if(statusText) statusText.innerText = "Mapping Nearby Schools & Commute Times...";
-                if(progressBar) progressBar.style.width = "60%";
-                
-                // Wait briefly for Maps/Routes API to stabilize
-                setTimeout(() => {
-                    if(statusText) statusText.innerText = "Dispatching Full Report to your Inbox...";
-                    if(progressBar) progressBar.style.width = "90%";
-                    
-                    triggerAutomatedEmail().then(() => {
-                        // Success State
-                        if(overlay) overlay.style.display = 'none';
-                        showInstantSuccessPage();
-                        console.log("CTO: Post-payment processing complete.");
-                    });
-                }, 1500);
+                triggerAutomatedEmail().then(() => {
+                    if(overlay) overlay.style.display = 'none';
+                    showInstantSuccessPage();
+                });
             });
         } else {
+            // Fallback: If no session found on this specific browser
             if (overlay) overlay.style.display = 'none';
-            alert("Payment successful, but we couldn't find your local data. Please check your email or contact support.");
+            if (landing) landing.classList.remove('hidden');
+            alert("Payment successful, but we couldn't find your data. Check your email for the report.");
         }
     }
 }
@@ -586,7 +575,7 @@ function scrollToPricing() {
     const pricing = document.getElementById('pricing');
     if (pricing) {
         // We add a -20 offset to ensure the header doesn't cut off the title
-        const yOffset = -100; 
+        const yOffset = -10; 
         const y = pricing.getBoundingClientRect().top + window.pageYOffset + yOffset;
         window.scrollTo({ top: y, behavior: 'smooth' });
     } else {
@@ -1723,14 +1712,17 @@ async function sharePDF() {
     }
 }
 
-// Global Initialization (SURGICAL UPDATE FOR SESSION RESURRECTION)
 document.addEventListener('DOMContentLoaded', () => {
-    calculateCostOfConfusion();
+    // 1. Run the payment check first
     checkPaymentStatus(); 
+    
+    // 2. Load other modules
+    calculateCostOfConfusion();
     loadGoogleMaps().catch(err => console.warn("Maps init failed:", err));
+    
+    // 3. Setup UI interactions
     const logos = document.querySelectorAll('#landingHeaderLogo');
     logos.forEach(l => l.addEventListener('click', goToLandingPage));
-    
 });
 
    // SURGICAL INJECTION: Sync Match Deep-Link Handler
@@ -1844,25 +1836,24 @@ function recoverSession() {
         alert("No assessment found for this email on this device. Please use the same browser you used for the test.");
     }
 }
-// Ensure all buttons are clickable and section is visible after DOM load
+// --- UNIFIED INITIALIZATION (CTO FINAL VERSION) ---
 document.addEventListener('DOMContentLoaded', () => {
-    calculateCostOfConfusion();
+    // 1. IMMEDIATE PRIORITY: Check if user just returned from payment
     checkPaymentStatus(); 
+    
+    // 2. LOAD CALCULATOR: Initialize the cost of confusion donut chart
+    calculateCostOfConfusion();
+    
+    // 3. MAPS: Load Google Maps API (Hardcoded Key)
     loadGoogleMaps().catch(err => console.warn("Maps init failed:", err));
     
-    // Wire up logo clicks
+    // 4. LOGO NAVIGATION: Wire up all branding logos to reset the site
     const logos = document.querySelectorAll('#landingHeaderLogo');
     logos.forEach(l => l.addEventListener('click', goToLandingPage));
 
-    // Force pricing visibility
-    const pricingSection = document.getElementById('pricing');
-    if (pricingSection) {
-        pricingSection.style.display = 'block'; 
-    }
-
-    // Handle Sync Deep-links
+    // 5. DEEP-LINK HANDLER: Check if user arrived via "Sync Match" link
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('unlock') === 'sync') {
+    if (urlParams.get('unlock') === 'sync' || urlParams.get('page') === 'sync') {
         setTimeout(() => {
             openSyncMatchGate();
             const syncInput = document.getElementById('syncOrderId');
@@ -1872,5 +1863,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }, 500);
     }
-
+    
+    // 6. PRICING VISIBILITY: Ensure pricing is visible by default
+    const pricingSection = document.getElementById('pricing');
+    if (pricingSection) pricingSection.style.display = 'block'; 
 });
