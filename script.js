@@ -498,38 +498,28 @@ function checkPaymentStatus() {
             if(statusText) statusText.innerText = "Generating School Board Analytics...";
             if(progressBar) progressBar.style.width = "30%";
 
-            // --- CTO UPDATED: STEP 3 BUFFERED SUCCESS SEQUENCE ---
+            // Step 3: Run the Processing Sequence
             renderReportToBrowser().then(() => {
                 if(statusText) statusText.innerText = "Mapping Nearby Schools & Commute Times...";
                 if(progressBar) progressBar.style.width = "60%";
                 
-                // 3000ms (3s) delay ensures charts/maps are fully rendered before capture
-                setTimeout(async () => {
+                // Wait briefly for Maps/Routes API to stabilize
+                setTimeout(() => {
                     if(statusText) statusText.innerText = "Dispatching Full Report to your Inbox...";
                     if(progressBar) progressBar.style.width = "90%";
                     
-                    // 1. Capture and send the email while it's still stable off-screen
-                    await triggerAutomatedEmail(); 
-
-                    // 2. Move the report into the visible Success Page UI
-                    const reportDiv = document.getElementById('reportPreview');
-                    if(reportDiv) {
-                        reportDiv.classList.remove('off-screen-render'); // Remove the -9999px position
-                        const dlBtn = document.getElementById('downloadBtn');
-                        if(dlBtn && dlBtn.parentNode && dlBtn.parentNode.parentNode) {
-                            const container = dlBtn.parentNode.parentNode;
-                            // Insert the report right above the action buttons
-                            container.insertBefore(reportDiv, dlBtn.parentNode.nextSibling);
-                        }
-                    }
-                    
-                    // 3. Final UI Cleanup
-                    if(overlay) overlay.style.display = 'none';
-                    showInstantSuccessPage();
-                    console.log("CTO Update: High-fidelity email dispatched and UI synced.");
-                    
-                }, 3000); 
+                    triggerAutomatedEmail().then(() => {
+                        // Success State
+                        if(overlay) overlay.style.display = 'none';
+                        showInstantSuccessPage();
+                        console.log("CTO: Post-payment processing complete.");
+                    });
+                }, 1500);
             });
+        } else {
+            if (overlay) overlay.style.display = 'none';
+            alert("Payment successful, but we couldn't find your local data. Please check your email or contact support.");
+        }
     }
 }
 
@@ -596,7 +586,7 @@ function scrollToPricing() {
     const pricing = document.getElementById('pricing');
     if (pricing) {
         // We add a -20 offset to ensure the header doesn't cut off the title
-        const yOffset = -1; 
+        const yOffset = -100; 
         const y = pricing.getBoundingClientRect().top + window.pageYOffset + yOffset;
         window.scrollTo({ top: y, behavior: 'smooth' });
     } else {
@@ -1854,6 +1844,22 @@ function recoverSession() {
         alert("No assessment found for this email on this device. Please use the same browser you used for the test.");
     }
 }
+// Ensure all buttons are clickable and section is visible after DOM load
+document.addEventListener('DOMContentLoaded', () => {
+    calculateCostOfConfusion();
+    checkPaymentStatus(); 
+    loadGoogleMaps().catch(err => console.warn("Maps init failed:", err));
+    
+    // Wire up logo clicks
+    const logos = document.querySelectorAll('#landingHeaderLogo');
+    logos.forEach(l => l.addEventListener('click', goToLandingPage));
+
+    // Force pricing visibility
+    const pricingSection = document.getElementById('pricing');
+    if (pricingSection) {
+        pricingSection.style.display = 'block'; 
+    }
+
     // Handle Sync Deep-links
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('unlock') === 'sync') {
@@ -1866,4 +1872,5 @@ function recoverSession() {
             }
         }, 500);
     }
+
 });
