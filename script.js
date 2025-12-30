@@ -596,7 +596,7 @@ function scrollToPricing() {
     const pricing = document.getElementById('pricing');
     if (pricing) {
         // We add a -20 offset to ensure the header doesn't cut off the title
-        const yOffset = -1; 
+        const yOffset = -20; 
         const y = pricing.getBoundingClientRect().top + window.pageYOffset + yOffset;
         window.scrollTo({ top: y, behavior: 'smooth' });
     } else {
@@ -1883,3 +1883,4 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 500);
     }
 });
+
