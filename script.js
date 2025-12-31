@@ -474,42 +474,47 @@ const questions = [
     }
 ];
 
+// --- UPDATED: RECOVER SESSION ON RETURN ---
 function checkPaymentStatus() {
     const params = new URLSearchParams(window.location.search);
     const razorpayId = params.get('razorpay_payment_id');
 
     if (razorpayId) {
-        console.log("CTO: Redirect detected. Killing Home Page...");
+        console.log("Payment detected. Recovering session...");
         
-        // STEP 1: FORCE-HIDE HOME PAGE IMMEDIATELY
+        // 1. Immediately hide the landing page so user doesn't see it
         const landing = document.getElementById('landingPage');
-        if (landing) landing.classList.add('hidden');
+        if (landing) landing.style.display = 'none';
 
-        // STEP 2: SHOW AUTHENTICATING OVERLAY
+        // 2. Show the loading overlay
         const overlay = document.getElementById('redirectLoadingOverlay');
         if (overlay) overlay.style.display = 'flex';
 
-        // STEP 3: RE-HYDRATE DATA FROM LOCALSTORAGE
+        // 3. Retrieve the last Order ID
         const lastOrderId = localStorage.getItem('aptskola_last_order_id');
-        const sessionKey = lastOrderId ? `aptskola_session_${lastOrderId}` : null;
-        const savedSession = localStorage.getItem(sessionKey);
+        const savedSession = localStorage.getItem(`aptskola_session_${lastOrderId}`);
 
         if (savedSession) {
             const data = JSON.parse(savedSession);
+            // Re-assign global variables
             answers = data.answers;
             customerData = data.customerData;
+            selectedPackage = data.selectedPackage;
+            selectedPrice = data.selectedPrice;
             
-            // STEP 4: RENDER REPORT & SEND EMAIL
+            // 4. Render and show the report
             renderReportToBrowser().then(() => {
                 showInstantSuccessPage();
-                triggerAutomatedEmail();
                 if(overlay) overlay.style.display = 'none';
+                
+                // Optional: Send success email now that we are back
+                triggerAutomatedEmail();
             });
         } else {
-            // FALLBACK: NO DATA FOUND
-            if (overlay) overlay.style.display = 'none';
-            if (landing) landing.classList.remove('hidden');
-            alert("Payment detected, but session data is missing on this device.");
+            console.error("No session found for recovery.");
+            if(overlay) overlay.style.display = 'none';
+            if(landing) landing.style.display = 'block';
+            alert("Payment successful, but we couldn't find your session. Please contact support with your Payment ID: " + razorpayId);
         }
     }
 }
@@ -1234,26 +1239,29 @@ document.getElementById('customerForm')?.addEventListener('submit', function(e) 
     }, 500);
 });
 
+// --- UPDATED: SECURE DATA & REDIRECT ---
 async function redirectToRazorpay() {
     const payButton = document.getElementById('payButton');
     
-    // 1. Change button text to give user feedback
+    // 1. Visual feedback
     if(payButton) payButton.innerText = "Securing Session & Redirecting...";
 
-    // 2. Secure the data in LocalStorage before leaving
+    // 2. CRITICAL FIX: Save all data to LocalStorage before leaving the page
     if (customerData.orderId && customerData.orderId !== 'N/A') {
-        localStorage.setItem(`aptskola_session_${customerData.orderId}`, JSON.stringify({
+        const sessionPayload = {
             answers: answers,
-            customerData: customerData
-        }));
+            customerData: customerData,
+            selectedPackage: selectedPackage,
+            selectedPrice: selectedPrice
+        };
+        localStorage.setItem(`aptskola_session_${customerData.orderId}`, JSON.stringify(sessionPayload));
         localStorage.setItem('aptskola_last_order_id', customerData.orderId);
     }
 
-    // 3. THE FIX: Wait 500ms to allow EmailJS/Web3Forms requests to complete
-    // This prevents the browser from cancelling the "Lead Email" request
-    await sleep(800); 
+    // 3. Small delay to ensure LocalStorage write completes
+    await new Promise(resolve => setTimeout(resolve, 800)); 
     
-    // 4. Route to the payment link
+    // 4. Redirect to the link
     const link = PAYMENT_LINKS[selectedPrice] || PAYMENT_LINKS[599];
     window.location.href = link; 
 }
@@ -1716,12 +1724,11 @@ async function sharePDF() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Run the payment check first
+    // 1. Run the payment check FIRST
     checkPaymentStatus(); 
     
-    // 2. Load other modules
+    // 2. Load other modules normally
     calculateCostOfConfusion();
-    loadGoogleMaps().catch(err => console.warn("Maps init failed:", err));
     
     // 3. Setup UI interactions
     const logos = document.querySelectorAll('#landingHeaderLogo');
