@@ -1299,36 +1299,35 @@ function redirectToRazorpay() {
 }
 
 async function triggerAutomatedEmail() {
-    console.log("CTO: Re-activating Image Dispatch...");
+    console.log("CTO: Improving Image Quality...");
     const reportElement = document.getElementById('reportPreview');
     if(!reportElement) return;
 
-    // Wait for UI to stabilize
     await new Promise(resolve => setTimeout(resolve, 2000)); 
 
     try {
-        // Step 1: Create a tiny, high-compression snapshot
+        // STEP 1: Increase Scale from 0.5 to 1.5 for sharper text
         const canvas = await html2canvas(reportElement, { 
-            scale: 0.5, // Reduced scale to keep file size low
+            scale: 1.5, 
             useCORS: true,
             logging: false 
         });
         
-        // Step 2: Convert to low-quality JPEG to ensure Gmail API accepts it
-        const reportImageData = canvas.toDataURL('image/jpeg', 0.2); 
+        // STEP 2: Increase JPEG quality from 0.2 to 0.6
+        const reportImageData = canvas.toDataURL('image/jpeg', 0.6); 
 
-        // Step 3: Dispatch with the "report_image" variable populated
         await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
             user_email: customerData.email,
             user_name: customerData.parentName,
             order_id: customerData.orderId,
             child_name: customerData.childName,
             package_name: customerData.package,
-            report_image: reportImageData // RE-INSERTED DATA
+            report_image: reportImageData 
         });
-        console.log("CTO Success: Image report sent to " + customerData.email);
+        console.log("CTO Success: High-quality report sent!");
     } catch (e) {
-        console.error("CTO Fail: If this fails, the image is still too heavy.", e);
+        console.error("CTO Fail: Image might be too large for EmailJS limits.", e);
+        alert("The high-quality email failed to send. Try lowering the scale to 1.0.");
     }
 }
 
