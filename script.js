@@ -5,6 +5,8 @@ const EMAILJS_PUBLIC_KEY = "GJEWFtAL7s231EDrk"; // REPLACE WITH YOUR KEY
 const EMAILJS_SERVICE_ID = "service_bm56t8v"; // Paste the ID from Gmail service here
 const EMAILJS_TEMPLATE_ID = "template_qze00kx"; // REPLACE WITH YOUR TEMPLATE ID
 const EMAILJS_LEAD_TEMPLATE_ID = "template_qze00kx";
+// Helper to create a delay for API calls
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 // Prices in PAISE (1 Rupee = 100 Paise)
 const PACKAGE_PRICES = { 'Essential': 59900, 'Premium': 99900, 'The Smart Parent Pro': 149900 };
@@ -21,7 +23,9 @@ const PAYMENT_LINKS = {
 // --- INITIALIZATION ---
 (function() {
     if (typeof emailjs !== 'undefined') {
-        emailjs.init(EMAILJS_PUBLIC_KEY);
+        emailjs.init({
+            publicKey: EMAILJS_PUBLIC_KEY, // Pass as an object property
+        });
     }
 })();
 
@@ -1232,38 +1236,43 @@ document.getElementById('customerForm')?.addEventListener('submit', function(e) 
     }, 500);
 });
 
-function redirectToRazorpay() {
+async function redirectToRazorpay() {
     const payButton = document.getElementById('payButton');
     
-    // Step 1: Secure the data BEFORE redirecting
+    // 1. Change button text to give user feedback
+    if(payButton) payButton.innerText = "Securing Session & Redirecting...";
+
+    // 2. Secure the data in LocalStorage before leaving
     if (customerData.orderId && customerData.orderId !== 'N/A') {
         localStorage.setItem(`aptskola_session_${customerData.orderId}`, JSON.stringify({
             answers: answers,
             customerData: customerData
         }));
-        // Also save a "Last Order" pointer for easier recovery
         localStorage.setItem('aptskola_last_order_id', customerData.orderId);
     }
 
-    if(payButton) payButton.innerText = "Redirecting to Secure Payment...";
+    // 3. THE FIX: Wait 500ms to allow EmailJS/Web3Forms requests to complete
+    // This prevents the browser from cancelling the "Lead Email" request
+    await sleep(500); 
     
-    // Step 2: Route to the correct static link
+    // 4. Route to the payment link
     const link = PAYMENT_LINKS[selectedPrice] || PAYMENT_LINKS[599];
-    // Bypass payment and trigger the full report/email engine immediately
-	window.location.href = link; 
+    window.location.href = link; 
 }
 
 async function triggerAutomatedEmail() {
     const lastOrderId = localStorage.getItem('aptskola_last_order_id');
     const savedData = localStorage.getItem(`aptskola_session_${lastOrderId}`);
     
-    if (!savedData) return;
+    if (!savedData) {
+        console.error("Email Trigger Fail: No session data found for " + lastOrderId);
+        return;
+    }
 
     const session = JSON.parse(savedData);
     
-    // Ensure the key name 'user_email' matches your {{user_email}} tag in EmailJS
     const emailParams = {
-        user_email: session.customerData.email, 
+        user_email: session.customerData.email, // MUST MATCH {{user_email}} in EmailJS
         user_name: session.customerData.parentName,
         order_id: lastOrderId,
         child_name: session.customerData.childName,
@@ -1274,7 +1283,7 @@ async function triggerAutomatedEmail() {
         const response = await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, emailParams);
         console.log("SUCCESS!", response.status, response.text);
     } catch (error) {
-        console.log("FAILED...", error);
+        console.error("EMAILJS ERROR:", error);
     }
 }
 
