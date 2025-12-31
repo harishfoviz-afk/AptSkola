@@ -4,6 +4,7 @@ const GMAPS_API_KEY = "AIzaSyCS0hE4xa32DpKoNs5Na3KDX3HrazBvwiU";
 const EMAILJS_PUBLIC_KEY = "GJEWFtAL7s231EDrk"; // REPLACE WITH YOUR KEY
 const EMAILJS_SERVICE_ID = "service_bm56t8v"; // Paste the ID from Gmail service here
 const EMAILJS_TEMPLATE_ID = "template_qze00kx"; // REPLACE WITH YOUR TEMPLATE ID
+const EMAILJS_LEAD_TEMPLATE_ID = "template_qze00kx";
 
 // Prices in PAISE (1 Rupee = 100 Paise)
 const PACKAGE_PRICES = { 'Essential': 59900, 'Premium': 99900, 'The Smart Parent Pro': 149900 };
@@ -1253,34 +1254,27 @@ function redirectToRazorpay() {
 }
 
 async function triggerAutomatedEmail() {
-    // 1. DATA RECOVERY: Pull the email back from LocalStorage after the redirect
     const lastOrderId = localStorage.getItem('aptskola_last_order_id');
     const savedData = localStorage.getItem(`aptskola_session_${lastOrderId}`);
     
-    if (!savedData) {
-        console.error("CTO Fail: No session found to email.");
-        return;
-    }
+    if (!savedData) return;
 
     const session = JSON.parse(savedData);
-    const recipientEmail = session.customerData.email;
+    
+    // Ensure the key name 'user_email' matches your {{user_email}} tag in EmailJS
+    const emailParams = {
+        user_email: session.customerData.email, 
+        user_name: session.customerData.parentName,
+        order_id: lastOrderId,
+        child_name: session.customerData.childName,
+        package_name: session.customerData.package
+    };
 
     try {
-        console.log("CTO: Dispatching to " + recipientEmail);
-        
-        await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-            // These keys MUST match your Template Tags in the dashboard
-            user_email: recipientEmail, 
-            user_name: session.customerData.parentName,
-            order_id: lastOrderId,
-            child_name: session.customerData.childName,
-            package_name: session.customerData.package,
-            report_image: "" // Safety: Text-only to guarantee delivery
-        });
-        
-        console.log("CTO Success: Check Gmail Sent folder!");
-    } catch (e) {
-        console.error("CTO Dispatch Error:", e);
+        const response = await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, emailParams);
+        console.log("SUCCESS!", response.status, response.text);
+    } catch (error) {
+        console.log("FAILED...", error);
     }
 }
 
