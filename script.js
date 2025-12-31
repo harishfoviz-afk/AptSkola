@@ -1,3 +1,8 @@
+// --- FORCE DOMAIN CONSISTENCY ---
+if (location.hostname === 'www.aptskola.com') {
+    location.replace(location.href.replace('www.', ''));
+}
+
 // --- FORCE HTTPS (Add to top of script.js) ---
 if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
     location.replace(`https:${location.href.substring(location.protocol.length)}`);
@@ -14,7 +19,7 @@ const EMAILJS_LEAD_TEMPLATE_ID = "template_qze00kx";
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 // Prices in PAISE (1 Rupee = 100 Paise)
-const PACKAGE_PRICES = { 'Essential': 59900, 'Premium': 99900, 'The Smart Parent Pro': 149900 };
+const PACKAGE_PRICES = { 'Essential': 100, 'Premium': 99900, 'The Smart Parent Pro': 149900 };
 
 // External Payment Links (Replace these with your actual Razorpay Payment Links)
 const PAYMENT_LINKS = {
@@ -1236,31 +1241,56 @@ document.getElementById('customerForm')?.addEventListener('submit', function(e) 
     }, 500);
 });
 
-// --- UPDATED: SECURE DATA & REDIRECT ---
-async function redirectToRazorpay() {
+// --- RAZORPAY POPUP METHOD (WITH AUTO-PREFILL) ---
+function redirectToRazorpay() {
     const payButton = document.getElementById('payButton');
-    
-    // 1. Visual feedback
-    if(payButton) payButton.innerText = "Securing Session & Redirecting...";
+    if (payButton) payButton.innerText = "Opening Secure Checkout...";
 
-    // 2. CRITICAL FIX: Save all data to LocalStorage before leaving the page
-    if (customerData.orderId && customerData.orderId !== 'N/A') {
-        const sessionPayload = {
-            answers: answers,
-            customerData: customerData,
-            selectedPackage: selectedPackage,
-            selectedPrice: selectedPrice
-        };
-        localStorage.setItem(`aptskola_session_${customerData.orderId}`, JSON.stringify(sessionPayload));
-        localStorage.setItem('aptskola_last_order_id', customerData.orderId);
-    }
+    // 1. Pull the price in Paise (e.g., 59900) from your config
+    const amountInPaise = PACKAGE_PRICES[selectedPackage] || 59900;
 
-    // 3. Small delay to ensure LocalStorage write completes
-    await new Promise(resolve => setTimeout(resolve, 800)); 
-    
-    // 4. Redirect to the link
-    const link = PAYMENT_LINKS[selectedPrice] || PAYMENT_LINKS[599];
-    window.location.href = link; 
+    const options = {
+        "key": RAZORPAY_KEY_ID, 
+        "amount": amountInPaise, 
+        "currency": "INR",
+        "name": "Apt Skola",
+        "description": `Payment for ${selectedPackage} Report`,
+        "image": "https://aptskola.com/favicon.png", 
+        
+        // 2. THIS IS THE PREFILL LOGIC: 
+        // It uses the data already entered in your details form.
+        "prefill": {
+            "name": customerData.parentName,
+            "email": customerData.email,
+            "contact": customerData.phone
+        },
+        
+        "handler": function (response) {
+            // SUCCESS: Runs after payment without leaving the page
+            console.log("Payment Successful. ID: " + response.razorpay_payment_id);
+            
+            const overlay = document.getElementById('redirectLoadingOverlay');
+            if (overlay) overlay.style.display = 'flex';
+
+            // Generate report instantly
+            renderReportToBrowser().then(() => {
+                showInstantSuccessPage();
+                if(overlay) overlay.style.display = 'none';
+                
+                // Send the email with the report image
+                triggerAutomatedEmail();
+            });
+        },
+        "theme": { "color": "#FF6B35" },
+        "modal": {
+            "ondismiss": function() {
+                if(payButton) payButton.innerText = `Pay ₹${selectedPrice} via UPI / Card →`;
+            }
+        }
+    };
+
+    const rzp1 = new Razorpay(options);
+    rzp1.open();
 }
 
 async function triggerAutomatedEmail() {
@@ -1298,9 +1328,44 @@ async function triggerAutomatedEmail() {
 }
 
 function processSyncUpgrade() {
-    const link = PAYMENT_LINKS[299];
-    localStorage.setItem(`aptskola_session_${customerData.orderId}`, JSON.stringify({ answers, customerData }));
-    window.location.href = link;
+    const payButton = document.querySelector('#upgradeBlock button');
+    if (payButton) payButton.innerText = "Opening Upgrade...";
+
+    const options = {
+        "key": RAZORPAY_KEY_ID,
+        "amount": 29900, // ₹299 in Paise
+        "currency": "INR",
+        "name": "Apt Skola",
+        "description": "Sync Match Module Upgrade",
+        "prefill": {
+            "name": customerData.parentName,
+            "email": customerData.email,
+            "contact": customerData.phone
+        },
+        "handler": function (response) {
+            // SUCCESS: Runs instantly without redirecting
+            customerData.package = 'Premium';
+            isSyncMatchMode = true; 
+            
+            // Save elevated state
+            localStorage.setItem(`aptskola_session_${customerData.orderId}`, JSON.stringify({ answers, customerData }));
+
+            const upgradeBlock = document.getElementById('upgradeBlock');
+            const startBtn = document.getElementById('startSyncBtn');
+            
+            if(upgradeBlock) upgradeBlock.classList.add('hidden');
+            if(startBtn) {
+                startBtn.classList.remove('hidden');
+                startBtn.innerText = "Access Unlocked! Start Sync Check →";
+                startBtn.style.background = "#10B981";
+            }
+            
+            showSyncTransition();
+        },
+        "theme": { "color": "#FF6B35" }
+    };
+    const rzp1 = new Razorpay(options);
+    rzp1.open();
 }
 
 function closeBonusModalAndShowSuccess() {
