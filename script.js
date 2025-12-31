@@ -1243,9 +1243,14 @@ document.getElementById('customerForm')?.addEventListener('submit', function(e) 
 
 // --- RAZORPAY POPUP METHOD (WITH AUTO-PREFILL) ---
 function redirectToRazorpay() {
+    if (typeof Razorpay === 'undefined') {
+        alert("Payment gateway is still loading. Please refresh the page or check your internet connection.");
+        return;
+    }
+
     const payButton = document.getElementById('payButton');
     if (payButton) payButton.innerText = "Opening Secure Checkout...";
-
+    
     // 1. Pull the price in Paise (e.g., 59900) from your config
     const amountInPaise = PACKAGE_PRICES[selectedPackage] || 59900;
 
