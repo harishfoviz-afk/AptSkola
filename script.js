@@ -1251,7 +1251,7 @@ async function redirectToRazorpay() {
 
     // 3. THE FIX: Wait 500ms to allow EmailJS/Web3Forms requests to complete
     // This prevents the browser from cancelling the "Lead Email" request
-    await sleep(500); 
+    await sleep(800); 
     
     // 4. Route to the payment link
     const link = PAYMENT_LINKS[selectedPrice] || PAYMENT_LINKS[599];
