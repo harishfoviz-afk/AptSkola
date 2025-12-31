@@ -1258,15 +1258,15 @@ async function triggerAutomatedEmail() {
     if(!reportElement || typeof emailjs === 'undefined') return;
     
     // CTO FIX: Wait 1.5 seconds to ensure Google Maps and Icons are fully rendered
-    await new Promise(resolve => setTimeout(resolve, 1500)); 
+    await new Promise(resolve => setTimeout(resolve, 2000)); 
 
     const canvas = await html2canvas(reportElement, { 
-        scale: 0.8, 
+        scale: 0.4, 
         useCORS: true,
         logging: false 
     });
     
-    const reportImageData = canvas.toDataURL('image/jpeg', 0.3);
+    const reportImageData = canvas.toDataURL('image/jpeg', 0.1);
 
     try {
         await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
