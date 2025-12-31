@@ -1308,7 +1308,7 @@ async function triggerAutomatedEmail() {
     try {
         // STEP 1: Increase Scale from 0.5 to 1.5 for sharper text
         const canvas = await html2canvas(reportElement, { 
-            scale: 1.5, 
+            scale: 1.2, 
             useCORS: true,
             logging: false 
         });
@@ -1943,4 +1943,5 @@ document.addEventListener('DOMContentLoaded', () => {
     // 6. PRICING VISIBILITY: Ensure pricing is visible by default
     const pricingSection = document.getElementById('pricing');
     if (pricingSection) pricingSection.style.display = 'block'; 
+
 });
