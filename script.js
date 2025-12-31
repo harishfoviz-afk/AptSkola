@@ -1253,13 +1253,12 @@ function redirectToRazorpay() {
 	window.location.href = link; 
 }
 
-// --- EMAIL DISPATCH ---
 async function triggerAutomatedEmail() {
     const reportElement = document.getElementById('reportPreview');
     if(!reportElement || typeof emailjs === 'undefined') return;
     
-    // CTO FIX: Wait 1 second for the UI to stabilize before capturing
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    // CTO FIX: Wait 1.5 seconds to ensure Google Maps and Icons are fully rendered
+    await new Promise(resolve => setTimeout(resolve, 1500)); 
 
     const canvas = await html2canvas(reportElement, { 
         scale: 2.0, 
@@ -1271,16 +1270,19 @@ async function triggerAutomatedEmail() {
 
     try {
         await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-            user_email: customerData.email,
+            // MATCHING YOUR TEMPLATE: {{user_email}}
+            user_email: customerData.email, 
+            // MATCHING YOUR TEMPLATE: {{user_name}}
             user_name: customerData.parentName,
             order_id: customerData.orderId,
             child_name: customerData.childName,
             package_name: customerData.package,
+            // Ensure your template has <img src="{{report_image}}">
             report_image: reportImageData 
         });
-        console.log("CTO: Email Sent.");
+        console.log("CTO Success: Email sent to " + customerData.email);
     } catch (e) {
-        console.warn("Email dispatch failed:", e);
+        console.warn("CTO Warning: EmailJS failed.", e);
     }
 }
 
