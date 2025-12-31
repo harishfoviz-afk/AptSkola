@@ -481,44 +481,37 @@ const questions = [
 
 function checkPaymentStatus() {
     const params = new URLSearchParams(window.location.search);
-    const razorpayId = params.get('razorpay_payment_id');
+    // Check for any common Razorpay success indicators
+    const razorpayId = params.get('razorpay_payment_id') || params.get('razorpay_payment_link_id');
 
     if (razorpayId) {
-        console.log("Found Razorpay ID: " + razorpayId);
+        console.log("Payment detected. Transitioning to report...");
         
-        // 1. Immediately hide landing and show loading
         const landing = document.getElementById('landingPage');
         if (landing) landing.style.display = 'none';
 
         const overlay = document.getElementById('redirectLoadingOverlay');
         if (overlay) overlay.style.display = 'flex';
 
-        // 2. Retrieve the last Order ID
         const lastOrderId = localStorage.getItem('aptskola_last_order_id');
         const savedSession = localStorage.getItem(`aptskola_session_${lastOrderId}`);
 
         if (savedSession) {
-            console.log("Session found. Re-hydrating assessment data...");
             const data = JSON.parse(savedSession);
-            
             answers = data.answers;
             customerData = data.customerData;
             selectedPackage = data.selectedPackage;
             selectedPrice = data.selectedPrice;
             
-            // 3. Render and show the report
             renderReportToBrowser().then(() => {
                 showInstantSuccessPage();
                 if(overlay) overlay.style.display = 'none';
                 triggerAutomatedEmail();
             });
         } else {
-            // CRITICAL ERROR: This means data saved on aptskola.com isn't visible here.
-            // This happens if Razorpay redirected you to www.aptskola.com instead.
-            console.error("No session found for recovery.");
             if(overlay) overlay.style.display = 'none';
             if(landing) landing.style.display = 'block';
-            alert("Payment detected, but session data was lost. Check if your domain switched between 'www' and 'non-www'. Payment ID: " + razorpayId);
+            alert("Payment successful! However, your session data was lost. Please ensure you are not switching between 'www' and 'non-www' domains.");
         }
     }
 }
