@@ -1,3 +1,8 @@
+// --- FORCE HTTPS (Add to top of script.js) ---
+if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
+    location.replace(`https:${location.href.substring(location.protocol.length)}`);
+}
+
 // --- CONFIG ---
 const RAZORPAY_KEY_ID = "rzp_live_RxHmfgMlTRV3Su";
 const GMAPS_API_KEY = "AIzaSyCS0hE4xa32DpKoNs5Na3KDX3HrazBvwiU"; 
