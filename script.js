@@ -2,7 +2,7 @@
 const RAZORPAY_KEY_ID = "rzp_live_RxHmfgMlTRV3Su";
 const GMAPS_API_KEY = "AIzaSyCS0hE4xa32DpKoNs5Na3KDX3HrazBvwiU"; 
 const EMAILJS_PUBLIC_KEY = "GJEWFtAL7s231EDrk"; // REPLACE WITH YOUR KEY
-const EMAILJS_SERVICE_ID = "0KkpEGHACdzjKCK1wicJj"; // REPLACE WITH YOUR SERVICE ID
+const EMAILJS_SERVICE_ID = "service_bm56t8v"; // Paste the ID from Gmail service here
 const EMAILJS_TEMPLATE_ID = "template_qze00kx"; // REPLACE WITH YOUR TEMPLATE ID
 const EMAILJS_LEAD_TEMPLATE_ID = "template_lead_summary"; // NEW: For Save for Later
 
@@ -1261,12 +1261,12 @@ async function triggerAutomatedEmail() {
     await new Promise(resolve => setTimeout(resolve, 1500)); 
 
     const canvas = await html2canvas(reportElement, { 
-        scale: 2.0, 
+        scale: 0.8, 
         useCORS: true,
         logging: false 
     });
     
-    const reportImageData = canvas.toDataURL('image/jpeg', 0.8);
+    const reportImageData = canvas.toDataURL('image/jpeg', 0.3);
 
     try {
         await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
