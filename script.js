@@ -1299,35 +1299,53 @@ function redirectToRazorpay() {
 }
 
 async function triggerAutomatedEmail() {
-    console.log("CTO: Improving Image Quality...");
-    const reportElement = document.getElementById('reportPreview');
-    if(!reportElement) return;
+    console.log("CTO: Generating Lightweight Text-Based Report...");
+    
+    // 1. Re-calculate recommendation for the email body
+    const res = calculateFullRecommendation(answers);
+    const recBoard = res.recommended.name;
+    
+    // 2. Map the board to the correct MASTER_DATA key
+    const boardKey = recBoard.toLowerCase().includes('cbse') ? 'cbse' : 
+                     (recBoard.toLowerCase().includes('icse') ? 'icse' : 
+                     (recBoard.toLowerCase().includes('ib') ? 'ib' : 
+                     (recBoard.toLowerCase().includes('cambridge') ? 'Cambridge (IGCSE)' : 'State Board')));
+    
+    const data = MASTER_DATA[boardKey];
 
-    await new Promise(resolve => setTimeout(resolve, 2000)); 
+    // 3. Build the dynamic text summary based on the price/tier
+    let textSummary = `RESULTS SUMMARY:\n------------------\n`;
+    textSummary += `RECOMMENDED ARCHETYPE: ${data.title}\n`;
+    textSummary += `PRIMARY BOARD MATCH: ${recBoard} (${res.recommended.percentage}% Match)\n`;
+    textSummary += `CHILD'S PERSONA: ${data.persona}\n\n`;
+    textSummary += `PHILOSOPHY: ${data.philosophy}\n`;
+
+    if (selectedPrice >= 999) {
+        textSummary += `\nPREMIUM INSIGHTS:\n`;
+        textSummary += `- RISK CHECK: Look for 'Library Dust' and 'Teacher Turnover' during your campus visit.\n`;
+        textSummary += `- FINANCIAL: Budget for a 12% annual fee inflation over 15 years.`;
+    }
+
+    if (selectedPrice >= 1499) {
+        textSummary += `\n\nPRO ADMISSION TIPS:\n`;
+        textSummary += `- NEGOTIATION: Use the 'Lump Sum Leverage' script to ask for admission fee waivers.\n`;
+        textSummary += `- INTERVIEW: Never answer for the child; it is the #1 reason for rejection.`;
+    }
 
     try {
-        // STEP 1: Increase Scale from 0.5 to 1.5 for sharper text
-        const canvas = await html2canvas(reportElement, { 
-            scale: 1.2, 
-            useCORS: true,
-            logging: false 
-        });
-        
-        // STEP 2: Increase JPEG quality from 0.2 to 0.6
-        const reportImageData = canvas.toDataURL('image/jpeg', 0.6); 
-
+        // 4. Dispatch via EmailJS (Removing the heavy report_image)
         await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
             user_email: customerData.email,
             user_name: customerData.parentName,
             order_id: customerData.orderId,
             child_name: customerData.childName,
             package_name: customerData.package,
-            report_image: reportImageData 
+            report_text_summary: textSummary // The new text-only variable
         });
-        console.log("CTO Success: High-quality report sent!");
+        
+        console.log("CTO Success: Text report sent to " + customerData.email);
     } catch (e) {
-        console.error("CTO Fail: Image might be too large for EmailJS limits.", e);
-        alert("The high-quality email failed to send. Try lowering the scale to 1.0.");
+        console.error("CTO Fail: Email dispatch error", e);
     }
 }
 
@@ -1389,7 +1407,21 @@ function closeForensicModalAndShowSuccess() {
 function showInstantSuccessPage() {
     const paymentPage = document.getElementById('paymentPageContainer');
     const successPage = document.getElementById('successPage');
-    
+    // Add this inside your showInstantSuccessPage function in script.js
+	const successContainer = document.querySelector('.success-container');
+	if (successContainer) {
+    const backupNotice = `
+        <div style="background: #FFF7ED; border: 1px solid #FFEDD5; padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 5px solid #F59E0B;">
+            <p style="color: #9A3412; font-weight: 700; font-size: 0.9rem;">
+                💾 PLEASE DOWNLOAD YOUR PDF NOW
+            </p>
+            <p style="color: #C2410C; font-size: 0.8rem; margin-top: 5px;">
+                We have sent a summary to your email, but the full 15-year roadmap is only saved locally on this browser. Download the PDF to keep it forever.
+            </p>
+        </div>
+    `;
+    successContainer.insertAdjacentHTML('afterbegin', backupNotice);
+}	
     if(paymentPage) paymentPage.classList.add('hidden');
     if(successPage) {
         successPage.classList.remove('hidden');
@@ -1943,5 +1975,4 @@ document.addEventListener('DOMContentLoaded', () => {
     // 6. PRICING VISIBILITY: Ensure pricing is visible by default
     const pricingSection = document.getElementById('pricing');
     if (pricingSection) pricingSection.style.display = 'block'; 
-
 });
