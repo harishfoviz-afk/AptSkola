@@ -474,47 +474,46 @@ const questions = [
     }
 ];
 
-// --- UPDATED: RECOVER SESSION ON RETURN ---
 function checkPaymentStatus() {
     const params = new URLSearchParams(window.location.search);
     const razorpayId = params.get('razorpay_payment_id');
 
     if (razorpayId) {
-        console.log("Payment detected. Recovering session...");
+        console.log("Found Razorpay ID: " + razorpayId);
         
-        // 1. Immediately hide the landing page so user doesn't see it
+        // 1. Immediately hide landing and show loading
         const landing = document.getElementById('landingPage');
         if (landing) landing.style.display = 'none';
 
-        // 2. Show the loading overlay
         const overlay = document.getElementById('redirectLoadingOverlay');
         if (overlay) overlay.style.display = 'flex';
 
-        // 3. Retrieve the last Order ID
+        // 2. Retrieve the last Order ID
         const lastOrderId = localStorage.getItem('aptskola_last_order_id');
         const savedSession = localStorage.getItem(`aptskola_session_${lastOrderId}`);
 
         if (savedSession) {
+            console.log("Session found. Re-hydrating assessment data...");
             const data = JSON.parse(savedSession);
-            // Re-assign global variables
+            
             answers = data.answers;
             customerData = data.customerData;
             selectedPackage = data.selectedPackage;
             selectedPrice = data.selectedPrice;
             
-            // 4. Render and show the report
+            // 3. Render and show the report
             renderReportToBrowser().then(() => {
                 showInstantSuccessPage();
                 if(overlay) overlay.style.display = 'none';
-                
-                // Optional: Send success email now that we are back
                 triggerAutomatedEmail();
             });
         } else {
+            // CRITICAL ERROR: This means data saved on aptskola.com isn't visible here.
+            // This happens if Razorpay redirected you to www.aptskola.com instead.
             console.error("No session found for recovery.");
             if(overlay) overlay.style.display = 'none';
             if(landing) landing.style.display = 'block';
-            alert("Payment successful, but we couldn't find your session. Please contact support with your Payment ID: " + razorpayId);
+            alert("Payment detected, but session data was lost. Check if your domain switched between 'www' and 'non-www'. Payment ID: " + razorpayId);
         }
     }
 }

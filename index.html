@@ -119,6 +119,8 @@
     </script>
 </head>
 
+<body>
+
 <div id="redirectLoadingOverlay" class="payment-modal" style="display: none; flex-direction: column; background: rgba(15, 23, 42, 0.95); z-index: 5000;">
     <div class="spinner" style="width: 60px; height: 60px; border-top-color: #FF6B35;"></div>
     <h2 style="color: white; font-weight: 800; margin-top: 20px; font-size: 1.5rem;">Authenticating Payment...</h2>
@@ -130,7 +132,6 @@
     </div>
 </div>
 
-<body>
     <div id="stickyCTA" class="sticky-cta md:hidden">
         <div class="flex flex-col">
             <span class="font-bold text-sm">Confused about boards?</span>
@@ -749,11 +750,15 @@
     </div>
 
     <div id="successPage" class="success-page hidden">
+		<div id="successHeader"></div> 
+		<div class="success-content-wrapper">
+        <div class="success-container" style="text-align: center;"> 
+            <div style="font-size: 3rem; margin-bottom: 10px;">✅</div>
+            <h2 style="color: var(--verified-green); margin-bottom: 15px;">Success! Your report is generated.</h2>
 		</div>
-        <div id="successHeader"></div> 
-        <div class="success-content-wrapper">
-            <div class="success-container" style="text-align: center;"> <div style="font-size: 3rem; margin-bottom: 10px;">✅</div>
-                <h2 style="color: var(--verified-green); margin-bottom: 15px;">Success! Your report is generated.</h2>
+		</div>
+		<div id="successFooter"></div>
+	</div> ```
                 <div id="goldenTicketContainer" style="display:none; margin-bottom: 20px; border: 2px dashed #F59E0B; background: #FFFBEB; padding: 20px; border-radius: 12px;">
                     <h3 style="color: #92400E; font-weight: 800; font-size: 1.2rem;">🎫 YOUR SHARED GOLDEN TICKET</h3>
                     <p style="font-size: 0.9rem; color: #B45309;">Since you chose the Pro experience, you've unlocked 50% OFF Foviz Elite Career Sessions.</p>
