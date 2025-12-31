@@ -498,9 +498,9 @@ function checkPaymentStatus() {
 
             // Step 4: Rebuild report and send email
             renderReportToBrowser().then(() => {
-                triggerAutomatedEmail().then(() => {
+					showInstantSuccessPage();
+					triggerAutomatedEmail().then(() => {
                     if(overlay) overlay.style.display = 'none';
-                    showInstantSuccessPage();
                 });
             });
         } else {
@@ -1256,36 +1256,31 @@ function redirectToRazorpay() {
 // --- EMAIL DISPATCH ---
 async function triggerAutomatedEmail() {
     const reportElement = document.getElementById('reportPreview');
-    // Guard clause: ensure EmailJS and report element exist
     if(!reportElement || typeof emailjs === 'undefined') return;
     
-    // Step 1: High-fidelity capture 
-    // We use scale 2.0 to match the crispness of your downloaded PDF
+    // CTO FIX: Wait 1 second for the UI to stabilize before capturing
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
     const canvas = await html2canvas(reportElement, { 
         scale: 2.0, 
         useCORS: true,
         logging: false 
     });
     
-    // Step 2: Convert to high-quality JPEG
-    // JPEG is better for email size constraints than PNG
     const reportImageData = canvas.toDataURL('image/jpeg', 0.8);
 
     try {
-        // Step 3: Dispatch via EmailJS
         await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
             user_email: customerData.email,
             user_name: customerData.parentName,
             order_id: customerData.orderId,
-			child_name: customerData.childName,
+            child_name: customerData.childName,
             package_name: customerData.package,
-            // Ensure your EmailJS template has a variable {{report_image}} 
-            // set up inside an <img src="{{report_image}}"> tag
             report_image: reportImageData 
         });
-        console.log("CTO Update: EmailJS report dispatch successful.");
+        console.log("CTO: Email Sent.");
     } catch (e) {
-        console.warn("CTO Warning: EmailJS failed to dispatch.", e);
+        console.warn("Email dispatch failed:", e);
     }
 }
 
