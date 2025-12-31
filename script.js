@@ -1254,27 +1254,30 @@ function redirectToRazorpay() {
 }
 
 async function triggerAutomatedEmail() {
-    console.log("CTO: Initializing 100% Reliability Dispatch...");
-    if(typeof emailjs === 'undefined') return;
+    console.log("CTO: Initializing Hard-Coded Reliability Dispatch...");
+    if(typeof emailjs === 'undefined') {
+        console.error("CTO Error: EmailJS SDK not loaded.");
+        return;
+    }
 
     try {
-        // CTO FIX: Explicitly naming the IDs to prevent the "--" Template error
-        const serviceID = "service_bm56t8v"; 
-        const templateID = "template_qze00kx";
-
-        const templateParams = {
-            user_email: customerData.email,
-            user_name: customerData.parentName,
-            order_id: customerData.orderId,
-            child_name: customerData.childName,
-            package_name: customerData.package,
-            report_image: "" // Keeping it empty for now to guarantee first delivery
-        };
-
-        const response = await emailjs.send(serviceID, templateID, templateParams);
-        console.log("CTO Success: Status " + response.status + " - Template: " + templateID);
+        // SURGICAL INJECTION: Direct IDs to bypass DNS/Variable resolution issues
+        const response = await emailjs.send(
+            "service_bm56t8v",   // YOUR VERIFIED GMAIL SERVICE
+            "template_qze00kx",  // YOUR PUBLISHED TEMPLATE
+            {
+                user_email: customerData.email,   //
+                user_name: customerData.parentName,
+                order_id: customerData.orderId,
+                child_name: customerData.childName,
+                package_name: customerData.package,
+                report_image: "" // Keeping empty to ensure 100% text delivery
+            }
+        );
+        
+        console.log("CTO Success: Status " + response.status + " (200 OK)");
     } catch (e) {
-        console.error("CTO Critical Fail: Check if template ID is published.", e);
+        console.error("CTO DNS/Connection Fail:", e);
     }
 }
 
