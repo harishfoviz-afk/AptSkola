@@ -478,40 +478,38 @@ function checkPaymentStatus() {
     const params = new URLSearchParams(window.location.search);
     const razorpayId = params.get('razorpay_payment_id');
 
-    // CTO's Verdict: Only run this logic if we see a Razorpay ID in the URL
     if (razorpayId) {
-        console.log("CTO: Payment Success Detected. Executing Redirect Resurrector...");
+        console.log("CTO: Redirect detected. Killing Home Page...");
         
-        // Step 1: Immediately hide the landing page
+        // STEP 1: FORCE-HIDE HOME PAGE IMMEDIATELY
         const landing = document.getElementById('landingPage');
         if (landing) landing.classList.add('hidden');
 
-        // Step 2: Show the Authenticating Overlay
+        // STEP 2: SHOW AUTHENTICATING OVERLAY
         const overlay = document.getElementById('redirectLoadingOverlay');
         if (overlay) overlay.style.display = 'flex';
 
-        // Step 3: Identify the session from LocalStorage
+        // STEP 3: RE-HYDRATE DATA FROM LOCALSTORAGE
         const lastOrderId = localStorage.getItem('aptskola_last_order_id');
         const sessionKey = lastOrderId ? `aptskola_session_${lastOrderId}` : null;
         const savedSession = localStorage.getItem(sessionKey);
 
         if (savedSession) {
             const data = JSON.parse(savedSession);
-            answers = data.answers; // Restore user's test answers
-            customerData = data.customerData; // Restore user's profile
-
-            // Step 4: Rebuild report and send email
+            answers = data.answers;
+            customerData = data.customerData;
+            
+            // STEP 4: RENDER REPORT & SEND EMAIL
             renderReportToBrowser().then(() => {
-					showInstantSuccessPage();
-					triggerAutomatedEmail().then(() => {
-                    if(overlay) overlay.style.display = 'none';
-                });
+                showInstantSuccessPage();
+                triggerAutomatedEmail();
+                if(overlay) overlay.style.display = 'none';
             });
         } else {
-            // Fallback: If no session found on this specific browser
+            // FALLBACK: NO DATA FOUND
             if (overlay) overlay.style.display = 'none';
             if (landing) landing.classList.remove('hidden');
-            alert("Payment successful, but we couldn't find your data. Check your email for the report.");
+            alert("Payment detected, but session data is missing on this device.");
         }
     }
 }
