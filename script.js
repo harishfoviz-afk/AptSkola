@@ -1254,20 +1254,20 @@ function redirectToRazorpay() {
 }
 
 async function triggerAutomatedEmail() {
-    console.log("CTO: Executing 100% Reliability Dispatch...");
+    console.log("CTO: Executing 100% Reliability Text Dispatch...");
+    if(typeof emailjs === 'undefined') return;
 
     try {
-        // MATCHING YOUR TEMPLATE: We send text only to guarantee delivery
+        // MATCHING YOUR TEMPLATE: Text-only to guarantee delivery
         await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
             user_email: customerData.email,
             user_name: customerData.parentName,
             order_id: customerData.orderId,
             child_name: customerData.childName,
             package_name: customerData.package,
-            // We pass an empty string for the image to avoid API blocks
-            report_image: "" 
+            report_image: "" // Empty string to prevent API blocks
         });
-        console.log("CTO Success: Text-only bridge delivered.");
+        console.log("CTO Success: Text-only bridge delivered to " + customerData.email);
     } catch (e) {
         console.error("CTO Fail:", e);
     }
