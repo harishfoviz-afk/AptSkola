@@ -1261,29 +1261,36 @@ async function redirectToRazorpay() {
 }
 
 async function triggerAutomatedEmail() {
-    const lastOrderId = localStorage.getItem('aptskola_last_order_id');
-    const savedData = localStorage.getItem(`aptskola_session_${lastOrderId}`);
-    
-    if (!savedData) {
-        console.error("Email Trigger Fail: No session data found for " + lastOrderId);
-        return;
-    }
+    console.log("CTO: Re-activating Image Dispatch...");
+    const reportElement = document.getElementById('reportPreview');
+    if(!reportElement) return;
 
-    const session = JSON.parse(savedData);
-    
-    const emailParams = {
-        user_email: session.customerData.email, // MUST MATCH {{user_email}} in EmailJS
-        user_name: session.customerData.parentName,
-        order_id: lastOrderId,
-        child_name: session.customerData.childName,
-        package_name: session.customerData.package
-    };
+    // Wait for UI to stabilize
+    await new Promise(resolve => setTimeout(resolve, 2000)); 
 
     try {
-        const response = await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, emailParams);
-        console.log("SUCCESS!", response.status, response.text);
-    } catch (error) {
-        console.error("EMAILJS ERROR:", error);
+        // Step 1: Create a tiny, high-compression snapshot
+        const canvas = await html2canvas(reportElement, { 
+            scale: 0.5, // Reduced scale to keep file size low
+            useCORS: true,
+            logging: false 
+        });
+        
+        // Step 2: Convert to low-quality JPEG to ensure Gmail API accepts it
+        const reportImageData = canvas.toDataURL('image/jpeg', 0.2); 
+
+        // Step 3: Dispatch with the "report_image" variable populated
+        await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+            user_email: customerData.email,
+            user_name: customerData.parentName,
+            order_id: customerData.orderId,
+            child_name: customerData.childName,
+            package_name: customerData.package,
+            report_image: reportImageData // RE-INSERTED DATA
+        });
+        console.log("CTO Success: Image report sent to " + customerData.email);
+    } catch (e) {
+        console.error("CTO Fail: If this fails, the image is still too heavy.", e);
     }
 }
 
