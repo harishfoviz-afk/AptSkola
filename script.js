@@ -1254,22 +1254,27 @@ function redirectToRazorpay() {
 }
 
 async function triggerAutomatedEmail() {
-    console.log("CTO: Executing 100% Reliability Text Dispatch...");
+    console.log("CTO: Initializing 100% Reliability Dispatch...");
     if(typeof emailjs === 'undefined') return;
 
     try {
-        // MATCHING YOUR TEMPLATE: Text-only to guarantee delivery
-        await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+        // CTO FIX: Explicitly naming the IDs to prevent the "--" Template error
+        const serviceID = "service_bm56t8v"; 
+        const templateID = "template_qze00kx";
+
+        const templateParams = {
             user_email: customerData.email,
             user_name: customerData.parentName,
             order_id: customerData.orderId,
             child_name: customerData.childName,
             package_name: customerData.package,
-            report_image: "" // Empty string to prevent API blocks
-        });
-        console.log("CTO Success: Text-only bridge delivered to " + customerData.email);
+            report_image: "" // Keeping it empty for now to guarantee first delivery
+        };
+
+        const response = await emailjs.send(serviceID, templateID, templateParams);
+        console.log("CTO Success: Status " + response.status + " - Template: " + templateID);
     } catch (e) {
-        console.error("CTO Fail:", e);
+        console.error("CTO Critical Fail: Check if template ID is published.", e);
     }
 }
 
