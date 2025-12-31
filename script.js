@@ -4,7 +4,6 @@ const GMAPS_API_KEY = "AIzaSyCS0hE4xa32DpKoNs5Na3KDX3HrazBvwiU";
 const EMAILJS_PUBLIC_KEY = "GJEWFtAL7s231EDrk"; // REPLACE WITH YOUR KEY
 const EMAILJS_SERVICE_ID = "service_bm56t8v"; // Paste the ID from Gmail service here
 const EMAILJS_TEMPLATE_ID = "template_qze00kx"; // REPLACE WITH YOUR TEMPLATE ID
-const EMAILJS_LEAD_TEMPLATE_ID = "template_lead_summary"; // NEW: For Save for Later
 
 // Prices in PAISE (1 Rupee = 100 Paise)
 const PACKAGE_PRICES = { 'Essential': 59900, 'Premium': 99900, 'The Smart Parent Pro': 149900 };
@@ -1254,30 +1253,34 @@ function redirectToRazorpay() {
 }
 
 async function triggerAutomatedEmail() {
-    console.log("CTO: Initializing Hard-Coded Reliability Dispatch...");
-    if(typeof emailjs === 'undefined') {
-        console.error("CTO Error: EmailJS SDK not loaded.");
+    // 1. DATA RECOVERY: Pull the email back from LocalStorage after the redirect
+    const lastOrderId = localStorage.getItem('aptskola_last_order_id');
+    const savedData = localStorage.getItem(`aptskola_session_${lastOrderId}`);
+    
+    if (!savedData) {
+        console.error("CTO Fail: No session found to email.");
         return;
     }
 
+    const session = JSON.parse(savedData);
+    const recipientEmail = session.customerData.email;
+
     try {
-        // SURGICAL INJECTION: Direct IDs to bypass DNS/Variable resolution issues
-        const response = await emailjs.send(
-            "service_bm56t8v",   // YOUR VERIFIED GMAIL SERVICE
-            "template_qze00kx",  // YOUR PUBLISHED TEMPLATE
-            {
-                user_email: customerData.email,   //
-                user_name: customerData.parentName,
-                order_id: customerData.orderId,
-                child_name: customerData.childName,
-                package_name: customerData.package,
-                report_image: "" // Keeping empty to ensure 100% text delivery
-            }
-        );
+        console.log("CTO: Dispatching to " + recipientEmail);
         
-        console.log("CTO Success: Status " + response.status + " (200 OK)");
+        await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+            // These keys MUST match your Template Tags in the dashboard
+            user_email: recipientEmail, 
+            user_name: session.customerData.parentName,
+            order_id: lastOrderId,
+            child_name: session.customerData.childName,
+            package_name: session.customerData.package,
+            report_image: "" // Safety: Text-only to guarantee delivery
+        });
+        
+        console.log("CTO Success: Check Gmail Sent folder!");
     } catch (e) {
-        console.error("CTO DNS/Connection Fail:", e);
+        console.error("CTO Dispatch Error:", e);
     }
 }
 
