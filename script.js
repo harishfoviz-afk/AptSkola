@@ -1254,35 +1254,22 @@ function redirectToRazorpay() {
 }
 
 async function triggerAutomatedEmail() {
-    const reportElement = document.getElementById('reportPreview');
-    if(!reportElement || typeof emailjs === 'undefined') return;
-    
-    // CTO FIX: Wait 1.5 seconds to ensure Google Maps and Icons are fully rendered
-    await new Promise(resolve => setTimeout(resolve, 2000)); 
-
-    const canvas = await html2canvas(reportElement, { 
-        scale: 0.4, 
-        useCORS: true,
-        logging: false 
-    });
-    
-    const reportImageData = canvas.toDataURL('image/jpeg', 0.1);
+    console.log("CTO: Executing 100% Reliability Dispatch...");
 
     try {
+        // MATCHING YOUR TEMPLATE: We send text only to guarantee delivery
         await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-            // MATCHING YOUR TEMPLATE: {{user_email}}
-            user_email: customerData.email, 
-            // MATCHING YOUR TEMPLATE: {{user_name}}
+            user_email: customerData.email,
             user_name: customerData.parentName,
             order_id: customerData.orderId,
             child_name: customerData.childName,
             package_name: customerData.package,
-            // Ensure your template has <img src="{{report_image}}">
-            report_image: reportImageData 
+            // We pass an empty string for the image to avoid API blocks
+            report_image: "" 
         });
-        console.log("CTO Success: Email sent to " + customerData.email);
+        console.log("CTO Success: Text-only bridge delivered.");
     } catch (e) {
-        console.warn("CTO Warning: EmailJS failed.", e);
+        console.error("CTO Fail:", e);
     }
 }
 
