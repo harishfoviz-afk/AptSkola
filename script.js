@@ -625,6 +625,17 @@ function closeSampleReport() {
     if (modal) modal.classList.remove('active');
 }
 
+// --- PRICING MODAL FUNCTIONS ---
+function openPricingModal() {
+    const modal = document.getElementById('pricingModal');
+    if (modal) modal.classList.add('active');
+}
+
+function closePricingModal() {
+    const modal = document.getElementById('pricingModal');
+    if (modal) modal.classList.remove('active');
+}
+
 // --- UNIFIED MODAL CONTROLLER (UPDATED) ---
 function openCollaborationModal(type) {
     const modal = document.getElementById('collaborationModal');
@@ -673,7 +684,7 @@ function getIntermediateHeaderHtml() {
      return `<div class="intermediate-header" onclick="goToLandingPage()" style="cursor:pointer;"><div class="max-w-7xl mx-auto"><span class="font-bold text-xl">Apt <span class="text-brand-orange">Skola</span></span></div></div>`;
 }
 function getIntermediateFooterHtml() {
-     return `<div class="intermediate-footer"><div class="max-w-7xl mx-auto text-center"><p>&copy; 2025 Apt Skola, all rights reserved.</p></div></div>`;
+     return `<div class="intermediate-footer"><div class="max-w-7xl mx-auto text-center"><p>&copy; 2026 Apt Skola, all rights reserved.</p></div></div>`;
 }
 
 // --- SYNC MATCH GATE LOGIC ---
@@ -1596,8 +1607,17 @@ async function renderReportToBrowser() {
 
 // --- OPTIMIZED: SMART PDF GENERATOR WITH NATIVE VECTOR HEADER ---
 async function downloadReport() {
+    console.log("Download button clicked");
     const { jsPDF } = window.jspdf;
+    if (!jsPDF) {
+        alert("PDF library not loaded. Please refresh the page.");
+        return;
+    }
     const reportElement = document.getElementById('reportPreview');
+    if (!reportElement || !reportElement.innerHTML.trim()) {
+        alert("Report not generated yet. Please complete the assessment.");
+        return;
+    }
     
     // Target content blocks specifically, EXCLUDING the original visual header
     const cards = reportElement.querySelectorAll('.report-card, .xray-card, .foviz-banner, .btn-ambassador');
@@ -1653,13 +1673,22 @@ async function downloadReport() {
 }
 
 async function sharePDF() {
+    console.log("Share button clicked");
     if (!navigator.canShare || !navigator.share) {
         alert("Your browser doesn't support direct file sharing. Please use the Download button.");
         return;
     }
 
     const { jsPDF } = window.jspdf;
+    if (!jsPDF) {
+        alert("PDF library not loaded. Please refresh the page.");
+        return;
+    }
     const reportElement = document.getElementById('reportPreview');
+    if (!reportElement || !reportElement.innerHTML.trim()) {
+        alert("Report not generated yet. Please complete the assessment.");
+        return;
+    }
     const cards = reportElement.querySelectorAll('.report-card, .xray-card, .foviz-banner, .btn-ambassador');
     
     const pdf = new jsPDF('p', 'mm', 'a4');

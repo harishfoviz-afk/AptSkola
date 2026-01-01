@@ -167,7 +167,7 @@
                 <p class="subheadline animate-fade-in-up" style="animation-delay: 0.2s">CBSE? ICSE? IB? Get a scientific, personalized recommendation based on your child's unique psychology in 5 minutes.</p>
                 
                 <div class="hero-actions animate-fade-in-up" style="animation-delay: 0.4s">
-                    <button onclick="scrollToClarity()" class="hero-btn-primary">Start Assessment</button>
+                    <button onclick="openPricingModal()" class="hero-btn-primary">Start Assessment</button>
                     <button onclick="openSampleReport()" class="hero-btn-secondary">View Sample Report</button>
                     <button onclick="openSyncMatchGate()" class="hero-btn-secondary" style="background: transparent; border: 2px solid #F59E0B; color: #F59E0B; font-weight: 800; display: flex; align-items: center; gap: 8px;">
                         <span>🔓</span> Unlock Parent & Child Sync Check
@@ -486,7 +486,7 @@
                     Apt <span style="color: var(--sunrise-primary);">Skola</span> 
                     <span style="font-weight: 400; font-size: 1rem; opacity: 0.8; margin-left: 10px;">| A Foviz Venture</span>
                 </p>
-                <p>&copy; 2025 Apt Skola, all rights reserved.</p>
+                <p>&copy; 2026 Apt Skola, all rights reserved.</p>
             </div>
         </footer>
     </div>
@@ -564,7 +564,7 @@
                     <input type="hidden" id="netlifyOrderId" name="orderId" value="" />
                     <input type="checkbox" name="botcheck" class="hidden" style="display: none;">
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div class="form-group">
                             <label>Parent's Full Name *</label>
                             <input type="text" id="parentName" name="parentName" required autocomplete="off">
@@ -594,10 +594,9 @@
 							<label>Partner/Referral ID (Optional)</label>
 							<input type="text" id="partnerId" name="partnerId" placeholder="e.g. PARTNER123" autocomplete="off">
 						</div>
-							<div class="col-span-1 md:col-span-2 mt-6 p-6 bg-slate-50 rounded-2xl border border-slate-200">
-							<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-							<div>
-							<label class="text-sm font-bold text-slate-700 mb-3 block">Would like to share feedback about school/college experience privately? *</label>
+							<div class="col-span-1 md:col-span-2 mt-4 p-4 bg-slate-50 rounded-2xl border border-slate-200">
+							<div class="flex items-center justify-between">
+							<label class="text-sm font-bold text-slate-700">Would like to share feedback about school/college experience privately? *</label>
 							<div class="flex items-center gap-8">
 							<label class="flex items-center gap-2 cursor-pointer">
 							<input type="radio" name="shareFeedback" value="Yes" required class="w-4 h-4 accent-brand-orange">
@@ -608,9 +607,8 @@
 							<span class="text-sm font-medium">No</span>
 							</label>
 							</div>
-						</div>
+							</div>
     </div>
-</div>
                     </div>
 
                     <div class="form-group" id="disclaimerCheck" style="margin-top:20px; font-size:0.95rem;">
@@ -738,6 +736,106 @@
                 You have ALSO unlocked the <strong>AI Forensic Report</strong> for 3 Institutes. Keep your order ID handy with you and return to AptSkola.com to check the report of the short listed schools.
             </p>
             <button onclick="closeForensicModalAndShowSuccess()" class="custom-cta-button">Awesome! Show my Report</button>
+        </div>
+    </div>
+
+    <div id="pricingModal" class="payment-modal" style="z-index: 2500;">
+        <div class="payment-modal-content" style="max-width: 1200px; text-align: left;">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-3xl font-bold text-brand-navy">Choose the Right Roadmap</h3>
+                <span class="cursor-pointer text-3xl" onclick="closePricingModal()">&times;</span>
+            </div>
+            <p class="text-lg text-slate-600 mb-8">Stop guessing. Get scientific recommendations and admission tools in minutes.</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
+                <div class="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden transform transition duration-300 hover:-translate-y-2 hover:shadow-xl flex flex-col h-full">
+                    <div class="p-8 flex-grow flex flex-col">
+                        <h3 class="text-xl font-bold text-brand-navy mb-2">The Decision Decoder</h3>
+                        <p class="text-sm text-slate-500 mb-6">Scientific Board Match & Foundational Roadmap.</p>
+                        <div class="flex items-baseline mb-6">
+                            <span class="text-4xl font-extrabold text-brand-navy">₹599</span>
+                            <span class="text-lg text-slate-400 line-through ml-2">₹999</span>
+                        </div>
+                        <ul class="feature-list">
+                            <li class="feature-item highlighted">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle class="icon-circle" cx="12" cy="12" r="10" stroke-width="2"/><path class="icon-circle" d="M8 12L11 15L16 9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                <span>Psychometric Assessment</span>
+                            </li>
+                            <li class="feature-item">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle class="icon-circle" cx="12" cy="12" r="10" stroke-width="2"/><path class="icon-circle" d="M8 12L11 15L16 9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                <span>Scientific Board Match</span>
+                            </li>
+                            <li class="feature-item">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle class="icon-circle" cx="12" cy="12" r="10" stroke-width="2"/><path class="icon-circle" d="M8 12L11 15L16 9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                <span>Board Deep Dive</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="p-8 pt-0 mt-auto">
+                        <button onclick="selectPackage('Essential', 599); closePricingModal();" class="w-full block bg-slate-100 hover:bg-slate-200 text-brand-navy font-bold py-3 px-4 rounded-xl transition duration-200 text-center">Get Clarity Now</button>
+                    </div>
+                </div>
+                <div class="relative bg-white rounded-2xl shadow-xl border-2 border-brand-navy overflow-hidden transform transition duration-300 hover:-translate-y-2 hover:shadow-2xl flex flex-col h-full z-10 scale-105 md:scale-105 my-4 md:my-0">
+                    <div class="absolute top-0 right-0 left-0 bg-brand-navy text-white text-center text-xs font-bold uppercase tracking-wider py-1.5">Most Popular</div>
+                    <div class="p-8 pt-10 flex-grow flex flex-col">
+                        <h3 class="text-xl font-bold text-brand-navy mb-2">The Smart Parent Toolkit</h3>
+                        <p class="text-sm text-slate-500 mb-6">Financial Safety & Risk-Free Evaluation</p>
+                        <div class="flex items-baseline mb-6">
+                            <span class="text-4xl font-extrabold text-brand-navy">₹999</span>
+                            <span class="text-lg text-slate-400 line-through ml-2">₹2,499</span>
+                        </div>
+                        <div class="text-xs font-semibold text-brand-orange uppercase tracking-wide mb-3">Everything in The Decision Decoder, plus:</div>
+                        <ul class="feature-list">
+                            <li class="feature-item highlighted">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle class="icon-circle" cx="12" cy="12" r="10" stroke-width="2"/><path class="icon-circle" d="M8 12L11 15L16 9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                <span>Parent & Child Sync Check</span>
+                            </li>
+                            <li class="feature-item">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle class="icon-circle" cx="12" cy="12" r="10" stroke-width="2"/><path class="icon-circle" d="M8 12L11 15L16 9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                <span>Financial Clarity (15-Year Forecast)</span>
+                            </li>
+                            <li class="feature-item">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle class="icon-circle" cx="12" cy="12" r="10" stroke-width="2"/><path class="icon-circle" d="M8 12L11 15L16 9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                <span>Risk Mitigation Checklist</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="p-8 pt-0 mt-auto">
+                        <button onclick="selectPackage('Premium', 999); closePricingModal();" class="w-full block bg-brand-navy hover:bg-slate-800 text-white font-bold py-4 px-4 rounded-xl transition duration-200 text-center shadow-lg">Get the Toolkit</button>
+                    </div>
+                </div>
+                <div class="bg-white rounded-2xl shadow-lg border border-brand-orange/30 ring-1 ring-brand-orange/20 overflow-hidden transform transition duration-300 hover:-translate-y-2 hover:shadow-xl flex flex-col h-full">
+                    <div class="p-8 flex-grow flex flex-col">
+                        <h3 class="text-xl font-bold text-brand-navy mb-2">The Smart Parent Pro</h3>
+                        <p class="text-sm text-slate-500 mb-6">Done-For-You: Negotiation & School Finalization</p>
+                        <div class="flex items-baseline mb-6">
+                            <span class="text-4xl font-extrabold text-brand-navy">₹1,499</span>
+                            <span class="text-lg text-slate-400 line-through ml-2">₹4,999</span>
+                        </div>
+                        <div class="text-xs font-semibold text-brand-orange uppercase tracking-wide mb-3">Everything in The Smart Parent Toolkit, plus:</div>
+                        <ul class="feature-list">
+                            <li class="feature-item highlighted">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle class="icon-circle" cx="12" cy="12" r="10" stroke-width="2"/><path class="icon-circle" d="M8 12L11 15L16 9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                <span>AI Forensic Report (3 Institutes)</span>
+                            </li>
+                            <li class="feature-item highlighted">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle class="icon-circle" cx="12" cy="12" r="10" stroke-width="2"/><path class="icon-circle" d="M8 12L11 15L16 9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                <span><a href="https://foviz.in" target="_blank" class="hover:underline">Foviz Elite Discount (50% OFF)</a></span>
+                            </li>
+                            <li class="feature-item">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle class="icon-circle" cx="12" cy="12" r="10" stroke-width="2"/><path class="icon-circle" d="M8 12L11 15L16 9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                <span>Fee Negotiation Scripts</span>
+                            </li>
+                            <li class="feature-item">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle class="icon-circle" cx="12" cy="12" r="10" stroke-width="2"/><path class="icon-circle" d="M8 12L11 15L16 9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                <span>Parent Interview Guide</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="p-8 pt-0 mt-auto">
+                        <button onclick="selectPackage('The Smart Parent Pro', 1499); closePricingModal();" class="w-full block bg-brand-orange hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-xl transition duration-200 text-center shadow-md">Find Best Board</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 

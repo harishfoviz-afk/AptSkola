@@ -412,10 +412,10 @@ header .subheadline {
     width: 100%; 
 }
 
-.details-form, .success-container { background: var(--white); border-radius: 16px; padding: 50px; max-width: 800px; width: 100%; box-shadow: var(--shadow-soft); border: 1px solid var(--border-grey); margin-bottom: 30px; }
-.form-group { margin-bottom: 25px; width: 100%; }
-.form-group label { display: block; color: var(--navy-premium); font-weight: 600; margin-bottom: 8px; }
-.form-group input, .form-group select { width: 100%; padding: 15px; border: 1px solid var(--border-grey); border-radius: 8px; font-size: 1rem; background: var(--bg-light); }
+.details-form, .success-container { background: var(--white); border-radius: 16px; padding: 40px; max-width: 800px; width: 100%; box-shadow: var(--shadow-soft); border: 1px solid var(--border-grey); margin-bottom: 30px; }
+.form-group { margin-bottom: 15px; width: 100%; }
+.form-group label { display: block; color: var(--navy-premium); font-weight: 600; margin-bottom: 5px; }
+.form-group input, .form-group select { width: 100%; padding: 12px; border: 1px solid var(--border-grey); border-radius: 8px; font-size: 1rem; background: var(--bg-light); }
 
 /* REPORT PREVIEW STYLES */
 #reportPreview { width: 100%; text-align: left; margin-top: 20px; padding: 20px; }
@@ -583,6 +583,7 @@ footer .policy-links a { margin: 0 8px; color: #CBD5E1; text-decoration: none; f
     .details-form, .success-container { padding: 25px 20px; }
     .calculator-card { padding: 25px 15px; }
     input, select, textarea { font-size: 16px !important; }
+    .report-card { padding: 15px; }
 }
 
 /* NEW: SVG Pricing Features */
@@ -644,12 +645,14 @@ footer .policy-links a { margin: 0 8px; color: #CBD5E1; text-decoration: none; f
 /* Ensure the report looks professional in the PDF */
 .report-card {
     width: 750px;
+    max-width: 100%;
     margin: 20px auto;
     background: white;
     border: 1px solid #E2E8F0;
     border-radius: 12px;
     padding: 30px;
     box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    box-sizing: border-box;
 }
 
 /* --- PREMIUM DASHBOARD PROGRESS BARS --- */
