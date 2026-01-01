@@ -1299,13 +1299,10 @@ function redirectToRazorpay() {
 }
 
 async function triggerAutomatedEmail() {
-    console.log("CTO: Generating Lightweight Text-Based Report...");
+    console.log("CTO: Generating Branded HTML Report with Tiered Insights...");
     
-    // 1. Re-calculate recommendation for the email body
     const res = calculateFullRecommendation(answers);
     const recBoard = res.recommended.name;
-    
-    // 2. Map the board to the correct MASTER_DATA key
     const boardKey = recBoard.toLowerCase().includes('cbse') ? 'cbse' : 
                      (recBoard.toLowerCase().includes('icse') ? 'icse' : 
                      (recBoard.toLowerCase().includes('ib') ? 'ib' : 
@@ -1313,39 +1310,55 @@ async function triggerAutomatedEmail() {
     
     const data = MASTER_DATA[boardKey];
 
-    // 3. Build the dynamic text summary based on the price/tier
-    let textSummary = `RESULTS SUMMARY:\n------------------\n`;
-    textSummary += `RECOMMENDED ARCHETYPE: ${data.title}\n`;
-    textSummary += `PRIMARY BOARD MATCH: ${recBoard} (${res.recommended.percentage}% Match)\n`;
-    textSummary += `CHILD'S PERSONA: ${data.persona}\n\n`;
-    textSummary += `PHILOSOPHY: ${data.philosophy}\n`;
+    // Build the Branded Header and Basic Info
+    let htmlSummary = `
+        <div style="border: 1px solid #E2E8F0; border-radius: 16px; overflow: hidden; font-family: sans-serif; margin: 20px 0;">
+            <div style="background-color: #0F172A; color: #ffffff; padding: 25px; text-align: center;">
+                <h2 style="margin: 0; font-size: 22px; letter-spacing: 0.5px;">${data.title}</h2>
+                <p style="margin: 8px 0 0; color: #FF6B35; font-weight: 800; font-size: 16px;">
+                    MATCH: ${recBoard} (${res.recommended.percentage}%)
+                </p>
+            </div>
+            <div style="padding: 25px; background-color: #ffffff; color: #334155;">
+                <p style="margin-top: 0;"><strong>Persona:</strong> ${data.persona}</p>
+                <p style="line-height: 1.6;"><strong>Philosophy:</strong> ${data.philosophy}</p>
+    `;
 
+    // ADDED: Premium Insights (₹999 Tier)
     if (selectedPrice >= 999) {
-        textSummary += `\nPREMIUM INSIGHTS:\n`;
-        textSummary += `- RISK CHECK: Look for 'Library Dust' and 'Teacher Turnover' during your campus visit.\n`;
-        textSummary += `- FINANCIAL: Budget for a 12% annual fee inflation over 15 years.`;
+        htmlSummary += `
+            <div style="margin-top: 20px; padding: 15px; background-color: #F0FDF4; border-left: 4px solid #10B981; border-radius: 4px;">
+                <h4 style="margin: 0 0 5px 0; color: #166534; font-size: 14px; text-transform: uppercase;">Premium Insights</h4>
+                <p style="margin: 0; color: #334155; font-size: 14px;"><strong>Risk Check:</strong> Look for 'Library Dust' and 'Teacher Turnover' during your campus visit.</p>
+                <p style="margin: 5px 0 0; color: #334155; font-size: 14px;"><strong>Financial:</strong> Budget for a 12% annual fee inflation over 15 years.</p>
+            </div>
+        `;
     }
 
+    // ADDED: Pro Admission Tips (₹1499 Tier)
     if (selectedPrice >= 1499) {
-        textSummary += `\n\nPRO ADMISSION TIPS:\n`;
-        textSummary += `- NEGOTIATION: Use the 'Lump Sum Leverage' script to ask for admission fee waivers.\n`;
-        textSummary += `- INTERVIEW: Never answer for the child; it is the #1 reason for rejection.`;
+        htmlSummary += `
+            <div style="margin-top: 15px; padding: 15px; background-color: #FFF7ED; border-left: 4px solid #FF6B35; border-radius: 4px;">
+                <h4 style="margin: 0 0 5px 0; color: #9A3412; font-size: 14px; text-transform: uppercase;">Pro Admission Tips</h4>
+                <p style="margin: 0; color: #334155; font-size: 14px;"><strong>Negotiation:</strong> Use the 'Lump Sum Leverage' script to ask for admission fee waivers.</p>
+                <p style="margin: 5px 0 0; color: #334155; font-size: 14px;"><strong>Interview:</strong> Never answer for the child; it is the #1 reason for rejection.</p>
+            </div>
+        `;
     }
+
+    htmlSummary += `</div></div>`;
 
     try {
-        // 4. Dispatch via EmailJS (Removing the heavy report_image)
         await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
             user_email: customerData.email,
             user_name: customerData.parentName,
             order_id: customerData.orderId,
             child_name: customerData.childName,
-            package_name: customerData.package,
-            report_text_summary: textSummary // The new text-only variable
+            report_text_summary: htmlSummary 
         });
-        
-        console.log("CTO Success: Text report sent to " + customerData.email);
+        console.log("CTO Success: Branded email with all insights dispatched.");
     } catch (e) {
-        console.error("CTO Fail: Email dispatch error", e);
+        console.error("Email dispatch failed", e);
     }
 }
 
