@@ -187,33 +187,6 @@ header .subheadline {
     color: white;
 }
 
-/* Sticky CTA (Mobile) */
-.sticky-cta {
-    position: fixed;
-    bottom: 20px;
-    left: 20px;
-    right: 20px;
-    background: var(--navy-premium);
-    color: white;
-    padding: 15px;
-    border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    z-index: 999;
-    display: none; 
-    justify-content: space-between;
-    align-items: center;
-    animation: fadeInUp 0.5s ease-out;
-}
-.sticky-cta button {
-    background: var(--sunrise-primary);
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 6px;
-    font-weight: 700;
-    font-size: 0.9rem;
-}
-
 /* About Section Styles */
 .about-section { padding: 80px 20px; background: var(--white); }
 .about-section-content { max-width: 1200px; margin: 0 auto; text-align: center; }
@@ -619,6 +592,37 @@ footer .policy-links a { margin: 0 8px; color: #CBD5E1; text-decoration: none; f
 .highlighted .icon-circle { stroke: #22C55E; } /* Highlighted Green */
 .feature-item svg { flex-shrink: 0; margin-top: 2px; }
 
+/* Ensure pricing section and its buttons are clickable */
+#pricing {
+    display: block !important;
+    position: relative;
+    z-index: 10;
+}
+
+#pricing button {
+    cursor: pointer !important;
+    pointer-events: auto !important;
+}
+
+/* FORCE BUTTON INTERACTION */
+#pricing button, 
+.custom-cta-button, 
+.hero-btn-primary {
+    position: relative !important;
+    z-index: 50 !important;
+    pointer-events: auto !important;
+    cursor: pointer !important;
+    touch-action: manipulation;
+}
+
+#pricing .bg-white {
+    pointer-events: auto;
+}
+
+.feature-list {
+    margin-bottom: 2rem;
+}
+
 /* PDF Generation Fix: Elements must be "visible" but hidden from the user */
 .off-screen-render {
     position: absolute;
@@ -675,7 +679,70 @@ footer .policy-links a { margin: 0 8px; color: #CBD5E1; text-decoration: none; f
     color: var(--navy-premium);
 }
 
-/* CTO Hack: Hide home page instantly if payment is detected in URL */
-:has(canvas) #landingPage { display: none; } /* Experimental selector */
+/* Removed experimental selector that could hide the landing page when canvases exist */
+/* (This rule caused the landing page to disappear in some browsers, blocking button access.) */
 
 /* Safer Method: If you see a payment ID, hide home via script injection */
+#pricing .bg-white {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+}
+
+#pricing button {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    margin-top: auto !important;
+    cursor: pointer !important;
+    pointer-events: auto !important;
+    position: relative;
+    z-index: 20;
+}
+
+[id] {
+    scroll-margin-top: 100px;
+}
+/* --- CLEAN RECOVERY: FORCE BUTTONS TO TOP LAYER --- */
+#stickyCTA, 
+.sticky-cta, 
+#redirectLoadingOverlay {
+    display: none !important;
+    pointer-events: none !important;
+    visibility: hidden !important;
+}
+
+/* --- SURGICAL BUTTON FIX (REPLACES LINES 722-736) --- */
+#redirectLoadingOverlay {
+    /* Allow JS to control display, but ensure it doesn't block clicks when hidden */
+    pointer-events: none; 
+}
+#redirectLoadingOverlay.active {
+    display: flex !important;
+    pointer-events: auto;
+}
+
+/* Ensure buttons are on a clean layer above standard text but below modals */
+#pricing button, 
+.hero-btn-primary, 
+.custom-cta-button {
+    position: relative;
+    z-index: 60;
+    cursor: pointer !important;
+    pointer-events: auto !important;
+}
+
+/* Ensure hero action buttons are clearly on top of landing content */
+.hero-actions button, .hero-actions a {
+    z-index: 60 !important;
+}
+
+/* Fix for Pricing Card layout */
+#pricing .bg-white {
+    display: flex !important;
+    flex-direction: column;
+}
+
+#pricing button {
+    margin-top: auto !important;
+}

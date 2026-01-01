@@ -1,5 +1,5 @@
 // --- FORCE DOMAIN CONSISTENCY ---
-if (location.hostname === 'www.aptskola.com') {
+if (location.hostname !== 'localhost' && location.hostname === 'www.aptskola.com') {
     location.replace(location.href.replace('www.', ''));
 }
 
@@ -10,11 +10,11 @@ if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
 
 // --- CONFIG ---
 const RAZORPAY_KEY_ID = "rzp_live_RxHmfgMlTRV3Su";
-const GMAPS_API_KEY = "AIzaSyCS0hE4xa32DpKoNs5Na3KDX3HrazBvwiU"; 
 const EMAILJS_PUBLIC_KEY = "GJEWFtAL7s231EDrk"; // REPLACE WITH YOUR KEY
 const EMAILJS_SERVICE_ID = "service_bm56t8v"; // Paste the ID from Gmail service here
 const EMAILJS_TEMPLATE_ID = "template_qze00kx"; // REPLACE WITH YOUR TEMPLATE ID
 const EMAILJS_LEAD_TEMPLATE_ID = "template_qze00kx";
+
 // Helper to create a delay for API calls
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -47,8 +47,8 @@ let answers = {};
 let customerData = {
     orderId: 'N/A',
     childAge: '5-10',
-    residentialArea: '',
-    pincode: '',
+    residentialArea: 'Not Provided', // SET VALUE HERE
+    pincode: '000000',               // SET VALUE HERE
     partnerId: ''
 };
 
@@ -65,7 +65,7 @@ const xrayCardHtml = `
         <h3>Apt Skola Exclusive: AI Forensic School X-ray</h3>
         <div class="price">₹99 <span style="font-size: 0.9rem; color: #64748B; text-decoration: line-through;">₹399</span></div>
         <p style="font-size: 0.85rem; color: #475569; margin-bottom: 15px;">Spot hidden red flags, library authenticity, and teacher turnover using our proprietary AI vision tool.</p>
-        <a href="https://aiaudit.aptskola.com" target="_blank" class="btn-xray">Get X-ray (75% OFF)</a>
+        <a href="https://xray.aptskola.com" target="_blank" class="btn-xray">Get X-ray (75% OFF)</a>
     </div>
 `;
 
@@ -580,29 +580,15 @@ function calculateCostOfConfusion() {
 }
 
 // --- CORE UI ACTIONS ---
-function scrollToPricing() {
-    const pricing = document.getElementById('pricing');
-    if (pricing) {
-        // We add a -20 offset to ensure the header doesn't cut off the title
-        const yOffset = -10; 
-        const y = pricing.getBoundingClientRect().top + window.pageYOffset + yOffset;
+function scrollToClarity() {
+    const target = document.getElementById('invest-in-clarity');
+    if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        const yOffset = -100; // Adjusts the stop point so the text isn't hidden by the header
+        const y = target.getBoundingClientRect().top + window.pageYOffset + yOffset;
         window.scrollTo({ top: y, behavior: 'smooth' });
-    } else {
-        console.error("CTO Error: Pricing section #pricing not found in HTML.");
     }
 }
-
-window.addEventListener('scroll', () => {
-    const stickyBtn = document.getElementById('stickyCTA');
-    const landingPage = document.getElementById('landingPage');
-    if (stickyBtn && landingPage) {
-        if (window.scrollY > 300 && !landingPage.classList.contains('hidden')) {
-            stickyBtn.style.display = 'flex';
-        } else {
-            stickyBtn.style.display = 'none';
-        }
-    }
-});
 
 function openSampleReport() {
     const modal = document.getElementById('sampleReportModal');
@@ -843,99 +829,6 @@ function startSyncMatchNow() {
     initializeQuizShell(15); 
 }
 
-// --- HARDCODED GOOGLE MAPS LOADER ---
-function loadGoogleMaps() {
-    if (mapsLoadedPromise) return mapsLoadedPromise;
-    
-    mapsLoadedPromise = new Promise((resolve, reject) => {
-        if (typeof google !== 'undefined' && google.maps) {
-            resolve(true);
-            return;
-        }
-
-        const script = document.createElement('script');
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${GMAPS_API_KEY}&libraries=places`;
-        script.async = true;
-        script.defer = true;
-        script.onload = () => {
-            console.log("Maps API Hardcoded Load Success");
-            resolve(true);
-        };
-        script.onerror = () => {
-            console.error("Maps API Load Fail - Check key and console for errors");
-            reject(new Error("Maps Script Load Error"));
-        };
-        document.head.appendChild(script);
-    });
-    return mapsLoadedPromise;
-}
-
-// --- UPDATED: ROBUST SCHOOL SCOUTING LOGIC ---
-async function fetchNearbySchools(board, area, pincode) {
-    const container = document.getElementById('schoolListContainer');
-    if (!container || !google.maps.places) return;
-
-    const service = new google.maps.places.PlacesService(document.createElement('div'));
-    const query = `${board} school near ${area || ''} ${pincode || ''}`;
-    
-    service.textSearch({ query: query }, (results, status) => {
-        if (status === google.maps.places.PlacesServiceStatus.OK && results.length > 0) {
-            let rows = results.slice(0, 5).map(s => `
-                <tr>
-                    <td style="font-weight:600;">${s.name}</td>
-                    <td>~10-15 mins</td>
-                    <td>~20-25 mins</td>
-                </tr>
-            `).join('');
-            
-            container.innerHTML = `
-                <table class="data-table">
-                    <thead><tr><th>School Name</th><th>Self</th><th>Bus</th></tr></thead>
-                    <tbody>${rows}</tbody>
-                </table>
-            `;
-        } else {
-            container.innerHTML = `<p style="font-size:0.8rem;">No ${board} schools found in ${area}. Please try a wider area name.</p>`;
-        }
-    });
-}
-
-async function processSchoolResults(top5, userOrigin, board, area, schoolBlock) {
-    try {
-        let rowsHtml = '';
-        if (userOrigin) {
-            const schoolDestinations = top5.map(s => ({
-                lat: s.geometry.location.lat(),
-                lng: s.geometry.location.lng()
-            }));
-
-            const matrixData = await getDistanceMatrixWithRoutesAPI([userOrigin], schoolDestinations);
-            
-            top5.forEach((school, i) => {
-                const info = (matrixData && matrixData.length > i) ? matrixData[i] : null;
-                const driveTime = info && info.duration ? Math.round(parseInt(info.duration) / 60) + " mins" : "N/A";
-                const busTime = info && info.duration ? Math.round((parseInt(info.duration) * 1.4) / 60) + " mins" : "N/A";
-                rowsHtml += `<tr><td style="font-weight:600; color:var(--navy-premium);">${school.name}</td><td>${driveTime}</td><td>${busTime}</td></tr>`;
-            });
-        } else {
-            top5.forEach(school => {
-                rowsHtml += `<tr><td style="font-weight:600;">${school.name}</td><td>See Maps</td><td>See Maps</td></tr>`;
-            });
-        }
-
-        schoolBlock.innerHTML = `
-            <div class="report-header-bg">LOCAL SCHOOL SCOUT (${board})</div>
-            <p style="font-size:0.85rem; color:#64748B; margin-bottom:15px;">Verified schools found near ${area}:</p>
-            <table class="data-table">
-                <thead><tr><th>School Name</th><th>Self Travel</th><th>Bus Travel</th></tr></thead>
-                <tbody>${rowsHtml}</tbody>
-            </table>`;
-    } catch (e) {
-        let fallbackRows = top5.map(s => `<tr><td style="font-weight:600;">${s.name}</td><td>See Maps</td><td>See Maps</td></tr>`).join('');
-        schoolBlock.innerHTML = `<div class="report-header-bg">LOCAL SCHOOL SCOUT (${board})</div><p style="padding:10px; font-size:0.85rem;">Found schools, travel analysis failed. Please use Maps for commute times.</p><table class="data-table"><tbody>${fallbackRows}</tbody></table>`;
-    }
-}
-
 // --- SCORING LOGIC ---
 function calculateFullRecommendation(ansSet) {
     let scores = { "CBSE": 0, "ICSE": 0, "IB": 0, "Cambridge (IGCSE)": 0, "State Board": 0 };
@@ -973,62 +866,28 @@ function calculateFullRecommendation(ansSet) {
     return { recommended: results[0], alternative: results[1], fullRanking: results };
 }
 
-// --- HELPER: GEOCODING ---
-async function getCoords(address) {
-    await loadGoogleMaps();
-    if (typeof google === 'undefined' || !google.maps || !google.maps.Geocoder) {
-        throw new Error("Maps Service Unavailable");
-    }
-    const geocoder = new google.maps.Geocoder();
-    return new Promise((resolve, reject) => {
-        geocoder.geocode({ address: address }, (results, status) => {
-            if (status === 'OK' && results[0]) {
-                resolve({ 
-                    lat: results[0].geometry.location.lat(), 
-                    lng: results[0].geometry.location.lng() 
-                });
-            } else {
-                reject('Geocode failed: ' + status);
-            }
-        });
-    });
-}
-
-// --- HELPER: ROUTES API ---
-async function getDistanceMatrixWithRoutesAPI(origins, destinations) {
-    const response = await fetch('https://routes.googleapis.com/distanceMatrix/v2:computeRouteMatrix', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-Goog-Api-Key': GMAPS_API_KEY, 
-            'X-Goog-FieldMask': 'originIndex,destinationIndex,duration,status',
-        },
-        body: JSON.stringify({
-            origins: origins.map(o => ({ waypoint: { location: { latLng: { latitude: o.lat, longitude: o.lng } } } })),
-            destinations: destinations.map(d => ({ waypoint: { location: { latLng: { latitude: d.lat, longitude: d.lng } } } })),
-            travelMode: 'DRIVE',
-            routingPreference: 'TRAFFIC_AWARE'
-        }),
-    });
-
-    if (!response.ok) throw new Error(`Routes API error: ${response.statusText}`);
-    return await response.json();
-}
-
-// --- QUIZ FLOW ---
+// --- FIXED SELECT PACKAGE LOGIC ---
 function selectPackage(pkg, price) {
+    if (window.event) window.event.stopPropagation();
+    selectedPackage = pkg;
+    selectedPrice = price;
+
     if (price === 599) {
         hasSeenDowngradeModal = true;
         const modal = document.getElementById('downgradeModal');
-        if (modal) modal.classList.add('active');
-        return;
-    }
-    if (price === 999) {
+        if (modal) {
+            modal.classList.add('active');
+        } else {
+            proceedToQuiz(pkg, price); // Fallback if modal is missing
+        }
+    } else if (price === 999) {
         const modal = document.getElementById('proUpgradeModal');
-        if (modal) modal.classList.add('active');
-        return;
-    }
-    if (price === 1499) {
+        if (modal) {
+            modal.classList.add('active');
+        } else {
+            proceedToQuiz(pkg, price); // Fallback
+        }
+    } else {
         proceedToQuiz(pkg, price);
     }
 }
@@ -1190,8 +1049,6 @@ document.getElementById('customerForm')?.addEventListener('submit', function(e) 
         email: emailValue,
         phone: phoneValue,
         childAge: document.getElementById('childAge')?.value,
-        residentialArea: document.getElementById('residentialArea')?.value,
-        pincode: document.getElementById('pincode')?.value,
         partnerId: document.getElementById('partnerId')?.value, 
         package: selectedPackage,
         amount: selectedPrice,
@@ -1240,6 +1097,23 @@ document.getElementById('customerForm')?.addEventListener('submit', function(e) 
         window.scrollTo({ top: 0, behavior: 'instant' });
     }, 500);
 });
+
+// --- PIXEL RETARGETING TRIGGER ---
+    if (typeof fbq !== 'undefined') {
+        fbq('track', 'InitiateCheckout', {
+            content_name: selectedPackage,
+            value: selectedPrice,
+            currency: 'INR'
+        });
+    }
+    if (typeof gtag !== 'undefined') {
+        gtag('event', 'begin_checkout', {
+            items: [{ item_name: selectedPackage, price: selectedPrice }]
+        });
+    }
+
+    const formData = new FormData(this);
+    formData.append('orderId', newOrderId);
 
 // --- RAZORPAY POPUP METHOD (WITH AUTO-PREFILL) ---
 function redirectToRazorpay() {
@@ -1347,6 +1221,18 @@ async function triggerAutomatedEmail() {
     }
 
     htmlSummary += `</div></div>`;
+
+	// ADDED: Partnership Invitation (Captured from Educator Partner Section)
+    htmlSummary += `
+        <div style="margin-top: 20px; padding: 15px; border: 1px dashed #CBD5E1; border-radius: 8px; background-color: #F8FAFC; text-align: center;">
+            <h4 style="margin: 0 0 10px 0; color: #0F172A; font-size: 14px;">🤝 Join the Apt Skola Network</h4>
+            <p style="margin: 0; color: #475569; font-size: 13px; line-height: 1.5;">
+                Teachers & Tutors: Earn <strong>₹300</strong> for student referrals and 
+                <strong>₹3,000</strong> per session for school-wide engagement. 
+            </p>
+            <a href="https://aptskola.com/#educatorPartner" style="display: inline-block; margin-top: 10px; color: #FF6B35; font-weight: 700; text-decoration: none; font-size: 13px;">Register as Partner →</a>
+        </div>
+    `;
 
     try {
         await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
@@ -1639,15 +1525,6 @@ async function renderReportToBrowser() {
             </div>
         </div>
 
-        <div id="schoolFinderBlock" class="report-card">
-            <div class="report-header-bg">LOCAL SCHOOL SCOUT (${recBoard})</div>
-            <p style="font-size:0.85rem; color:#64748B; margin-bottom:15px;">Geospatial scan complete for ${customerData.residentialArea || 'your area'}:</p>
-            <table class="data-table">
-                <thead><tr><th>School Name</th><th>Self Travel</th><th>Bus Travel</th></tr></thead>
-                <tbody id="schoolListContainer"><tr><td colspan="3" style="text-align:center; padding:20px; color:#94A3B8;">Scanning nearby institutes...</td></tr></tbody>
-            </table>
-        </div>
-
         <div class="report-card">
             <div class="report-header-bg">EXPERT NOTE: SPECIAL NEEDS & INCLUSION</div>
             <p style="font-size:0.85rem; line-height:1.5; color:#475569;">
@@ -1701,16 +1578,21 @@ async function renderReportToBrowser() {
         `;
     }
 
-    // 2. Dispatch Render to Screen
+// --- UNIVERSAL FOOTER (Included in all packages) ---
+    html += `
+        <div style="margin-top:40px; padding:20px; background:#F1F5F9; border-radius:8px; font-size:0.8rem; color:#64748B; text-align:justify;">
+            <strong>DISCLAIMER:</strong> This report is advisory only. The final enrollment decision remains the sole responsibility of the parent. The outcome of this report is purely based on the user input provided..
+        </div>
+    `;
+
+// 2. Dispatch Render to Screen
+
+
+// 2. Dispatch Render to Screen
     const preview = document.getElementById('reportPreview');
     if (preview) {
         preview.innerHTML = html;
-        // Trigger the School Search API
-        setTimeout(() => {
-            fetchNearbySchools(recBoard, customerData.residentialArea, customerData.pincode);
-        }, 800);
     }
-}
 
 // --- OPTIMIZED: SMART PDF GENERATOR WITH NATIVE VECTOR HEADER ---
 async function downloadReport() {
@@ -1739,10 +1621,8 @@ async function downloadReport() {
     pdf.setFont("helvetica", "normal");
     pdf.setFontSize(10);
     pdf.setTextColor(100, 116, 139); // Slate-500
-    pdf.text(`Prepared for: ${customerData.childName || 'Student'}`, margin, 28);
     pdf.text(`Order ID: ${customerData.orderId}`, margin, 33);
-    pdf.text(`Package: ${selectedPackage} Report`, margin, 38);
-
+    
     let currentY = 45; // Offset logic: First card starts exactly below text header
 
     for (let i = 0; i < cards.length; i++) {
@@ -1834,159 +1714,180 @@ async function sharePDF() {
     }
 }
 
+// --- UNIFIED MASTER CONTROLLER (CTO FINAL VERSION) ---
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Run the payment check FIRST
+    // 1. IMMEDIATE PRIORITY: Check for payment return
     checkPaymentStatus(); 
     
-    // 2. Load other modules normally
-    calculateCostOfConfusion();
-    
-    // 3. Setup UI interactions
-    const logos = document.querySelectorAll('#landingHeaderLogo');
-    logos.forEach(l => l.addEventListener('click', goToLandingPage));
-});
-
-   // SURGICAL INJECTION: Sync Match Deep-Link Handler
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('unlock') === 'sync') {
-        // Wait briefly for the DOM to be fully ready
-        setTimeout(() => {
-            openSyncMatchGate(); // Triggers the existing function to show the gate
-            
-            const syncInput = document.getElementById('syncOrderId');
-            if (syncInput) {
-                // Scroll to the form and focus the input field
-                syncInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                syncInput.focus();
-            }
-        }, 500); // 500ms delay ensures transitions don't clash
+    // 2. LOAD CALCULATOR: Initialize the donut chart
+    if (typeof calculateCostOfConfusion === 'function') {
+        calculateCostOfConfusion();
     }
     
-// SURGICAL INJECTION: Clipboard Paste Logic
+    // 3. LOGO NAVIGATION: Reset site on branding click
+    const logos = document.querySelectorAll('#landingHeaderLogo');
+    logos.forEach(l => l.addEventListener('click', goToLandingPage));
+
+    // 4. DEEP-LINK HANDLER: Check for "Sync Match" link
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('unlock') === 'sync' || urlParams.get('page') === 'sync') {
+        setTimeout(() => {
+            if (typeof openSyncMatchGate === 'function') {
+                openSyncMatchGate();
+                const syncInput = document.getElementById('syncOrderId');
+                if (syncInput) {
+                    syncInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    syncInput.focus();
+                }
+            }
+        }, 500);
+    }
+    
+    // 5. BUTTON SAFETY: Force Pricing Buttons to be active
+    const pricingButtons = document.querySelectorAll('#pricing button');
+    pricingButtons.forEach(btn => {
+        btn.style.pointerEvents = 'auto';
+        btn.style.cursor = 'pointer';
+        btn.style.zIndex = '100'; // Ensure they are on top
+    });
+
+    // 6. BUTTON SAFETY: Ensure landing page buttons/links are clickable
+    const landingButtons = document.querySelectorAll('#landingPage button, #landingPage a, .hero-actions button');
+    landingButtons.forEach(el => {
+        try {
+            el.style.pointerEvents = 'auto';
+            el.style.cursor = 'pointer';
+            el.style.zIndex = '80';
+        } catch (e) { /* ignore readonly styles */ }
+    });
+
+    // 7. Ensure redirect/loading overlay doesn't block clicks when hidden
+    const redirectOverlay = document.getElementById('redirectLoadingOverlay');
+    if (redirectOverlay && !redirectOverlay.classList.contains('active')) {
+        redirectOverlay.style.pointerEvents = 'none';
+        redirectOverlay.style.display = 'none';
+        redirectOverlay.style.visibility = 'hidden';
+    }
+
+    // 8. DEFENSIVE: detect any unexpected full-page blockers and make them non-interactive
+    (function unblockCoveringElements() {
+        try {
+            const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
+            const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
+            const candidates = [];
+            const all = Array.from(document.querySelectorAll('body *'));
+            all.forEach(el => {
+                const style = window.getComputedStyle(el);
+                if (style.display === 'none' || style.visibility === 'hidden' || style.pointerEvents === 'none') return;
+                const rect = el.getBoundingClientRect();
+                if (!rect.width || !rect.height) return;
+                const coversWidth = rect.width >= vw * 0.9 && rect.height >= vh * 0.9;
+                const isFixed = style.position === 'fixed' || style.position === 'absolute' || style.position === 'sticky';
+                const z = parseInt(style.zIndex) || 0;
+                if (coversWidth && isFixed && z >= 50) {
+                    candidates.push({ el, rect, z, className: el.className || '', id: el.id || '' });
+                }
+            });
+
+            if (candidates.length > 0) {
+                console.warn('Blocking elements detected:', candidates.map(c => ({id: c.id, class: c.className, z: c.z})));
+                candidates.forEach(c => {
+                    // Preserve intentional modals by checking for common modal classes/ids
+                    const lower = String(c.className).toLowerCase();
+                    const id = String(c.id).toLowerCase();
+                    if (lower.includes('payment-modal') || lower.includes('sample-modal') || id.includes('redirect') || id.includes('modal') || c.el.classList.contains('active')) {
+                        // if it's active modal, leave it; otherwise ensure it's visible and interactive
+                        if (!c.el.classList.contains('active')) {
+                            c.el.style.pointerEvents = 'none';
+                            c.el.style.zIndex = '10';
+                            console.info('Demoted non-active modal-like element:', c.el);
+                        }
+                    } else {
+                        c.el.style.pointerEvents = 'none';
+                        c.el.style.zIndex = '10';
+                        console.info('Disabled unexpected full-page blocker:', c.el);
+                    }
+                });
+            }
+        } catch (e) {
+            console.error('unblockCoveringElements failed', e);
+        }
+    })();
+});
+
+// --- HELPER FUNCTIONS (PASTE & RECOVERY) ---
 async function pasteOrderId() {
     try {
-        // Step 1: Request text from the system clipboard
         const text = await navigator.clipboard.readText();
-        
-        // Step 2: Target the input field
         const syncInput = document.getElementById('syncOrderId');
-        
         if (syncInput && text) {
-            // Step 3: Clean the text (remove spaces/newlines) and paste
             syncInput.value = text.trim();
-            
-            // Step 4: Visual feedback for the user
-            syncInput.style.borderColor = "#10B981"; // Success Green
-            setTimeout(() => {
-                syncInput.style.borderColor = ""; // Reset after 1 second
-            }, 1000);
-            
+            syncInput.style.borderColor = "#10B981"; 
+            setTimeout(() => { syncInput.style.borderColor = ""; }, 1000);
             console.log("CTO Update: Order ID pasted successfully.");
         }
     } catch (err) {
-        // Fallback for denied permissions or non-secure contexts
-        console.warn("Clipboard access denied or unavailable.", err);
-        alert("Please long-press the field to paste manually. (Clipboard access requires HTTPS and user permission).");
+        console.warn("Clipboard access denied.", err);
+        alert("Please long-press the field to paste manually.");
     }
 }
 
-// --- SESSION RECOVERY LOGIC ---
 function recoverSession() {
     const recoveryInput = document.getElementById('recoveryOrderId');
     const orderId = recoveryInput ? recoveryInput.value.trim() : '';
+    if (!orderId) { alert("Please enter your Order ID."); return; }
 
-    if (!orderId) {
-        alert("Please enter your Order ID to restore your session.");
-        return;
-    }
-
-    // Step 1: Search for the specific session key
     const savedSession = localStorage.getItem(`aptskola_session_${orderId}`);
-
     if (savedSession) {
         const data = JSON.parse(savedSession);
-        
-        // Step 2: Restore Global State from backup
         answers = data.answers;
         customerData = data.customerData;
         selectedPrice = customerData.amount || 599;
         selectedPackage = customerData.package || 'Essential';
-
-        // Step 3: Clear landing page and re-render
         document.getElementById('landingPage').classList.add('hidden');
-        
-        // Use the optimized renderer to rebuild the UI
         renderReportToBrowser().then(() => {
             showInstantSuccessPage();
             console.log("CTO Update: Session recovered for " + orderId);
         });
     } else {
-        alert("Order ID not found on this device. Please ensure you are using the same browser you used for the assessment.");
+        alert("Order ID not found on this device.");
     }
 }
-	function recoverSessionEmail(targetEmail) { // Add this line
+// --- FIXED: CLOSED RECOVERY FUNCTIONS ---
+function recoverSessionEmail(targetEmail) {
     let foundSession = null;
-
-    // Step 1: Scan all localStorage keys for Apt Skola sessions
+    const emailToMatch = targetEmail.toLowerCase().trim();
+    
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key.startsWith('aptskola_session_')) {
-            const sessionData = JSON.parse(localStorage.getItem(key));
-            // Step 2: Match the email
-            if (sessionData.customerData && sessionData.customerData.email.toLowerCase() === targetEmail) {
-                foundSession = sessionData;
-                break; // Stop at the first (latest) match
+        if (key && key.startsWith('aptskola_session_')) {
+            try {
+                const sessionData = JSON.parse(localStorage.getItem(key));
+                if (sessionData.customerData && sessionData.customerData.email.toLowerCase() === emailToMatch) {
+                    foundSession = sessionData;
+                    break;
+                }
+            } catch (e) {
+                console.warn("Skipping malformed session data", e);
             }
         }
     }
-
+    
     if (foundSession) {
-        // Step 3: Restore State
         answers = foundSession.answers;
         customerData = foundSession.customerData;
         selectedPrice = customerData.amount || 599;
-        selectedPackage = customerData.package || 'Essential';
-
-        // Step 4: UI Transition
-        document.getElementById('landingPage').classList.add('hidden');
+        selectedPackage = foundSession.selectedPackage || customerData.package || 'Essential';
+        
+        const landing = document.getElementById('landingPage');
+        if (landing) landing.classList.add('hidden');
+        
         renderReportToBrowser().then(() => {
             showInstantSuccessPage();
             console.log("CTO: Session recovered via email match.");
         });
     } else {
-        alert("No assessment found for this email on this device. Please use the same browser you used for the test.");
+        alert("No assessment found for this email on this device.");
     }
 }
-// --- UNIFIED INITIALIZATION (CTO FINAL VERSION) ---
-document.addEventListener('DOMContentLoaded', () => {
-    // 1. IMMEDIATE PRIORITY: Check if user just returned from payment
-    checkPaymentStatus(); 
-    
-    // 2. LOAD CALCULATOR: Initialize the cost of confusion donut chart
-    calculateCostOfConfusion();
-    
-    // 3. MAPS: Load Google Maps API (Hardcoded Key)
-    loadGoogleMaps().catch(err => console.warn("Maps init failed:", err));
-    
-    // 4. LOGO NAVIGATION: Wire up all branding logos to reset the site
-    const logos = document.querySelectorAll('#landingHeaderLogo');
-    logos.forEach(l => l.addEventListener('click', goToLandingPage));
-
-    // 5. DEEP-LINK HANDLER: Check if user arrived via "Sync Match" link
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('unlock') === 'sync' || urlParams.get('page') === 'sync') {
-        setTimeout(() => {
-            openSyncMatchGate();
-            const syncInput = document.getElementById('syncOrderId');
-            if (syncInput) {
-                syncInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                syncInput.focus();
-            }
-        }, 500);
-    }
-    
-    // 6. PRICING VISIBILITY: Ensure pricing is visible by default
-    const pricingSection = document.getElementById('pricing');
-    if (pricingSection) pricingSection.style.display = 'block'; 
-
-});
+}
