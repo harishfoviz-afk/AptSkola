@@ -1137,7 +1137,53 @@ document.getElementById('customerForm')?.addEventListener('submit', function(e) 
     formData.append('orderId', newOrderId);
 
 // --- RAZORPAY POPUP METHOD (WITH AUTO-PREFILL) ---
+function testPaymentSuccess() {
+    console.log("Test payment success triggered");
+    
+    // Simulate payment success
+    const orderId = customerData.orderId || 'TEST_' + Date.now();
+    customerData.orderId = orderId;
+    localStorage.setItem(`aptskola_session_${orderId}`, JSON.stringify({
+        answers: answers,
+        customerData: customerData,
+        selectedPackage: selectedPackage,
+        selectedPrice: selectedPrice
+    }));
+    localStorage.setItem('aptskola_last_order_id', orderId);
+    
+    const overlay = document.getElementById('redirectLoadingOverlay');
+    if (overlay) overlay.style.display = 'flex';
+
+    // Generate report instantly
+    console.log("Starting report generation...");
+    renderReportToBrowser().then(() => {
+        console.log("Report rendered successfully, showing success page...");
+        showInstantSuccessPage();
+        if(overlay) {
+            overlay.style.display = 'none';
+            console.log("Overlay hidden");
+        }
+        
+        // Send the email with the report image
+        triggerAutomatedEmail();
+    }).catch((error) => {
+        console.error("Error in report generation:", error);
+        alert("There was an error generating your report. Please contact support with this error: " + error.message);
+        if(overlay) {
+            overlay.style.display = 'none';
+            console.log("Overlay hidden after error");
+        }
+    });
+}
+    
 function redirectToRazorpay() {
+    // For testing: bypass payment and show success page
+    if (window.location.search.includes('test=1')) {
+        console.log("TEST MODE: Bypassing payment");
+        testPaymentSuccess();
+        return;
+    }
+    
     if (typeof Razorpay === 'undefined') {
         alert("Payment gateway is still loading. Please refresh the page or check your internet connection.");
         return;
@@ -1169,6 +1215,23 @@ function redirectToRazorpay() {
             // SUCCESS: Runs after payment without leaving the page
             console.log("Payment Successful. ID: " + response.razorpay_payment_id);
             
+            // Check if we have answers before proceeding
+            if (!answers || Object.keys(answers).length === 0) {
+                console.error("No answers found! Checking localStorage...");
+                const lastOrderId = localStorage.getItem('aptskola_last_order_id');
+                const sessionData = JSON.parse(localStorage.getItem(`aptskola_session_${lastOrderId}`));
+                if (sessionData && sessionData.answers) {
+                    answers = sessionData.answers;
+                    customerData = sessionData.customerData;
+                    selectedPackage = sessionData.selectedPackage;
+                    selectedPrice = sessionData.selectedPrice;
+                    console.log("Loaded answers from localStorage");
+                } else {
+                    alert("Assessment data not found. Please complete the assessment first.");
+                    return;
+                }
+            }
+            
             // Save payment success state to localStorage
             const orderId = customerData.orderId || 'ORDER_' + Date.now();
             customerData.orderId = orderId;
@@ -1182,14 +1245,26 @@ function redirectToRazorpay() {
             
             const overlay = document.getElementById('redirectLoadingOverlay');
             if (overlay) overlay.style.display = 'flex';
-
+            
             // Generate report instantly
+            console.log("Starting report generation...");
             renderReportToBrowser().then(() => {
+                console.log("Report rendered successfully, showing success page...");
                 showInstantSuccessPage();
-                if(overlay) overlay.style.display = 'none';
+                if(overlay) {
+                    overlay.style.display = 'none';
+                    console.log("Overlay hidden");
+                }
                 
                 // Send the email with the report image
                 triggerAutomatedEmail();
+            }).catch((error) => {
+                console.error("Error in report generation:", error);
+                alert("There was an error generating your report. Please contact support with this error: " + error.message);
+                if(overlay) {
+                    overlay.style.display = 'none';
+                    console.log("Overlay hidden after error");
+                }
             });
         },
         "theme": { "color": "#FF6B35" },
@@ -1340,10 +1415,15 @@ function closeForensicModalAndShowSuccess() {
 }
 
 function showInstantSuccessPage() {
+    console.log("showInstantSuccessPage called");
     const paymentPage = document.getElementById('paymentPageContainer');
     const successPage = document.getElementById('successPage');
+    console.log("Payment page element:", paymentPage);
+    console.log("Success page element:", successPage);
+    
     // Add this inside your showInstantSuccessPage function in script.js
 	const successContainer = document.querySelector('.success-container');
+	console.log("Success container:", successContainer);
 	if (successContainer) {
     const backupNotice = `
         <div style="background: #FFF7ED; border: 1px solid #FFEDD5; padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 5px solid #F59E0B;">
@@ -1357,10 +1437,17 @@ function showInstantSuccessPage() {
     `;
     successContainer.insertAdjacentHTML('afterbegin', backupNotice);
 }	
-    if(paymentPage) paymentPage.classList.add('hidden');
+    if(paymentPage) {
+        paymentPage.classList.add('hidden');
+        console.log("Payment page hidden");
+    }
     if(successPage) {
         successPage.classList.remove('hidden');
         successPage.classList.add('active');
+        console.log("Success page shown");
+        
+        // Scroll to top to show the success page
+        window.scrollTo({ top: 0, behavior: 'instant' });
         
         // Wait a bit for DOM to update, then check for buttons
         setTimeout(() => {
@@ -1383,36 +1470,21 @@ function showInstantSuccessPage() {
             }
             
             // Ensure report is rendered
-            renderReportToBrowser().then(() => {
-                console.log("Report rendered for success page");
-                // Re-enable buttons after report is rendered
-                if (downloadBtn) {
-                    downloadBtn.style.pointerEvents = 'auto';
-                    downloadBtn.style.opacity = '1';
-                    downloadBtn.textContent = 'Download Report ⬇️';
-                    console.log("Download button enabled");
-                }
-                if (shareBtn) {
-                    shareBtn.style.pointerEvents = 'auto';
-                    shareBtn.style.opacity = '1';
-                    shareBtn.textContent = 'Share Report 📲';
-                    console.log("Share button enabled");
-                }
-            }).catch(err => {
-                console.error("Failed to render report:", err);
-                // Show error message and keep buttons disabled
-                alert("There was an error generating your report. Please refresh the page and try again.");
-                if (downloadBtn) {
-                    downloadBtn.style.pointerEvents = 'none';
-                    downloadBtn.style.opacity = '0.6';
-                    downloadBtn.textContent = 'Report Generation Failed';
-                }
-                if (shareBtn) {
-                    shareBtn.style.pointerEvents = 'none';
-                    shareBtn.style.opacity = '0.6';
-                    shareBtn.textContent = 'Report Generation Failed';
-                }
-            });
+            // Note: Report is already rendered in the payment handler, just enable buttons
+            console.log("Enabling buttons after report should be ready");
+            // Re-enable buttons after report is rendered
+            if (downloadBtn) {
+                downloadBtn.style.pointerEvents = 'auto';
+                downloadBtn.style.opacity = '1';
+                downloadBtn.textContent = 'Download Report ⬇️';
+                console.log("Download button enabled");
+            }
+            if (shareBtn) {
+                shareBtn.style.pointerEvents = 'auto';
+                shareBtn.style.opacity = '1';
+                shareBtn.textContent = 'Share Report 📲';
+                console.log("Share button enabled");
+            }
         }, 100);
         
         // Set Order ID
@@ -1547,6 +1619,7 @@ async function renderReportToBrowser() {
     
     const lastOrderId = localStorage.getItem('aptskola_last_order_id');
     console.log("Last order ID:", lastOrderId);
+    const sessionData = JSON.parse(localStorage.getItem(`aptskola_session_${lastOrderId}`));
     if (sessionData) {
         sessionAnswers = sessionData.answers;
         sessionCustomerData = sessionData.customerData;
@@ -1562,14 +1635,17 @@ async function renderReportToBrowser() {
     
     console.log("Using answers:", sessionAnswers);
     console.log("Using customer data:", sessionCustomerData);
+    console.log("Answers keys:", Object.keys(sessionAnswers || {}));
+    console.log("Answers length:", Object.keys(sessionAnswers || {}).length);
 
     if (!sessionAnswers || Object.keys(sessionAnswers).length === 0) {
         console.error("No answers data available!");
-        return;
+        throw new Error("No assessment answers found. Please complete the assessment first.");
     }
 
     const res = calculateFullRecommendation(sessionAnswers);
     console.log("Recommendation result:", res);
+    console.log("Recommended object:", res.recommended);
     const recBoard = res.recommended.name;
     console.log("Recommended board:", recBoard);
     const boardKey = recBoard.toLowerCase().includes('cbse') ? 'cbse' : 
@@ -1577,7 +1653,13 @@ async function renderReportToBrowser() {
                      (recBoard.toLowerCase().includes('ib') ? 'ib' : 
                      (recBoard.toLowerCase().includes('cambridge') ? 'Cambridge (IGCSE)' : 'State Board')));
     
+    console.log("Board key:", boardKey);
+    console.log("MASTER_DATA keys:", Object.keys(MASTER_DATA));
     const data = MASTER_DATA[boardKey];
+    console.log("Board data found:", !!data);
+    if (!data) {
+        throw new Error(`Board data not found for key: ${boardKey}`);
+    }
     const amount = sessionCustomerData.amount || 599;
 
     // --- BASE BLOCKS (Included in all tiers: ₹599, ₹999, ₹1499) ---
