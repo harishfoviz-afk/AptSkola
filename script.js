@@ -1336,6 +1336,15 @@ function showInstantSuccessPage() {
     if(successPage) {
         successPage.classList.remove('hidden');
         successPage.classList.add('active');
+        // Ensure report is rendered
+        renderReportToBrowser().then(() => {
+            console.log("Report rendered for success page");
+        }).catch(err => {
+            console.error("Failed to render report:", err);
+        });
+        // Set Order ID
+        const displayOrderId = document.getElementById('displayOrderId');
+        if (displayOrderId) displayOrderId.textContent = customerData.orderId || 'N/A';
     }
     
     if (selectedPrice >= 1499) {
@@ -1858,6 +1867,28 @@ async function pasteOrderId() {
     } catch (err) {
         console.warn("Clipboard access denied.", err);
         alert("Please long-press the field to paste manually.");
+    }
+}
+
+// --- COPY ORDER ID FUNCTION ---
+function copyOrderId() {
+    const orderId = document.getElementById('displayOrderId').textContent;
+    if (orderId && orderId !== 'N/A') {
+        navigator.clipboard.writeText(orderId).then(() => {
+            alert("Order ID copied to clipboard!");
+        }).catch(err => {
+            console.error("Failed to copy:", err);
+            // Fallback: select and copy manually
+            const textArea = document.createElement('textarea');
+            textArea.value = orderId;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            alert("Order ID copied to clipboard!");
+        });
+    } else {
+        alert("Order ID not available.");
     }
 }
 

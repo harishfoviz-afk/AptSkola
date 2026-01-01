@@ -855,6 +855,7 @@
 
             <p style='color: var(--sunrise-primary); font-size: 0.9em; margin-top: -10px; font-weight: bold;'>Your 3 weeks of research is now a 10-minute read.</p>
             <p style="color: var(--navy-light); margin-bottom: 20px;">Welcome back, <strong id="successParentName">Parent</strong>! Here is your full report.</p>
+            <p style="color: var(--navy-light); font-size: 0.9em; margin-bottom: 20px;">Order ID: <span id="displayOrderId"></span> <button onclick="copyOrderId()" style="background: #E2E8F0; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.8em;">📋 Copy</button></p>
             
             <div class="report-card" style="padding: 0; overflow: hidden; border: 2px solid var(--sunrise-primary); margin-bottom: 25px;">
                 <div style="position: relative;">
@@ -872,6 +873,12 @@
             <div style="display:flex; gap:15px; justify-content:center; flex-wrap:wrap; margin-bottom:30px; width:100%;">
                 <button class="custom-cta-button" style="flex:1; min-width:200px; padding: 18px 20px; font-size: 1.1rem;" onclick="downloadReport()" id="downloadBtn">Download Report ⬇️</button>
                 <button class="custom-cta-button" style="flex:1; min-width:200px; padding: 18px 20px; font-size: 1.1rem; background: var(--navy-premium);" onclick="sharePDF()" id="shareBtn">Share Report 📲</button>
+            </div>
+            
+            <div style="margin-top: 30px; padding: 20px; background: #F8FAFC; border-radius: 12px; text-align: center;">
+                <h3 style="color: var(--navy-premium); font-size: 1.1rem; margin-bottom: 10px;">Thank You for Choosing Apt Skola!</h3>
+                <p style="color: var(--navy-light); font-size: 0.9em; margin-bottom: 15px;">Help other parents by joining our referral program and earn rewards.</p>
+                <button onclick="openCollaborationModal('Partner')" class="custom-cta-button" style="background: var(--sunrise-primary);">Join as Partner →</button>
             </div>
         </div>
     </div>
