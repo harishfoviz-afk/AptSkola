@@ -584,9 +584,6 @@ function scrollToClarity() {
     const target = document.getElementById('invest-in-clarity');
     if (target) {
         target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        const yOffset = -100; // Adjusts the stop point so the text isn't hidden by the header
-        const y = target.getBoundingClientRect().top + window.pageYOffset + yOffset;
-        window.scrollTo({ top: y, behavior: 'smooth' });
     }
 }
 
@@ -637,9 +634,12 @@ function closePricingModal() {
 }
 
 function openPricingOrScroll() {
+    console.log("openPricingOrScroll called, width:", window.innerWidth);
     if (window.innerWidth < 768) {
+        console.log("Mobile: scrolling to pricing");
         scrollToClarity();
     } else {
+        console.log("Desktop: opening modal");
         openPricingModal();
     }
 }
