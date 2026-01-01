@@ -636,6 +636,14 @@ function closePricingModal() {
     if (modal) modal.classList.remove('active');
 }
 
+function openPricingOrScroll() {
+    if (window.innerWidth < 768) {
+        scrollToClarity();
+    } else {
+        openPricingModal();
+    }
+}
+
 // --- UNIFIED MODAL CONTROLLER (UPDATED) ---
 function openCollaborationModal(type) {
     const modal = document.getElementById('collaborationModal');
