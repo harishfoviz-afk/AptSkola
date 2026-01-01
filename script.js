@@ -19,7 +19,7 @@ const EMAILJS_LEAD_TEMPLATE_ID = "template_qze00kx";
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 // Prices in PAISE (1 Rupee = 100 Paise)
-const PACKAGE_PRICES = { 'Essential': 100, 'Premium': 99900, 'The Smart Parent Pro': 149900 };
+const PACKAGE_PRICES = { 'Essential': 59900, 'Premium': 99900, 'The Smart Parent Pro': 149900 };
 
 // External Payment Links (Replace these with your actual Razorpay Payment Links)
 const PAYMENT_LINKS = {
@@ -1988,4 +1988,5 @@ document.addEventListener('DOMContentLoaded', () => {
     // 6. PRICING VISIBILITY: Ensure pricing is visible by default
     const pricingSection = document.getElementById('pricing');
     if (pricingSection) pricingSection.style.display = 'block'; 
+
 });
