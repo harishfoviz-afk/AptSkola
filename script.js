@@ -1077,7 +1077,9 @@ document.getElementById('customerForm')?.addEventListener('submit', function(e) 
     // Step 2: Silent Persistence
     localStorage.setItem(`aptskola_session_${newOrderId}`, JSON.stringify({
         answers: answers,
-        customerData: customerData
+        customerData: customerData,
+        selectedPackage: selectedPackage,
+        selectedPrice: selectedPrice
     }));
     localStorage.setItem('aptskola_last_order_id', newOrderId);
 
@@ -1167,6 +1169,17 @@ function redirectToRazorpay() {
             // SUCCESS: Runs after payment without leaving the page
             console.log("Payment Successful. ID: " + response.razorpay_payment_id);
             
+            // Save payment success state to localStorage
+            const orderId = customerData.orderId || 'ORDER_' + Date.now();
+            customerData.orderId = orderId;
+            localStorage.setItem(`aptskola_session_${orderId}`, JSON.stringify({
+                answers: answers,
+                customerData: customerData,
+                selectedPackage: selectedPackage,
+                selectedPrice: selectedPrice
+            }));
+            localStorage.setItem('aptskola_last_order_id', orderId);
+            
             const overlay = document.getElementById('redirectLoadingOverlay');
             if (overlay) overlay.style.display = 'flex';
 
@@ -1193,6 +1206,7 @@ function redirectToRazorpay() {
 
 async function triggerAutomatedEmail() {
     console.log("CTO: Generating Branded HTML Report with Tiered Insights...");
+    console.log("Selected package:", selectedPackage, "Selected price:", selectedPrice);
     
     const res = calculateFullRecommendation(answers);
     const recBoard = res.recommended.name;
@@ -1219,6 +1233,7 @@ async function triggerAutomatedEmail() {
 
     // ADDED: Premium Insights (₹999 Tier)
     if (selectedPrice >= 999) {
+        console.log("Adding premium content for price:", selectedPrice);
         htmlSummary += `
             <div style="margin-top: 20px; padding: 15px; background-color: #F0FDF4; border-left: 4px solid #10B981; border-radius: 4px;">
                 <h4 style="margin: 0 0 5px 0; color: #166534; font-size: 14px; text-transform: uppercase;">Premium Insights</h4>
@@ -1230,6 +1245,7 @@ async function triggerAutomatedEmail() {
 
     // ADDED: Pro Admission Tips (₹1499 Tier)
     if (selectedPrice >= 1499) {
+        console.log("Adding pro content for price:", selectedPrice);
         htmlSummary += `
             <div style="margin-top: 15px; padding: 15px; background-color: #FFF7ED; border-left: 4px solid #FF6B35; border-radius: 4px;">
                 <h4 style="margin: 0 0 5px 0; color: #9A3412; font-size: 14px; text-transform: uppercase;">Pro Admission Tips</h4>
@@ -1254,6 +1270,7 @@ async function triggerAutomatedEmail() {
     `;
 
     try {
+        console.log("Sending email for package:", selectedPackage, "price:", selectedPrice);
         await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
             user_email: customerData.email,
             user_name: customerData.parentName,
@@ -1261,9 +1278,9 @@ async function triggerAutomatedEmail() {
             child_name: customerData.childName,
             report_text_summary: htmlSummary 
         });
-        console.log("CTO Success: Branded email with all insights dispatched.");
+        console.log("Email sent successfully for order:", customerData.orderId);
     } catch (e) {
-        console.error("Email dispatch failed", e);
+        console.error("Email dispatch failed for order", customerData.orderId, ":", e);
     }
 }
 
@@ -1344,12 +1361,60 @@ function showInstantSuccessPage() {
     if(successPage) {
         successPage.classList.remove('hidden');
         successPage.classList.add('active');
-        // Ensure report is rendered
-        renderReportToBrowser().then(() => {
-            console.log("Report rendered for success page");
-        }).catch(err => {
-            console.error("Failed to render report:", err);
-        });
+        
+        // Wait a bit for DOM to update, then check for buttons
+        setTimeout(() => {
+            // Disable download and share buttons initially
+            const downloadBtn = document.getElementById('downloadBtn');
+            const shareBtn = document.getElementById('shareBtn');
+            console.log("Looking for buttons after DOM update - Download btn:", downloadBtn, "Share btn:", shareBtn);
+            console.log("Disabling buttons initially - Download btn:", downloadBtn, "Share btn:", shareBtn);
+            if (downloadBtn) {
+                downloadBtn.style.pointerEvents = 'none';
+                downloadBtn.style.opacity = '0.6';
+                downloadBtn.textContent = 'Generating Report...';
+                console.log("Download button disabled");
+            }
+            if (shareBtn) {
+                shareBtn.style.pointerEvents = 'none';
+                shareBtn.style.opacity = '0.6';
+                shareBtn.textContent = 'Generating Report...';
+                console.log("Share button disabled");
+            }
+            
+            // Ensure report is rendered
+            renderReportToBrowser().then(() => {
+                console.log("Report rendered for success page");
+                // Re-enable buttons after report is rendered
+                if (downloadBtn) {
+                    downloadBtn.style.pointerEvents = 'auto';
+                    downloadBtn.style.opacity = '1';
+                    downloadBtn.textContent = 'Download Report ⬇️';
+                    console.log("Download button enabled");
+                }
+                if (shareBtn) {
+                    shareBtn.style.pointerEvents = 'auto';
+                    shareBtn.style.opacity = '1';
+                    shareBtn.textContent = 'Share Report 📲';
+                    console.log("Share button enabled");
+                }
+            }).catch(err => {
+                console.error("Failed to render report:", err);
+                // Show error message and keep buttons disabled
+                alert("There was an error generating your report. Please refresh the page and try again.");
+                if (downloadBtn) {
+                    downloadBtn.style.pointerEvents = 'none';
+                    downloadBtn.style.opacity = '0.6';
+                    downloadBtn.textContent = 'Report Generation Failed';
+                }
+                if (shareBtn) {
+                    shareBtn.style.pointerEvents = 'none';
+                    shareBtn.style.opacity = '0.6';
+                    shareBtn.textContent = 'Report Generation Failed';
+                }
+            });
+        }, 100);
+        
         // Set Order ID
         const displayOrderId = document.getElementById('displayOrderId');
         if (displayOrderId) displayOrderId.textContent = customerData.orderId || 'N/A';
@@ -1475,30 +1540,52 @@ function endFullSession() {
 }
 
 async function renderReportToBrowser() {
-    // 1. Re-hydrate data from LocalStorage
+    console.log("Starting renderReportToBrowser");
+    // 1. Try to re-hydrate data from LocalStorage, but fall back to current data
+    let sessionAnswers = answers;
+    let sessionCustomerData = customerData;
+    
     const lastOrderId = localStorage.getItem('aptskola_last_order_id');
-    const sessionData = JSON.parse(localStorage.getItem(`aptskola_session_${lastOrderId}`));
+    console.log("Last order ID:", lastOrderId);
     if (sessionData) {
-        answers = sessionData.answers;
-        customerData = sessionData.customerData;
+        sessionAnswers = sessionData.answers;
+        sessionCustomerData = sessionData.customerData;
+        console.log("Session data loaded from localStorage");
+        // Update global variables
+        answers = sessionAnswers;
+        customerData = sessionCustomerData;
+    } else {
+        console.log("No session data in localStorage, using current global data");
+        sessionAnswers = answers;
+        sessionCustomerData = customerData;
+    }
+    
+    console.log("Using answers:", sessionAnswers);
+    console.log("Using customer data:", sessionCustomerData);
+
+    if (!sessionAnswers || Object.keys(sessionAnswers).length === 0) {
+        console.error("No answers data available!");
+        return;
     }
 
-    const res = calculateFullRecommendation(answers);
+    const res = calculateFullRecommendation(sessionAnswers);
+    console.log("Recommendation result:", res);
     const recBoard = res.recommended.name;
+    console.log("Recommended board:", recBoard);
     const boardKey = recBoard.toLowerCase().includes('cbse') ? 'cbse' : 
                      (recBoard.toLowerCase().includes('icse') ? 'icse' : 
                      (recBoard.toLowerCase().includes('ib') ? 'ib' : 
                      (recBoard.toLowerCase().includes('cambridge') ? 'Cambridge (IGCSE)' : 'State Board')));
     
     const data = MASTER_DATA[boardKey];
-    const amount = customerData.amount || 599;
+    const amount = sessionCustomerData.amount || 599;
 
     // --- BASE BLOCKS (Included in all tiers: ₹599, ₹999, ₹1499) ---
     let html = `
         <div id="pdf-header" class="report-card" style="background:#0F172A; color:white; text-align:center;">
             <div style="font-size:2rem; font-weight:800;">Apt <span style="color:#FF6B35;">Skola</span></div>
-            <div style="font-size:1.1rem; opacity:0.8;">${customerData.package} Report</div>
-            <div style="font-size:0.85rem; margin-top:10px;">ID: ${customerData.orderId} | Prepared for: ${customerData.childName}</div>
+            <div style="font-size:1.1rem; opacity:0.8;">${sessionCustomerData.package} Report</div>
+            <div style="font-size:0.85rem; margin-top:10px;">ID: ${sessionCustomerData.orderId} | Prepared for: ${sessionCustomerData.childName}</div>
         </div>
 
         <div class="report-card">
@@ -1620,17 +1707,24 @@ async function renderReportToBrowser() {
     const preview = document.getElementById('reportPreview');
     if (preview) {
         preview.innerHTML = html;
+        console.log("Report HTML set to preview element, length:", html.length);
+        console.log("Preview element after setting:", preview);
+    } else {
+        console.error("Report preview element not found!");
     }
 
 // --- OPTIMIZED: SMART PDF GENERATOR WITH NATIVE VECTOR HEADER ---
 async function downloadReport() {
-    console.log("Download button clicked");
+    console.log("Download button clicked - UserAgent:", navigator.userAgent);
+    console.log("Is mobile:", /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
     const { jsPDF } = window.jspdf;
     if (!jsPDF) {
         alert("PDF library not loaded. Please refresh the page.");
         return;
     }
     const reportElement = document.getElementById('reportPreview');
+    console.log("Report element:", reportElement);
+    console.log("Report element innerHTML length:", reportElement ? reportElement.innerHTML.length : 'null');
     if (!reportElement || !reportElement.innerHTML.trim()) {
         alert("Report not generated yet. Please complete the assessment.");
         return;
@@ -1690,7 +1784,8 @@ async function downloadReport() {
 }
 
 async function sharePDF() {
-    console.log("Share button clicked");
+    console.log("Share button clicked - UserAgent:", navigator.userAgent);
+    console.log("Is mobile:", /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
     if (!navigator.canShare || !navigator.share) {
         alert("Your browser doesn't support direct file sharing. Please use the Download button.");
         return;
@@ -1702,6 +1797,8 @@ async function sharePDF() {
         return;
     }
     const reportElement = document.getElementById('reportPreview');
+    console.log("Share - Report element:", reportElement);
+    console.log("Share - Report element innerHTML length:", reportElement ? reportElement.innerHTML.length : 'null');
     if (!reportElement || !reportElement.innerHTML.trim()) {
         alert("Report not generated yet. Please complete the assessment.");
         return;
