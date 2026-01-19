@@ -2703,7 +2703,44 @@ window.openPricingModal = openPricingModal;
 window.scrollToClarity = scrollToClarity;
 window.openSampleReport = openSampleReport;
 window.closeSampleReport = closeSampleReport;
-window.goToLandingPage = goToLandingPage;
+// --- 11. GLOBAL PRELOADER LOGIC ---
+document.addEventListener('DOMContentLoaded', () => {
+    const preloader = document.getElementById('global-preloader');
+    const textEl = document.getElementById('preloader-text');
+    const phrases = [
+        "Initializing Cognitive Architecture...",
+        "Calibrating Neural Pathways...",
+        "Syncing Academic Parameters..."
+    ];
+    let phraseIndex = 0;
+
+    // Cycle text every 800ms
+    const textInterval = setInterval(() => {
+        phraseIndex = (phraseIndex + 1) % phrases.length;
+        if (textEl) textEl.innerText = phrases[phraseIndex];
+    }, 800);
+
+    // Check for Hero CTA to dismiss preloader
+    const checkHeroInterval = setInterval(() => {
+        const cta = document.querySelector('#react-hero-root button') || document.querySelector('.unstoppable-cta');
+        if (cta && cta.innerText.includes("Fitment")) { // Ensure it's the right button
+            dismissPreloader();
+        }
+    }, 100);
+
+    // Fallback dismiss after 4.5 seconds (in case CTA logic fails)
+    setTimeout(dismissPreloader, 4500);
+
+    function dismissPreloader() {
+        if (!preloader) return;
+        clearInterval(textInterval);
+        clearInterval(checkHeroInterval);
+        preloader.style.opacity = '0';
+        setTimeout(() => {
+            preloader.style.display = 'none';
+        }, 500); // Wait for fade out
+    }
+});
 window.renderReportToBrowser = renderReportToBrowser;
 window.downloadReport = downloadReport;
 window.sharePDF = sharePDF;
