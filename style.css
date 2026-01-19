@@ -17,6 +17,26 @@
     background-color: #FEF2F2 !important;
 }
 
+@keyframes flashFree {
+
+    0%,
+    100% {
+        color: #0F172A;
+        text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+    }
+
+    50% {
+        color: #1E293B;
+        text-shadow: 0 0 10px rgba(15, 23, 42, 0.3);
+    }
+}
+
+.flash-free {
+    font-weight: 900;
+    animation: flashFree 1s infinite;
+    display: inline-block;
+}
+
 body {
     font-family: 'Inter', system-ui, sans-serif;
     color: var(--navy-light);
@@ -434,7 +454,8 @@ body {
 }
 
 .report-card {
-    width: 700px;
+    width: 100%;
+    max-width: 700px;
     margin-left: auto;
     margin-right: auto;
     background: #fff;
@@ -447,6 +468,18 @@ body {
     box-sizing: border-box;
     overflow: hidden;
     height: auto;
+}
+
+@media (max-width: 768px) {
+    .report-card {
+        padding: 15px;
+    }
+
+    .report-header-bg {
+        margin: -15px -15px 15px -15px !important;
+        padding: 8px 12px;
+        font-size: 1rem;
+    }
 }
 
 .report-header-bg {
@@ -492,6 +525,9 @@ body {
     max-width: 400px;
     z-index: 1001;
     position: relative;
+    max-height: 90vh;
+    /* Allow scrolling on small screens */
+    overflow-y: auto;
 }
 
 .spinner {

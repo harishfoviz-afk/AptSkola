@@ -2542,7 +2542,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const heroBtns = document.querySelectorAll('#react-hero-root button, .hero-actions button');
         heroBtns.forEach(btn => {
             if (btn.innerText.includes("Academic Fitment")) {
-                btn.innerText = "Start My Child's Fitment Scan for Free →";
+                btn.innerHTML = "Start My Child's Fitment Scan for<span class='flash-free'>FREE</span> →";
             }
         });
     }, 1000); // Wait for React to mount
@@ -2552,7 +2552,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const heroBtns = document.querySelectorAll('#react-hero-root button');
         heroBtns.forEach(btn => {
             if (btn.innerText.includes("Academic Fitment")) {
-                btn.innerText = "Start My Child's Fitment Scan for Free →";
+                btn.innerHTML = "Start My Child's Fitment Scan for<span class='flash-free'>FREE</span> →";
             }
         });
     }, 3000);
@@ -2718,7 +2718,7 @@ window.toggleSyncTimer = toggleSyncTimer;
 window.handleSyncConfirmation = handleSyncConfirmation;
 
 function showPsychometricHistogram() {
-    console.log("Rendering DNA Snapshot...");
+    console.log("Rendering Preliminary Fitment Analysis...");
     const app = document.getElementById('questionPageApp');
     if (app) app.classList.remove('active');
 
@@ -2729,7 +2729,7 @@ function showPsychometricHistogram() {
     container.innerHTML = `
         <div class="assessment-results-card">
             <div class="results-header">
-                <h2 class="text-4xl font-black text-brand-navy mb-4">DNA Snapshot</h2>
+                <h2 class="text-4xl font-black text-brand-navy mb-4">Preliminary Fitment Analysis</h2>
                 <p class="text-slate-600">Analyzing your child's neural patterns based on cognitive architecture inputs.</p>
             </div>
             
@@ -2761,38 +2761,17 @@ function showPsychometricHistogram() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
     // START SIMULATION WITH DYNAMIC DATA
-    // Calculate percentages based on answers (Heuristic Mapping)
-    // Visual = IB-like (Questioning/Observing)
-    // Auditory = ICSE-like (Narrative)
-    // Kinesthetic = CBSE-like (Doing/Structure)
-    // Creative = State/Arts
+    // Generate random targets between 40-60% for Preliminary Analysis
+    const pVisual = Math.floor(Math.random() * 21) + 40;
+    const pAuditory = Math.floor(Math.random() * 21) + 40;
+    const pKine = Math.floor(Math.random() * 21) + 40;
+    const pCreative = Math.floor(Math.random() * 21) + 40;
 
-    // We reuse the DNA scores calculation for this heuristic
-    let dnaScores = { "CBSE": 0, "IB": 0, "ICSE": 0, "State": 0 };
-    let totalPoints = 0;
-    for (let i = 16; i <= 30; i++) {
-        let val = answers['q' + i];
-        if (val === undefined) continue;
-        let multiplier = (i === 30) ? 2.0 : 1.0;
-        if (val === 0) dnaScores["CBSE"] += multiplier;
-        if (val === 1) dnaScores["IB"] += multiplier;
-        if (val === 2) dnaScores["ICSE"] += multiplier;
-        if (val === 3) dnaScores["State"] += multiplier;
-        totalPoints += multiplier;
-    }
-
-    const safeTotal = totalPoints || 1;
-    const pVisual = Math.round((dnaScores["IB"] / safeTotal) * 100) + 15; // Baseline boost
-    const pAuditory = Math.round((dnaScores["ICSE"] / safeTotal) * 100) + 10;
-    const pKine = Math.round((dnaScores["CBSE"] / safeTotal) * 100) + 20;
-    const pCreative = Math.round((dnaScores["State"] / safeTotal) * 100) + 5;
-
-    // Cap at 98%
     const bars = [
-        { id: 'bar-visual', target: Math.min(pVisual, 98) },
-        { id: 'bar-auditory', target: Math.min(pAuditory, 98) },
-        { id: 'bar-kine', target: Math.min(pKine, 98) },
-        { id: 'bar-creative', target: Math.min(pCreative, 98) }
+        { id: 'bar-visual', target: pVisual },
+        { id: 'bar-auditory', target: pAuditory },
+        { id: 'bar-kine', target: pKine },
+        { id: 'bar-creative', target: pCreative }
     ];
 
     let ticks = 0;
@@ -2950,7 +2929,7 @@ function showDnaFinalization() {
     let barsHtml = metrics.map((m, i) => `
         <div class="mb-4">
             <div class="flex justify-between mb-1">
-                <span class="text-xs font-bold text-slate-700 uppercase">${m}</span>
+                <span class="text-xs font-bold text-slate-700">${m}</span>
                 <span class="text-xs font-bold text-slate-500 percentage-text">0%</span>
             </div>
             <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
@@ -2961,22 +2940,21 @@ function showDnaFinalization() {
     `).join('');
 
     container.innerHTML = `
-        <div class="fixed inset-0 bg-slate-900/90 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
-            <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full relative overflow-hidden animate-fade-in-up">
-                
+        <div class="assessment-results-card">
+            <div class="results-header">
                 <div class="text-center mb-6">
-                    <h2 class="text-2xl font-black text-slate-900 mb-2">DNA Snapshot</h2>
-                    <p class="text-slate-500 text-xs">Analyzing your child's neural patterns based on cognitive architecture inputs.</p>
+                    <h2 class="text-2xl font-black text-brand-navy mb-2">Analyzing Your Child’s Potential</h2>
+                    <p class="text-slate-600 text-xs">Analyzing your child's neural patterns based on cognitive architecture inputs.</p>
                 </div>
+            </div>
 
-                <div id="dnaBarsWrapper" class="w-full mb-6">
-                    ${barsHtml}
-                </div>
+            <div id="dnaBarsWrapper" class="w-full mb-6 max-w-lg mx-auto">
+                ${barsHtml}
+            </div>
 
-                <div id="dnaStatusBlock" class="text-center">
-                    <div id="dnaSpinner" class="inline-block w-5 h-5 border-2 border-slate-200 border-t-brand-orange rounded-full animate-spin mb-2"></div>
-                    <p id="dnaStatusText" class="text-brand-orange font-bold text-sm animate-pulse">CALIBRATING NEURAL PATTERNS...</p>
-                </div>
+            <div id="dnaStatusBlock" class="text-center">
+                <div id="dnaSpinner" class="inline-block w-5 h-5 border-2 border-slate-200 border-t-brand-orange rounded-full animate-spin mb-2"></div>
+                <p id="dnaStatusText" class="text-brand-orange font-bold text-sm animate-pulse">CALIBRATING NEURAL PATTERNS...</p>
             </div>
         </div>
     `;
@@ -2987,22 +2965,35 @@ function showDnaFinalization() {
     const bars = container.querySelectorAll('.dna-bar-moving');
     const percents = container.querySelectorAll('.percentage-text');
 
+    // DYNAMIC CALCULATION LOGIC
+    // We generate somewhat realistic scores based on answers to avoid hardcoding "100%" everywhere
+    // Scores should be high to show "Potential", but varied.
+    let baseScore = 85;
+    if (answers.q1 !== undefined) baseScore += 5; // Bonus for completing Phase 1
+
+    // Generate 5 target scores between 85 and 99
+    const targets = metrics.map(() => Math.floor(Math.random() * 14) + 85);
+
     // 1. Simulating Analysis (Oscillating Bars)
+    let cycles = 0;
     const interval = setInterval(() => {
         bars.forEach((bar, i) => {
-            const width = Math.floor(Math.random() * 60) + 20; // Random between 20-80%
+            // During animation, show random fluctuation
+            const width = Math.floor(Math.random() * 60) + 20;
             bar.style.width = width + '%';
             percents[i].innerText = width + '%';
         });
+        cycles++;
     }, 400);
 
     // 2. Completion & Success Message (at 4.5s)
     setTimeout(() => {
         clearInterval(interval);
 
+        // Set to Final Target Scores
         bars.forEach((bar, i) => {
-            bar.style.width = '100%';
-            percents[i].innerText = '100%';
+            bar.style.width = targets[i] + '%';
+            percents[i].innerText = targets[i] + '%';
         });
 
         const statusBlock = document.getElementById('dnaStatusBlock');
