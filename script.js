@@ -1262,6 +1262,7 @@ function redirectToRazorpay() {
         "key": RAZORPAY_KEY_ID,
         "amount": selectedPrice * 100, // Dynamic Amount in Paise
         "currency": "INR",
+        "payment_capture": 1,
         "name": "Apt Skola",
         "description": "Board Match Report Upgrade",
         "prefill": {
@@ -1376,6 +1377,7 @@ function processSyncUpgrade() {
         "key": RAZORPAY_KEY_ID,
         "amount": 29900, // ₹299 Upgrade Fee
         "currency": "INR",
+        "payment_capture": 1,
         "name": "Apt Skola",
         "description": "Sync Match Module Upgrade",
         "prefill": {
@@ -2068,7 +2070,7 @@ async function renderReportToBrowser() {
         </div>
 
         <div class="report-card !p-0 overflow-hidden">
-            <div class="report-header-bg" style="margin: 0;">STUDENT PERSONA & MATCH LOGIC</div>
+            <div class="report-header-bg" style="margin: 0;">STUDENT PERSONA</div>
             <div class="p-6 space-y-6">
                 <div>
                     <span class="text-slate-500 font-bold uppercase text-xs tracking-wider">Archetype</span>
@@ -2077,7 +2079,12 @@ async function renderReportToBrowser() {
                 <p class="text-slate-600 leading-relaxed text-sm">
                     ${data.profile}
                 </p>
-                
+            </div>
+        </div>
+
+        <div class="report-card !p-0 overflow-hidden">
+            <div class="report-header-bg" style="margin: 0;">CAREER & ANALYSIS</div>
+            <div class="p-6 space-y-6">
                 <div class="pl-4 border-l-4 border-red-500 bg-red-50 p-4 rounded-r-lg">
                     <h4 class="text-red-800 font-bold text-sm mb-2">The "Why Not" (Rejection Logic)</h4>
                     <p class="text-red-900 text-sm opacity-90 leading-relaxed">${data.rejectionReason}</p>
@@ -2704,42 +2711,56 @@ window.scrollToClarity = scrollToClarity;
 window.openSampleReport = openSampleReport;
 window.closeSampleReport = closeSampleReport;
 // --- 11. GLOBAL PRELOADER LOGIC ---
-document.addEventListener('DOMContentLoaded', () => {
+// --- 11. GLOBAL PRELOADER LOGIC (MINIMALIST) ---
+document.addEventListener('DOMContentLoaded', async () => {
     const preloader = document.getElementById('global-preloader');
     const textEl = document.getElementById('preloader-text');
-    const phrases = [
-        "Initializing Cognitive Architecture...",
-        "Calibrating Neural Pathways...",
-        "Syncing Academic Parameters..."
+
+    // Sequence Configuration
+    const phrasings = [
+        "Eliminating Ambiguity...",
+        "Securing Strategic Focus...",
+        "Replacing Doubt with Data..."
     ];
-    let phraseIndex = 0;
+    const finalPhrase = "Begin Mastery.";
 
-    // Cycle text every 800ms
-    const textInterval = setInterval(() => {
-        phraseIndex = (phraseIndex + 1) % phrases.length;
-        if (textEl) textEl.innerText = phrases[phraseIndex];
-    }, 800);
+    // Utility for delays
+    const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-    // Check for Hero CTA to dismiss preloader
-    const checkHeroInterval = setInterval(() => {
-        const cta = document.querySelector('#react-hero-root button') || document.querySelector('.unstoppable-cta');
-        if (cta && cta.innerText.includes("Fitment")) { // Ensure it's the right button
-            dismissPreloader();
-        }
-    }, 100);
+    if (!preloader || !textEl) return;
 
-    // Fallback dismiss after 4.5 seconds (in case CTA logic fails)
-    setTimeout(dismissPreloader, 4500);
-
-    function dismissPreloader() {
-        if (!preloader) return;
-        clearInterval(textInterval);
-        clearInterval(checkHeroInterval);
-        preloader.style.opacity = '0';
-        setTimeout(() => {
-            preloader.style.display = 'none';
-        }, 500); // Wait for fade out
+    // Phase 1: The Build-up
+    for (let phrase of phrasings) {
+        textEl.innerText = phrase;
+        textEl.style.opacity = '1'; // Fade In
+        await wait(2400); // Read Time
+        textEl.style.opacity = '0'; // Fade Out
+        await wait(1000); // Transition Time
     }
+
+    // Phase 2: The Final Reveal
+    textEl.innerText = finalPhrase;
+    textEl.style.fontSize = '1.8rem';
+    textEl.style.opacity = '1';
+
+    // Hold "Begin Mastery" longer (0.5s extra) 
+    await wait(3000);
+
+    // Phase 3: Reveal Page
+    preloader.style.opacity = '0';
+
+    // Unveil Main Content AFTER preloader starts fading
+    setTimeout(() => {
+        const heroRoot = document.getElementById('react-hero-root');
+        const ctas = document.querySelectorAll('.unstoppable-cta');
+
+        if (heroRoot) heroRoot.classList.add('loaded');
+        ctas.forEach(btn => btn.classList.add('loaded'));
+    }, 200); // Small delay to sync with fade
+
+    setTimeout(() => {
+        preloader.style.display = 'none';
+    }, 1000);
 });
 window.renderReportToBrowser = renderReportToBrowser;
 window.downloadReport = downloadReport;

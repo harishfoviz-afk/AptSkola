@@ -94,6 +94,30 @@
     }
 }
 
+/* Main Content Initial State (Hidden until Preloader finishes) */
+#react-hero-root,
+.unstoppable-cta {
+    opacity: 0;
+    transition: opacity 1.5s ease-out;
+}
+
+#react-hero-root,
+.unstoppable-cta {
+    opacity: 0;
+    transition: opacity 1s ease-in;
+    /* Faster fade-in */
+}
+
+#react-hero-root.loaded,
+.unstoppable-cta.loaded {
+    opacity: 1;
+}
+
+/* Ensure Preloader is ALWAYS on top */
+#global-preloader {
+    z-index: 999999 !important;
+}
+
 body {
     font-family: 'Inter', system-ui, sans-serif;
     color: var(--navy-light);
@@ -535,11 +559,19 @@ body {
     .report-header-bg {
         margin: -15px -15px 15px -15px !important;
         padding: 15px 20px;
-        font-size: 0.95rem;
+        font-size: 1rem;
+        /* Slightly larger for readability */
         line-height: 1.4;
-        min-height: 60px;
+        min-height: auto;
+        /* Remove fixed height constraint */
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: 1px;
+        /* Airy spacing */
+        background: linear-gradient(to right, #0F172A, #1E293B) !important;
+        /* Subtle gradient */
+        border-bottom: 3px solid var(--sunrise-primary);
+        /* Pop of color */
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     }
 }
 
