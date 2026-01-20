@@ -2062,9 +2062,11 @@ async function renderReportToBrowser() {
             <div class="report-header-bg" style="margin: 0;">THE RECOMMENDED ARCHETYPE</div>
             <div class="p-6">
                 <div class="text-3xl font-extrabold text-slate-900 mb-4">${data.title}</div>
-                <div class="inline-flex items-center bg-slate-50 border border-slate-200 rounded-lg px-4 py-2">
-                    <span class="text-slate-500 font-semibold text-sm mr-2">Board Match:</span>
-                    <span class="text-brand-orange font-bold text-lg">${recBoard} (${res.recommended.percentage}%)</span>
+                
+                <!-- FIX: Inline Styles for PDF Stability -->
+                <div style="display: inline-flex; align-items: center; background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 8px 16px;">
+                    <span style="color: #64748B; font-weight: 600; font-size: 0.875rem; margin-right: 8px;">Board Match:</span>
+                    <span style="color: #FF6B35; font-weight: 700; font-size: 1.125rem;">${recBoard} (${res.recommended.percentage}%)</span>
                 </div>
             </div>
         </div>
