@@ -582,15 +582,21 @@ body {
 }
 
 .report-header-bg {
-    background: var(--navy-premium);
+    background: linear-gradient(to right, #0F172A, #1E293B);
     color: white;
-    padding: 10px 15px;
+    padding: 15px 20px;
     font-weight: 700;
     font-size: 1.2rem;
     margin: -30px -30px 20px -30px;
     border-radius: 12px 12px 0 0;
+
+    /* Centering & Premium Styling */
     display: flex;
+    justify-content: center;
     align-items: center;
+    text-align: center;
+    border-bottom: 3px solid var(--sunrise-primary);
+    letter-spacing: 1px;
     gap: 10px;
 }
 
