@@ -558,7 +558,7 @@ body {
 
     .report-header-bg {
         margin: -15px -15px 15px -15px !important;
-        padding: 15px 20px;
+        padding: 15px 10px;
         font-size: 1rem;
         /* Slightly larger for readability */
         line-height: 1.4;
@@ -572,6 +572,12 @@ body {
         border-bottom: 3px solid var(--sunrise-primary);
         /* Pop of color */
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+
+        /* Centering Logic */
+        display: flex;
+        justify-content: center;
+        text-align: center;
+        align-items: center;
     }
 }
 
