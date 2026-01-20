@@ -2307,7 +2307,27 @@ async function downloadReport() {
             await renderReportToBrowser();
         }
 
-        const cards = reportElement.querySelectorAll(".report-card, .xray-card, .foviz-banner, .btn-ambassador");
+        // --- NEW: CLONE AND SCALE STRATEGY ---
+        // 1. Create a temporary container with strict desktop dimensions
+        const tempContainer = document.createElement('div');
+        tempContainer.style.position = 'absolute';
+        tempContainer.style.top = '-9999px';
+        tempContainer.style.left = '-9999px';
+        tempContainer.style.width = '800px'; // Force Desktop Width
+        tempContainer.style.zIndex = '-1';
+        document.body.appendChild(tempContainer);
+
+        // 2. Clone cards into this container
+        const originalCards = reportElement.querySelectorAll(".report-card, .xray-card, .foviz-banner, .btn-ambassador");
+        originalCards.forEach(card => {
+            const clone = card.cloneNode(true);
+            // Ensure clone has full width
+            clone.style.width = '100%';
+            clone.style.maxWidth = '100%';
+            clone.style.margin = '0 0 20px 0'; // Clean spacing
+            tempContainer.appendChild(clone);
+        });
+
         const pdf = new jsPDF("p", "mm", "a4");
         const pdfWidth = pdf.internal.pageSize.getWidth();
         const pdfHeight = pdf.internal.pageSize.getHeight();
@@ -2318,22 +2338,24 @@ async function downloadReport() {
         pdf.setFontSize(14);
         pdf.setTextColor(15, 23, 42);
 
-        // Remove "Apt Skola" large header, kept only the details line as first line
+        // Header Text
         const headerText = `Name: ${customerData.childName || "Student"}  |  Age: ${customerData.childAge || "N/A"}  |  Order ID: ${customerData.orderId || "N/A"}`;
-
-        // FIX: Center Align Header
         pdf.text(headerText, pdfWidth / 2, 20, { align: 'center' });
 
         let currentY = 45;
 
-        for (let i = 0; i < cards.length; i++) {
-            // FIX: Enable white background to prevent blank boxes
-            const canvas = await html2canvas(cards[i], {
-                scale: 2,
+        // 3. Capture from the TEMP container's children
+        const clonedCards = tempContainer.children;
+
+        for (let i = 0; i < clonedCards.length; i++) {
+            const canvas = await html2canvas(clonedCards[i], {
+                scale: 2, // High resolution
                 useCORS: true,
                 logging: false,
-                backgroundColor: '#ffffff'
+                backgroundColor: '#ffffff',
+                windowWidth: 800 // Trick html2canvas
             });
+
             const imgData = canvas.toDataURL("image/jpeg", 0.9);
             const imgProps = pdf.getImageProperties(imgData);
             const imgHeight = (imgProps.height * contentWidth) / imgProps.width;
@@ -2345,6 +2367,9 @@ async function downloadReport() {
             pdf.addImage(imgData, "JPEG", margin, currentY, contentWidth, imgHeight);
             currentY += imgHeight + 8;
         }
+
+        // 4. Cleanup
+        document.body.removeChild(tempContainer);
 
         const res = calculateFullRecommendation(answers);
         const recBoard = res.recommended.name;
