@@ -2064,9 +2064,10 @@ async function renderReportToBrowser() {
                 <div class="text-3xl font-extrabold text-slate-900 mb-4">${data.title}</div>
                 
                 <!-- FIX: Inline Styles for PDF Stability -->
-                <div style="display: inline-flex; align-items: center; background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 8px 16px;">
-                    <span style="color: #64748B; font-weight: 600; font-size: 0.875rem; margin-right: 8px;">Board Match:</span>
-                    <span style="color: #FF6B35; font-weight: 700; font-size: 1.125rem;">${recBoard} (${res.recommended.percentage}%)</span>
+                <!-- FIX: Inline Styles for PDF Stability (Switching to inline-block for robustness) -->
+                <div style="display: inline-block; background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 10px 20px;">
+                    <span style="color: #64748B; font-weight: 600; font-size: 0.9rem; margin-right: 5px;">Board Match:</span>
+                    <span style="color: #FF6B35; font-weight: 800; font-size: 1.1rem; display: inline-block;">${recBoard} (${res.recommended.percentage}%)</span>
                 </div>
             </div>
         </div>
