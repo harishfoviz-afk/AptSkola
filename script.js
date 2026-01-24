@@ -2571,26 +2571,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     })();
 
-    // 9a. HERO BUTTON TEXT UPDATE (Helper)
-    setTimeout(() => {
-        // Try multiple selectors as React structure might vary
-        const heroBtns = document.querySelectorAll('#react-hero-root button, .hero-actions button');
-        heroBtns.forEach(btn => {
-            if (btn.innerText.includes("Academic Fitment")) {
-                btn.innerHTML = "Start My Child's Fitment Scan for<span class='flash-free'>FREE</span> →";
-            }
-        });
-    }, 1000); // Wait for React to mount
-
-    // Repeat check just in case
-    setTimeout(() => {
-        const heroBtns = document.querySelectorAll('#react-hero-root button');
-        heroBtns.forEach(btn => {
-            if (btn.innerText.includes("Academic Fitment")) {
-                btn.innerHTML = "Start My Child's Fitment Scan for<span class='flash-free'>FREE</span> →";
-            }
-        });
-    }, 3000);
+    // 9a. HERO BUTTON TEXT UPDATE (REMOVED - Fixed in JSX)
     // 9. PHONE CAPTURE (Partial Lead - ABANDONMENT LOGIC)
     const phoneInput = document.getElementById('phone');
     const custForm = document.getElementById('customerForm');
@@ -2746,11 +2727,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Sequence Configuration
     const phrasings = [
-        "Eliminating Ambiguity...",
-        "Securing Strategic Focus...",
-        "Replacing Doubt with Data..."
+        "Authenticating Institutional Alignment Matrix...",
+        "Isolating Momentum Decay Patterns...",
+        "Calibrating Pincode-Level Benchmarks..."
     ];
-    const finalPhrase = "Begin Mastery.";
+    const finalPhrase = "Strategic Academic Roadmap Ready";
 
     // Utility for delays
     const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
@@ -2798,6 +2779,22 @@ window.pasteOrderId = pasteOrderId;
 window.copyOrderId = copyOrderId;
 window.recoverSession = recoverSession;
 window.recoverSessionEmail = recoverSessionEmail;
+
+// --- 12. CONTEXTUAL NAVIGATION LOGIC ---
+window.checkSessionActive = function () {
+    const lastOrder = localStorage.getItem('aptskola_last_order_id');
+    return !!lastOrder;
+};
+
+window.autoResumeSession = function () {
+    const lastOrder = localStorage.getItem('aptskola_last_order_id');
+    if (lastOrder) {
+        // Reuse existing recovery logic but bypass manual input
+        const recoveryInput = document.getElementById('recoveryOrderId');
+        if (recoveryInput) recoveryInput.value = lastOrder;
+        recoverSession();
+    }
+};
 
 window.openCollaborationModal = openCollaborationModal;
 window.toggleSyncTimer = toggleSyncTimer;

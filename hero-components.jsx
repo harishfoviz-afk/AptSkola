@@ -5,7 +5,7 @@ const { motion, AnimatePresence } = window.Motion || window.FramerMotion || {};
 const Hero = () => {
   const words = ["Worrying", "Doubting", "Guessing", "Knowing"];
   const [index, setIndex] = useState(0);
-  const [buttonText, setButtonText] = useState("Scan My Child's Academic Fitment");
+  const [buttonText, setButtonText] = useState("Access Public Audit: Initiate Forensic Momentum Scan");
   const [showToast, setShowToast] = useState(false);
 
   useEffect(() => {
@@ -118,12 +118,12 @@ const Hero = () => {
             </div>
           </div>
           <p className="text-[#FF6B35] font-black text-xl md:text-3xl mt-4 uppercase tracking-[0.25em] text-center drop-shadow-lg">
-            Find Your Child's Perfect School Board
+            Forensic Audit: Academic Trajectory & Board Alignment
           </p>
         </div>
 
         <p className="text-slate-400 text-lg md:text-2xl text-center max-w-3xl mx-auto mt-12 leading-relaxed font-medium">
-          Get a scientific, personalized board recommendation based on your child's unique psychology in <span className="text-white underline underline-offset-4 decoration-[#FF6B35]/50 whitespace-nowrap"><span className="inline-block mr-2">⏱️</span>5 minutes</span>.
+          Get a scientific, personalized board recommendation based on your child's unique psychology in <span className="text-white underline underline-offset-4 decoration-[#FF6B35]/50 whitespace-nowrap"><span className="inline-block mr-2">⏱️</span>6.5s Neural Calibration</span>.
         </p>
 
         {/* 4. Social Proof Avatar Row */}
@@ -153,12 +153,15 @@ const Hero = () => {
           >
             {buttonText} <span className="animate-pulse inline-block text-3xl md:text-4xl">→</span>
           </button>
+          <div className="text-center mt-4">
+            <p className="text-slate-400 text-xs italic">*Baseline Diagnostic Fees waived for current [CITY] Cluster Window.</p>
+          </div>
         </div>
 
         {/* Momentum Feature 1: First Question Embed */}
         <div className="mt-24 w-full max-w-4xl bg-slate-900/50 border border-slate-700/50 p-8 md:p-12 rounded-[40px] backdrop-blur-xl">
           <div className="text-center mb-10">
-            <span className="text-[#FF6B35] font-black uppercase tracking-[0.3em] text-sm">Question 1 of 4: Phase 0 Preview</span>
+            <span className="text-[#FF6B35] font-black uppercase tracking-[0.3em] text-sm">Verification Step 1: Baseline Momentum Audit (Subsidized Access)</span>
             <h2 className="text-white text-2xl md:text-4xl font-extrabold mt-4">How does your child process complex new data?</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

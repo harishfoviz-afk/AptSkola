@@ -176,8 +176,8 @@
 
         <section id="aboutAptSkola" class="py-10 bg-white">
             <div class="container mx-auto px-4 text-center">
-                <h2 class="text-4xl font-extrabold text-brand-black mb-8">Mapping your child's unique psychology to the
-                    ideal academic ecosystem</h2>
+                <h2 class="text-4xl font-extrabold text-brand-black mb-8">Decoding the Leading Indicators of Academic
+                    Stagnation.</h2>
 
                 <div class="mx-auto bg-slate-50 p-8 rounded-3xl border border-slate-200 shadow-sm">
                     <p class="text-lg leading-relaxed text-slate-700">
@@ -670,10 +670,12 @@
             <h3 style="color: var(--navy-premium); font-weight: 800; font-size: 1.5rem; margin-bottom: 15px;">
                 CONGRATULATIONS!</h3>
             <p style="color: var(--navy-light); font-size: 1rem; line-height: 1.6; margin-bottom: 20px;">
-                You have unlocked the exclusive bonus benefit: <strong>Parent & Child Sync Check</strong>.<br>
-                Please be ready with your kid to enjoy this benefit.<br>
-                <span style="display:block; margin-top:10px; font-weight:bold; color:var(--urgent-red);">Keep your order
-                    ID handy with you.</span>
+                We are so excited to join you on this journey!<br><br>
+                Get ready to explore your child’s unique potential. Please keep your Order ID handy—to view your full
+                insights, simply head to aptskola.com and look for the "Unlock Parent & Child Sync Check" button in the
+                <span
+                    style="font-weight: 800; color: var(--sunrise-primary); border-bottom: 2px solid var(--sunrise-primary);">top
+                    right corner</span> of the page.
             </p>
             <button onclick="closeBonusModalAndShowSuccess()" class="custom-cta-button">Noted. I will return to
                 AptSkola.com with my child to claim this.</button>
@@ -1000,8 +1002,15 @@
         const Hero = () => {
             const words = ["Worrying", "Doubting", "Guessing", "Knowing"];
             const [index, setIndex] = useState(0);
-            const [buttonText, setButtonText] = useState("Scan My Child's Academic Fitment");
+            const [buttonText, setButtonText] = useState("Access Public Audit: Initiate Forensic Momentum Scan");
             const [showToast, setShowToast] = useState(false);
+            const [hasSession, setHasSession] = useState(false);
+
+            useEffect(() => {
+                if (typeof window.checkSessionActive === 'function') {
+                    setHasSession(window.checkSessionActive());
+                }
+            }, []);
 
             useEffect(() => {
                 const timer = setInterval(() => setIndex((prev) => (prev + 1) % words.length), 2000);
@@ -1060,23 +1069,33 @@
                 <>
                     <section className="relative pt-32 pb-20 px-4 overflow-hidden bg-[#0F172A] min-h-[95vh] flex flex-col items-center">
 
-                        {/* 1. Top Right Shadow Buttons - Restored with Light, Non-Eye-Catchy Colors */}
+                        {/* 1. Contextual Top Right Navigation */}
                         <div className="absolute top-6 right-6 flex flex-col md:flex-row gap-4 z-[1000]">
-                            <button
-                                onClick={() => window.openSyncMatchGate && window.openSyncMatchGate()}
-                                className="text-xs font-bold text-slate-400 border border-slate-700/50 px-5 py-2 rounded-full hover:bg-slate-800 transition backdrop-blur-sm shadow-xl"
-                                style={{ background: 'rgba(30, 41, 59, 0.4)', cursor: 'pointer' }}
-                            >
-                                Unlock Parent & Child Sync Check
-                            </button>
-                            <a
-                                href="https://xray.aptskola.com"
-                                target="_blank"
-                                className="text-xs font-bold text-slate-400 border border-slate-700/50 px-5 py-2 rounded-full hover:bg-slate-800 transition backdrop-blur-sm shadow-xl text-center"
-                                style={{ background: 'rgba(30, 41, 59, 0.4)' }}
-                            >
-                                🔎 AI School/College Forensic Report
-                            </a>
+                            {hasSession ? (
+                                <button
+                                    onClick={() => window.autoResumeSession && window.autoResumeSession()}
+                                    className="text-xs font-bold text-[#FF6B35] border border-[#FF6B35] px-5 py-2 rounded-full hover:bg-[#FF6B35] hover:text-white transition backdrop-blur-sm shadow-xl flex items-center gap-2 animate-pulse"
+                                    style={{ background: 'rgba(15, 23, 42, 0.8)', cursor: 'pointer' }}
+                                >
+                                    <span>↻</span> Resume Calibration
+                                </button>
+                            ) : (
+                                <>
+                                    <button
+                                        onClick={() => window.openSyncMatchGate && window.openSyncMatchGate()}
+                                        className="text-xs font-bold text-slate-400 bg-transparent border border-transparent px-5 py-2 rounded-full opacity-40 hover:opacity-100 hover:border-slate-500 hover:text-slate-200 transition-all duration-300"
+                                    >
+                                        Unlock Parent & Child Sync Check
+                                    </button>
+                                    <a
+                                        href="https://xray.aptskola.com"
+                                        target="_blank"
+                                        className="text-xs font-bold text-slate-400 bg-transparent border border-transparent px-5 py-2 rounded-full opacity-40 hover:opacity-100 hover:border-slate-500 hover:text-slate-200 transition-all duration-300 text-center"
+                                    >
+                                        🔎 School/College Forensic Report
+                                    </a>
+                                </>
+                            )}
                         </div>
 
                         {/* 2. Centered Branding Block */}
@@ -1089,6 +1108,23 @@
                                 <span className="text-sm font-bold text-slate-400 uppercase tracking-[0.2em]">A Foviz Venture</span>
                                 <div className="h-px w-8 bg-slate-600"></div>
                             </div>
+                        </div>
+
+                        {/* 4. Social Proof Avatar Row (Relocated) */}
+                        <div className="flex flex-col items-center gap-2 mb-8 mt-2 animate-fade-in-up">
+                            <div className="flex -space-x-4">
+                                {[1, 2, 3, 4, 5].map(i => (
+                                    <div key={i} className="w-12 h-12 rounded-full border-4 border-[#0F172A] bg-slate-700 flex items-center justify-center text-white font-bold text-xs overflow-hidden">
+                                        <img src={`https://i.pravatar.cc/100?img=${i + 10}`} className="w-full h-full object-cover" alt="Parent Avatar" />
+                                    </div>
+                                ))}
+                                <div className="w-12 h-12 rounded-full border-4 border-[#0F172A] bg-[#FF6B35] flex items-center justify-center text-white font-black text-xs">
+                                    1K+
+                                </div>
+                            </div>
+                            <p className="text-slate-500 text-sm font-bold uppercase tracking-widest">
+                                Joined by 1,000+ parents this week
+                            </p>
                         </div>
 
                         {/* 3. The Animated Transformation Headline */}
@@ -1113,34 +1149,30 @@
                                 </AnimatePresence>
                             </div>
                             <p className="text-[#FF6B35] font-black text-xl md:text-3xl mt-4 uppercase tracking-[0.25em] text-center drop-shadow-lg">
-                                Find Your Child's Perfect School Board
+                                Forensic Audit: Academic Trajectory & Board Alignment
                             </p>
                         </div>
 
                         <p className="text-slate-400 text-lg md:text-2xl text-center max-w-3xl mx-auto mt-12 leading-relaxed font-medium">
-                            Get a scientific, personalized board recommendation based on your child's unique psychology in <span className="text-white underline underline-offset-4 decoration-[#FF6B35]/50 whitespace-nowrap"><span className="inline-block mr-2">⏱️</span>5 minutes</span>.
+                            Get a scientific, personalized board recommendation based on your child's unique psychology in <span className="text-white underline underline-offset-4 decoration-[#FF6B35]/50 whitespace-nowrap"><span className="inline-block mr-2">⏱️</span>6.5s Neural Calibration</span>.
                         </p>
 
-                        {/* 4. Social Proof Avatar Row */}
-                        <div className="mt-12 flex flex-col items-center gap-4">
-                            <div className="flex -space-x-4">
-                                {[1, 2, 3, 4, 5].map(i => (
-                                    <div key={i} className="w-12 h-12 rounded-full border-4 border-[#0F172A] bg-slate-700 flex items-center justify-center text-white font-bold text-xs overflow-hidden">
-                                        <img src={`https://i.pravatar.cc/100?img=${i + 10}`} className="w-full h-full object-cover" alt="Parent Avatar" />
-                                    </div>
-                                ))}
-                                <div className="w-12 h-12 rounded-full border-4 border-[#0F172A] bg-[#FF6B35] flex items-center justify-center text-white font-black text-xs">
-                                    1K+
-                                </div>
-                            </div>
-                            <p className="text-slate-500 text-sm font-bold uppercase tracking-widest">
-                                Joined by 1,000+ parents this week
-                            </p>
-                        </div>
+
 
                         {/* 5. The "Unstoppable" CTA Button */}
                         <div className="relative mt-16 group z-[40]">
                             <div className="absolute -inset-4 bg-gradient-to-r from-[#FF6B35] via-orange-500 to-yellow-500 rounded-full blur-2xl opacity-40 group-hover:opacity-75 transition duration-1000 group-hover:duration-200"></div>
+                            <div className="relative my-4 flex justify-center">
+                                <div className="flex items-center gap-2 bg-[#0F172A] px-6 py-2 rounded-full border border-slate-700 shadow-2xl z-50 whitespace-nowrap">
+                                    <span className="relative flex h-3 w-3">
+                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                        <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                                    </span>
+                                    <span className="text-white text-xs font-bold uppercase tracking-wider">
+                                        Cluster Window: <span className="text-[#FF6B35] px-2 py-0.5 rounded border border-[#FF6B35]/30 shadow-[0_0_10px_rgba(255,107,53,0.3)]">ACTIVE</span>
+                                    </span>
+                                </div>
+                            </div>
                             <button
                                 onClick={() => triggerStart(0)}
                                 className="unstoppable-cta cta-button-pulse relative bg-[#FF6B35] text-white px-8 md:px-12 py-4 md:py-6 rounded-full font-black text-xl md:text-2xl shadow-[0_20px_50px_rgba(255,107,53,0.5)] hover:scale-105 active:scale-95 transition-all border-b-[6px] border-orange-800 flex items-center gap-4"
@@ -1148,12 +1180,13 @@
                             >
                                 {buttonText} <span className="animate-pulse inline-block text-3xl md:text-4xl">→</span>
                             </button>
+
                         </div>
 
                         {/* Momentum Feature 1: First Question Embed */}
                         <div className="mt-24 w-full max-w-4xl bg-slate-900/50 border border-slate-700/50 p-8 md:p-12 rounded-[40px] backdrop-blur-xl">
                             <div className="text-center mb-10">
-                                <span className="text-[#FF6B35] font-black uppercase tracking-[0.3em] text-sm">Question 1 of 4: Phase 0 Preview</span>
+                                <span className="text-[#FF6B35] font-black uppercase tracking-[0.3em] text-sm">Verification Step 1: Baseline Momentum Audit (Subsidized Access)</span>
                                 <h2 className="text-white text-2xl md:text-4xl font-extrabold mt-4">How does your child process complex new data?</h2>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
