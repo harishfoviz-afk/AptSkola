@@ -725,7 +725,7 @@ function getIntermediateHeaderHtml() {
     </div>`;
 }
 function getIntermediateFooterHtml() {
-    return `<div class="intermediate-footer"><div class="max-w-7xl mx-auto text-center"><p>&copy; 2026 Apt Skola, all rights reserved.</p></div></div>`;
+    return `<div class="intermediate-footer"><div class="max-w-7xl mx-auto text-center"><p class="text-xs font-medium opacity-70" style="font-size: 0.8rem !important;">&copy; 2024 - 2026 Apt Skola, all rights reserved.</p></div></div>`;
 }
 
 // --- SYNC MATCH GATE LOGIC MOVED DOWN ---
@@ -1015,10 +1015,7 @@ function renderTransitionBridge() {
 
         container.innerHTML = `
             <div class="transition-bridge" style="text-align: center; padding: 30px 20px;">
-                <h3 style="color: #0F172A; font-weight: 800; font-size: 1.4rem; margin-bottom: 15px;">
-                    Calibration Required
-                </h3>
-                <p style="font-size: 1.1rem; color: #475569; margin-bottom: 30px; line-height: 1.6; max-width: 500px; margin-left: auto; margin-right: auto;">
+                <p style="font-size: 1.2rem; font-weight: 700; color: #0F172A; margin-bottom: 30px; line-height: 1.6; max-width: 600px; margin-left: auto; margin-right: auto;">
                     Your personalized roadmap begins here. Please answer calibration questions to align your child’s profile.
                 </p>
                 <button onclick="renderQuestionContent(0)" class="custom-cta-button" style="background: #0F172A; color: white; border: 2px solid #0F172A;">
@@ -2285,6 +2282,9 @@ async function renderReportToBrowser() {
         <div class="report-card" style="margin-top:40px; padding:20px; background:#F1F5F9; border-radius:8px; font-size:0.8rem; color:#64748B; text-align:justify;">
             <strong>DISCLAIMER:</strong> This report is advisory only. The final enrollment decision remains the sole responsibility of the parent. The outcome of this report is purely based on the user input provided..
         </div>
+        <div style="text-align: center; margin-top: 20px; padding-bottom: 20px;">
+            <p class="text-xs font-medium opacity-70" style="font-size: 0.8rem !important; color: #64748B;">&copy; 2024 - 2026 Apt Skola, all rights reserved.</p>
+        </div>
     `;
 
     // 2. Dispatch Render to Screen
@@ -3051,16 +3051,27 @@ function showDnaFinalization() {
         'Institutional Alignment Matrix'
     ];
 
+    const microInsights = [
+        "Detected high-order pattern recognition.",
+        "Adjusting for Tier-1 professional mobility.",
+        "Optimizing for autonomous inquiry vs. rote instruction.",
+        "Calibrating for competitive exam resilience.",
+        "Filtering for Board-specific culture fit."
+    ];
+
     let barsHtml = metrics.map((m, i) => `
-        <div class="mb-4">
+        <div class="mb-6">
             <div class="flex justify-between mb-1">
-                <span class="text-xs font-bold text-slate-700">${m}</span>
+                <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">${m}</span>
                 <span class="text-xs font-bold text-slate-500 percentage-text">0%</span>
             </div>
-            <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
+            <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden mb-2">
                 <div class="dna-bar-moving h-2.5 rounded-full transition-all duration-300" 
                      style="width: 5%; background-color: ${colors[i % colors.length]}"></div>
             </div>
+            <p class="text-[10px] font-bold text-slate-400 animate-pulse">
+                <span class="mr-1">⚡</span> Deep Logic: ${microInsights[i]}
+            </p>
         </div>
     `).join('');
 
@@ -3068,8 +3079,8 @@ function showDnaFinalization() {
         <div class="assessment-results-card">
             <div class="results-header">
                 <div class="text-center mb-6">
-                    <h2 class="text-2xl font-black text-brand-navy mb-2">Analyzing Your Child’s Potential</h2>
-                    <p class="text-slate-600 text-xs">Analyzing your child's neural patterns based on cognitive architecture inputs.</p>
+                    <h2 class="text-4xl font-black text-brand-navy mb-4">Analyzing Your Child’s Potential</h2>
+                    <p class="text-slate-600 text-sm">Analyzing your child's neural patterns based on cognitive architecture inputs.</p>
                 </div>
             </div>
 
