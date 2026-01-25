@@ -997,7 +997,41 @@ function initializeQuizShell(index, phase = 0) {
             ${getIntermediateFooterHtml()}
         </div>`;
     questionPages.innerHTML = shellHtml;
-    renderQuestionContent(index);
+
+    // BRIDGE LOGIC: Only show if starting fresh (Phase 0, Index 0)
+    if (index === 0 && phase === 0) {
+        renderTransitionBridge();
+    } else {
+        renderQuestionContent(index);
+    }
+}
+
+function renderTransitionBridge() {
+    const container = document.getElementById('dynamicQuizContent');
+    if (container) {
+        // Prepare for Fade-In
+        container.style.opacity = '0';
+        container.style.transition = 'opacity 0.6s ease-out';
+
+        container.innerHTML = `
+            <div class="transition-bridge" style="text-align: center; padding: 30px 20px;">
+                <h3 style="color: #0F172A; font-weight: 800; font-size: 1.4rem; margin-bottom: 15px;">
+                    Calibration Required
+                </h3>
+                <p style="font-size: 1.1rem; color: #475569; margin-bottom: 30px; line-height: 1.6; max-width: 500px; margin-left: auto; margin-right: auto;">
+                    Your personalized roadmap begins here. Please answer calibration questions to align your child’s profile.
+                </p>
+                <button onclick="renderQuestionContent(0)" class="custom-cta-button" style="background: #0F172A; color: white; border: 2px solid #0F172A;">
+                    Begin Calibration →
+                </button>
+            </div>
+        `;
+
+        // Trigger Animation
+        requestAnimationFrame(() => {
+            container.style.opacity = '1';
+        });
+    }
 }
 
 function renderQuestionContent(index) {
@@ -2728,10 +2762,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Sequence Configuration
     const phrasings = [
         "Authenticating Institutional Alignment Matrix...",
-        "Isolating Momentum Decay Patterns...",
-        "Calibrating Pincode-Level Benchmarks..."
+        "Isolating 'Momentum Decay' risk factors in standard curriculum models...",
+        "Mapping Learning DNA logic-gates to Strategic Academic Roadmap..."
     ];
-    const finalPhrase = "Strategic Academic Roadmap Ready";
+    const finalPhrase = "Forensic Insights Synchronized: The definitive path to your child’s academic journey is now live.";
 
     // Utility for delays
     const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
@@ -2741,19 +2775,26 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Phase 1: The Build-up
     for (let phrase of phrasings) {
         textEl.innerText = phrase;
+        textEl.style.color = '#FF6B35'; // Orange for phases
         textEl.style.opacity = '1'; // Fade In
-        await wait(2400); // Read Time
+        await wait(1800); // Read Time (Almost 2s)
         textEl.style.opacity = '0'; // Fade Out
-        await wait(1000); // Transition Time
+        await wait(200); // Quick Transition
     }
 
     // Phase 2: The Final Reveal
     textEl.innerText = finalPhrase;
-    textEl.style.fontSize = '1.8rem';
+    textEl.style.fontSize = '1.4rem'; // Match Header Size for consistency
+    textEl.style.color = '#10B981'; // Green Color for Success
     textEl.style.opacity = '1';
 
-    // Hold "Begin Mastery" longer (0.5s extra) 
-    await wait(3000);
+    // Hold Final Reveal for 2 seconds (User Engagement)
+    await wait(2000);
+
+    // Ensure Page is actually loaded before dismissing
+    if (document.readyState !== 'complete') {
+        await new Promise(r => window.addEventListener('load', r));
+    }
 
     // Phase 3: Reveal Page
     preloader.style.opacity = '0';
@@ -2771,6 +2812,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         preloader.style.display = 'none';
     }, 1000);
 });
+
 window.renderReportToBrowser = renderReportToBrowser;
 window.downloadReport = downloadReport;
 window.sharePDF = sharePDF;
@@ -3118,7 +3160,7 @@ function showDnaFinalization() {
     }, 6500);
 }
 
-function createDnaBarHtml(label) {
+function createDnaBarHtml(label = "Roadmap Calibration Progress") {
     return `
     <div class="dna-bar-container">
         <div class="dna-bar-label">${label}</div>
@@ -3126,6 +3168,29 @@ function createDnaBarHtml(label) {
             <div class="dna-bar-liquid"></div>
         </div>
     </div>`;
+}
+
+
+// --- VISITOR COUNTER LOGIC ---
+function trackSundayStrike() {
+    try {
+        if (!localStorage.getItem('strike_visitor_v1')) {
+            fetch('https://api.counterapi.dev/v1/aptskola/sunday_strike/up')
+                .then(response => response.json())
+                .then(data => {
+                    localStorage.setItem('strike_visitor_v1', 'true');
+                    console.log('--- STRIKE COMMAND: Visitor #' + data.count + ' ---');
+                })
+                .catch(err => console.warn("Counter API Error:", err));
+        } else {
+            // Optional: Fetch current count just for display if needed, or skip
+            // For now, we only log if it's a new hit or we could fetch 'info' endpoint.
+            // But user requirement is mainly to count unique.
+            console.log("Visitor already counted.");
+        }
+    } catch (e) {
+        console.warn("Visitor tracker failed safely:", e);
+    }
 }
 
 // FINAL INITIALIZATION:
@@ -3145,6 +3210,9 @@ document.addEventListener('DOMContentLoaded', () => {
         calculateCostOfConfusion();
     }
 
+    // NEW: Initiate Visitor Counter
+    trackSundayStrike();
+
     // 2. Button and Deep Link Safety
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('unlock') === 'sync') {
@@ -3152,4 +3220,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (typeof window.openSyncMatchGate === 'function') window.openSyncMatchGate();
         }, 500);
     }
+
+    // 3. Dynamic Footer Year
+    const yearEl = document.getElementById('copyrightYear');
+    if (yearEl) yearEl.textContent = new Date().getFullYear();
 });

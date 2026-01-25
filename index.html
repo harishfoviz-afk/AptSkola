@@ -158,9 +158,12 @@
             <div class="neural-bar"></div>
             <div class="neural-bar"></div>
         </div>
-        <h2 id="preloader-text"
-            style="font-size: 1.4rem; font-weight: 200; letter-spacing: 2px; text-align: center; color: #FFFFFF; font-family: sans-serif; opacity: 1; transition: opacity 0.8s ease-in-out;">
-            Eliminating Ambiguity...</h2>
+        <h2 id="preloader-static-header"
+            style="font-size: 1.4rem; font-weight: 200; letter-spacing: 2px; text-align: center; color: #FFFFFF; font-family: sans-serif; opacity: 1; margin-bottom: 20px;">
+            Eliminating the ambiguity from academic decision-making...</h2>
+        <div id="preloader-text"
+            style="font-size: 1.4rem; font-weight: 400; letter-spacing: 1px; text-align: center; color: #FF6B35; font-family: sans-serif; opacity: 1; transition: opacity 0.5s ease-in-out; min-height: 1.5em; max-width: 800px; padding: 0 20px;">
+        </div>
     </div>
 
     <div id="redirectLoadingOverlay" class="payment-modal">
@@ -340,7 +343,9 @@
                         style="font-weight: 400; font-size: 1rem; opacity: 0.6; margin-left: 10px; border-left: 1px solid rgba(255,255,255,0.3); padding-left: 15px;">|
                         A Foviz Venture</span>
                 </p>
-                <p class="opacity-50 text-sm">&copy; 2026 Apt Skola, all rights reserved.</p>
+                <p class="text-xs font-medium opacity-70" style="font-size: 0.8rem !important;">&copy; 2024 - <span
+                        id="copyrightYear"></span> Apt Skola, all
+                    rights reserved.</p>
             </div>
         </footer>
     </div>
@@ -450,6 +455,8 @@
         </div>
         <div id="syncTransitionFooter"></div>
     </div>
+
+
 
     <div id="questionPages"></div>
     <div id="flowContainers">
@@ -1183,8 +1190,14 @@
 
                         </div>
 
+
+                        {/* Roadmap Roadmap Text */}
+                        <p className="text-slate-400 text-center mt-24 mb-6 max-w-4xl mx-auto px-4 font-bold animate-pulse text-lg whitespace-nowrap">
+                            Your personalized roadmap begins here. Please answer calibration questions to align your child’s profile.
+                        </p>
+
                         {/* Momentum Feature 1: First Question Embed */}
-                        <div className="mt-24 w-full max-w-4xl bg-slate-900/50 border border-slate-700/50 p-8 md:p-12 rounded-[40px] backdrop-blur-xl">
+                        <div className="mt-8 w-full max-w-4xl bg-slate-900/50 border border-slate-700/50 p-8 md:p-12 rounded-[40px] backdrop-blur-xl">
                             <div className="text-center mb-10">
                                 <span className="text-[#FF6B35] font-black uppercase tracking-[0.3em] text-sm">Verification Step 1: Baseline Momentum Audit (Subsidized Access)</span>
                                 <h2 className="text-white text-2xl md:text-4xl font-extrabold mt-4">How does your child process complex new data?</h2>

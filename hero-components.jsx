@@ -158,6 +158,11 @@ const Hero = () => {
           </div>
         </div>
 
+        {/* Roadmap Roadmap Text */}
+        <p className="text-slate-400 text-center mt-12 mb-4 max-w-md mx-auto px-4 font-medium animate-pulse">
+          Your personalized roadmap begins here. Please answer calibration questions to align your child’s profile.
+        </p>
+
         {/* Momentum Feature 1: First Question Embed */}
         <div className="mt-24 w-full max-w-4xl bg-slate-900/50 border border-slate-700/50 p-8 md:p-12 rounded-[40px] backdrop-blur-xl">
           <div className="text-center mb-10">
