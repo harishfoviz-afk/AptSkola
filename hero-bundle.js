@@ -12,13 +12,18 @@
     const Fragment = React.Fragment;
 
     const Hero = () => {
-        const words = ["Worrying", "Doubting", "Guessing", "Knowing"];
+        const slides = [
+            { prefix: "STOP", word: "Worrying", pColor: "text-red-500", wColor: "text-white" },
+            { prefix: "STOP", word: "Doubting", pColor: "text-red-500", wColor: "text-white" },
+            { prefix: "STOP", word: "Guessing", pColor: "text-red-500", wColor: "text-white" },
+            { prefix: "START", word: "Knowing", pColor: "text-green-500", wColor: "text-[#FF6B35]" }
+        ];
         const [index, setIndex] = useState(0);
-        const [buttonText, setButtonText] = useState("Access Public Audit: Initiate Forensic Momentum Scan");
+        const [buttonText, setButtonText] = useState("Start Diagnostic Scan: Build My Child's Learning Roadmap");
         const [showToast, setShowToast] = useState(false);
 
         useEffect(() => {
-            const timer = setInterval(() => setIndex((prev) => (prev + 1) % words.length), 2000);
+            const timer = setInterval(() => setIndex((prev) => (prev + 1) % slides.length), 2000);
             return () => clearInterval(timer);
         }, []);
 
@@ -63,10 +68,6 @@
             return () => window.removeEventListener('click', handleGlobalClick, true);
         }, []);
 
-        const getPrefix = () => words[index] === "Knowing" ? "START" : "STOP";
-        const getPrefixColor = () => words[index] === "Knowing" ? "text-green-500" : "text-red-500";
-        const getWordColor = () => words[index] === "Knowing" ? "text-[#FF6B35]" : "text-white";
-
         // --- RENDER HELPERS ---
 
         // 1. Top Buttons
@@ -102,19 +103,20 @@
 
         // 3. Headline
         const renderHeadline = () => {
+            const currentSlide = slides[index];
             return h('div', { className: "flex flex-col items-center justify-center gap-4 min-h-[160px]" },
                 h('div', { className: "flex items-center gap-4 md:gap-8" },
-                    h('span', { className: `text-5xl md:text-8xl font-black transition-colors duration-500 ${getPrefixColor()}` }, getPrefix()),
-                    h('div', { className: "overflow-hidden h-20 md:h-32 flex items-center" },
-                        h(AnimatePresence, { mode: "wait" },
-                            h(motion.span, {
-                                key: words[index],
-                                initial: { y: 50, opacity: 0 },
-                                animate: { y: 0, opacity: 1 },
-                                exit: { y: -50, opacity: 0 },
-                                transition: { duration: 0.5, ease: "backOut" },
-                                className: `text-5xl md:text-8xl font-black ${getWordColor()}`
-                            }, words[index])
+                    h(AnimatePresence, { mode: "wait" },
+                        h(motion.div, {
+                            key: index, // Key by index to enforce full re-render of the pair
+                            initial: { y: 20, opacity: 0 },
+                            animate: { y: 0, opacity: 1 },
+                            exit: { y: -20, opacity: 0 },
+                            transition: { duration: 0.3, ease: "easeOut" },
+                            className: "flex items-center gap-4 md:gap-8"
+                        },
+                            h('span', { className: `text-5xl md:text-8xl font-black ${currentSlide.pColor}` }, currentSlide.prefix),
+                            h('span', { className: `text-5xl md:text-8xl font-black ${currentSlide.wColor}` }, currentSlide.word)
                         )
                     )
                 ),
@@ -130,7 +132,7 @@
                 "Get a scientific, personalized board recommendation based on your child's unique psychology in ",
                 h('span', { className: "text-white underline underline-offset-4 decoration-[#FF6B35]/50 whitespace-nowrap" },
                     h('span', { className: "inline-block mr-2" }, "⏱️"),
-                    "6.5s Neural Calibration"
+                    "5 Minutes Neural Calibration"
                 ),
                 "."
             );
@@ -199,7 +201,7 @@
                     className: "fixed bottom-8 right-8 z-[10000] bg-white p-6 rounded-3xl shadow-2xl border-l-[8px] border-[#FF6B35] max-w-xs"
                 },
                     h('button', { onClick: () => setShowToast(false), className: "absolute top-4 right-4 text-slate-400 hover:text-slate-600" }, "✕"),
-                    h('p', { className: "text-slate-900 font-bold leading-tight mb-4" }, "Ready to see which board fits your child's personality? (Takes 2 mins)"),
+                    h('p', { className: "text-slate-900 font-bold leading-tight mb-4" }, "Ready to see which board fits your child's personality? (Takes 5 mins)"),
                     h('button', {
                         onClick: () => { triggerStart(0); setShowToast(false); },
                         className: "w-full bg-[#FF6B35] text-white py-3 rounded-full font-black text-sm uppercase tracking-widest hover:scale-105 transition-all shadow-lg"
