@@ -1079,6 +1079,7 @@ function getIntermediateFooterHtml() {
 function initializeQuizShell(index, phase = 0) {
     console.log("initializeQuizShell called with index:", index, "phase:", phase);
     window.currentPhase = phase;
+    window.scrollTo(0, 0); // Ensure scroll reset
 
     const questionPages = document.getElementById('questionPages');
     if (!questionPages) return;
@@ -1089,7 +1090,7 @@ function initializeQuizShell(index, phase = 0) {
     questionPages.style.display = 'block';
 
     // 2. Hide EVERYTHING ELSE
-    const idsToHide = ['landingPage', 'react-hero-root', 'syncMatchGate', 'syncMatchTransition', 'detailsPage', 'paymentPageContainer', 'psychometricHistogram', 'dynamicRiskCard', 'pricingModal'];
+    const idsToHide = ['landingPage', 'react-hero-root', 'syncMatchGate', 'syncMatchTransition', 'detailsPage', 'paymentPageContainer', 'psychometricHistogram', 'dynamicRiskCard', 'pricingModal', 'cost-calculator-section'];
     idsToHide.forEach(id => {
         const el = document.getElementById(id);
         if (el) {
