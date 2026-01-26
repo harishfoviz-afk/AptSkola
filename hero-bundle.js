@@ -2,7 +2,12 @@
 // Transpiled manually to remove Babel dependency
 (function () {
     const { useState, useEffect, useRef } = React;
-    const { motion, AnimatePresence } = window.Motion || window.FramerMotion || {};
+    // Safe Fallback for Framer Motion
+    const MotionLib = window.Motion || window.FramerMotion || {};
+    const motion = MotionLib.motion || new Proxy({}, {
+        get: (target, prop) => prop // Fallback: motion.div -> 'div'
+    });
+    const AnimatePresence = MotionLib.AnimatePresence || (({ children }) => children);
     const h = React.createElement;
     const Fragment = React.Fragment;
 
