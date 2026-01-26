@@ -38,7 +38,9 @@ window.currentPhase = 0; // 0: Phase0, 1: Phase1, 2: Sync
     }
 })();
 
+
 // --- STATE MANAGEMENT ---
+window.initializeQuizShell = initializeQuizShell; // Expose to window immediately (Diagnostic Move)
 let currentQuestion = 0;
 let selectedPackage = 'Essential';
 let selectedPrice = 599;
@@ -57,6 +59,124 @@ let isManualSync = false;
 let syncTimerInterval = null;
 let mapsScriptLoaded = false;
 let mapsLoadedPromise = null;
+
+
+
+function calculateAgeFromDob(dobString) {
+    if (!dobString) return "N/A";
+    const dob = new Date(dobString);
+    const diff_ms = Date.now() - dob.getTime();
+    const age_dt = new Date(diff_ms);
+    const age = Math.abs(age_dt.getUTCFullYear() - 1970);
+    return age + " Years";
+}
+
+function validateGrade1Eligibility(birthDateString) {
+    if (!birthDateString) return;
+
+    const birthDate = new Date(birthDateString);
+    const cutoffDate = new Date('2026-03-31');
+
+    // Calculate age on cutoff date
+    let age = cutoffDate.getFullYear() - birthDate.getFullYear();
+    const m = cutoffDate.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && cutoffDate.getDate() < birthDate.getDate())) {
+        age--;
+    }
+
+    if (age < 6) {
+        alert("Summer-Born Alert: Your child is below 6 years. We will include a Bridge Year Recommendation in your roadmap.");
+    }
+}
+
+// --- MISSING QUIZ SHELL INITIALIZER ---
+
+// --- COST CALCULATOR HANDLER ---
+// --- COST CALCULATOR HANDLER ---
+window.handleCostCalculatorClick = function () {
+    const section = document.getElementById('cost-calculator-section');
+    const footer = document.getElementById('mainFooter');
+
+    if (section) {
+        section.classList.remove('hidden'); // Reveal Calculator
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    if (footer) {
+        footer.classList.remove('hidden'); // Reveal Footer
+        footer.classList.add('visible-footer'); // Optional: For any custom styling
+    }
+};
+
+window.revealPolicies = function (id) {
+    const policySection = document.getElementById('contact-policies');
+    if (policySection) {
+        policySection.classList.remove('hidden');
+        const target = document.getElementById(id);
+        if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+            policySection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }
+};
+
+// --- CALCULATOR UI LOGIC (REDESIGNED) ---
+window.calculateNewConfusion = function () {
+    const slider = document.getElementById('tuitionSlider');
+    if (!slider) return;
+
+    const baseFee = parseInt(slider.value) || 150000;
+
+    // Update Slider Display
+    const feeDisplay = document.getElementById('feeDisplay');
+    if (feeDisplay) feeDisplay.textContent = baseFee.toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 });
+
+    // 1. Calculate 15-Year Projected Spend (10% Annual Hike)
+    // Formula: Sum of Geometric Series: a * (1 - r^n) / (1 - r)
+    // a = baseFee, r = 1.10, n = 15
+    const r = 1.10;
+    const n = 15;
+    const totalProjected = baseFee * ((Math.pow(r, n) - 1) / (r - 1));
+
+    const projEl = document.getElementById('projectedTotal');
+    if (projEl) projEl.textContent = totalProjected.toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 });
+
+    // 2. Calculate "Cost of Confusion" (The Leak)
+    // Leak = (35% of Year 1 Hidden Fees) + (1.5 Lakh Switch) + (50k Remedial)
+    const hiddenFees = baseFee * 0.35;
+    const switchPenalty = 150000;
+    const remedialFix = 50000;
+    const totalLeak = hiddenFees + switchPenalty + remedialFix;
+
+    const leakEl = document.getElementById('leakAmount');
+    if (leakEl) leakEl.textContent = totalLeak.toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 });
+
+    const hiddenEl = document.getElementById('breakdownHidden');
+    if (hiddenEl) hiddenEl.textContent = hiddenFees.toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 });
+};
+
+// Initialize Calculator on Load
+window.addEventListener('load', () => {
+    if (typeof window.calculateNewConfusion === 'function') {
+        window.calculateNewConfusion();
+    }
+});
+
+
+// --- COST CALCULATOR REFACTOR ---
+function RealCostOfSchooling(tuitionFee) {
+    const HIDDEN_FEE_MARKUP = 0.35; // 35% Hidden Fee Markup
+    const hiddenGap = tuitionFee * HIDDEN_FEE_MARKUP;
+    const totalCost = tuitionFee + hiddenGap;
+    return {
+        tuition: tuitionFee,
+        hidden: hiddenGap,
+        total: totalCost
+    };
+}
+// Legacy wrapper
+const calculateCostOfConfusion = RealCostOfSchooling;
 
 // --- UI COMPONENTS (HTML Strings) ---
 const xrayCardHtml = `
@@ -142,14 +262,14 @@ const MASTER_DATA = {
     },
     'Cambridge (IGCSE)': {
         name: "Cambridge (IGCSE)",
-        title: "The International Achiever",
-        persona: "Flexible Specialist",
-        profile: "This profile values subject depth and assessment flexibility, allowing students to tailor their studies for international university application.",
-        rejectionReason: "Why not CBSE? Requires much higher English proficiency and is not directly aligned with Indian competitive exams.",
-        careerPath: "International University Admissions and Specialized Career Paths (Finance, Design).",
-        philosophy: 'Subject depth and international curriculum portability.',
-        teachingMethod: 'Application-based learning. Requires external resources and focuses on critical thinking over rote memorization.',
-        parentalRole: 'Moderate to High. You must manage complex curriculum choices and ensure external support for topics like Math/Science.'
+        title: "The Analytical Globalist",
+        persona: "Logic Seeker",
+        profile: "This profile excels at logical reasoning (Math/Science) but within a structured framework. They prefer depth over breadth.",
+        rejectionReason: "Why not IB? While similar, Cambridge offers more structure. The extreme openness of IB regarding content choice might feel 'loose' to them.",
+        careerPath: "STEM Global Track (Engineering/Medicine abroad). Grade 9-10 (IGCSE): Strong Math/Science foundation. Grade 11-12 (A-Levels): Deep specialization.",
+        philosophy: 'Deep Subject Mastery and Analytical Skills.',
+        teachingMethod: 'Structured curriculum with a focus on problem-solving rather than just facts.',
+        parentalRole: 'Moderate-High. You need to ensure they are keeping up with the rigorous global standards.'
     },
     'State Board': {
         name: "State Board",
@@ -559,39 +679,7 @@ function validateInputs(email, phone) {
 }
 
 // --- UPDATED: CALCULATOR LOGIC WITH DONUT CHART ---
-function calculateCostOfConfusion() {
-    const hoursInput = document.getElementById('researchHours');
-    const rateInput = document.getElementById('hourlyRate');
-    const tabsInput = document.getElementById('browserTabs');
-    if (!hoursInput || !rateInput || !tabsInput) return;
-
-    const hours = parseInt(hoursInput.value);
-    const rate = parseInt(rateInput.value);
-    const tabs = parseInt(tabsInput.value);
-
-    const monthlyLoss = (hours * 4) * rate;
-    const anxietyLevel = Math.min(tabs * 5, 100);
-
-    const lossEl = document.getElementById('lossAmount');
-    if (lossEl) lossEl.textContent = monthlyLoss.toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 });
-
-    const anxEl = document.getElementById('anxietyLevel');
-    if (anxEl) anxEl.textContent = `${anxietyLevel}%`;
-
-    const hVal = document.getElementById('hoursValue');
-    if (hVal) hVal.textContent = `${hours} hours`;
-
-    const rVal = document.getElementById('rateValue');
-    if (rVal) rVal.textContent = `₹${rate.toLocaleString('en-IN', { maximumFractionDigits: 0 })}`;
-
-    const tVal = document.getElementById('tabsValue');
-    if (tVal) tVal.textContent = `${tabs} tabs`;
-
-    const donut = document.getElementById('confusionDonut');
-    if (donut) {
-        donut.style.setProperty('--anxiety-degree', `${anxietyLevel}%`);
-    }
-}
+// [Deleted legacy calculateCostOfConfusion to fix syntax error]
 
 // --- CORE UI ACTIONS ---
 function scrollToClarity() {
@@ -967,6 +1055,27 @@ function proceedToQuiz(pkg, price) {
 
 
 
+
+
+// Helper to generate Quiz Header
+function getIntermediateHeaderHtml() {
+    return `
+        <div style="text-align: center; padding-top: 20px; padding-bottom: 5px;">
+            <p style="font-size: 0.8rem; font-weight: 700; color: #94A3B8; letter-spacing: 1px; text-transform: uppercase;">
+                Apt Skola <span style="color: #FF6B35;">//</span> Calibration
+            </p>
+        </div>
+    `;
+}
+
+// Helper to generate Quiz Footer (Reduced Height)
+function getIntermediateFooterHtml() {
+    return `
+        <div style="text-align: center; padding-top: 10px; padding-bottom: 20px;">
+        </div>
+    `;
+}
+
 function initializeQuizShell(index, phase = 0) {
     console.log("initializeQuizShell called with index:", index, "phase:", phase);
     window.currentPhase = phase;
@@ -998,12 +1107,8 @@ function initializeQuizShell(index, phase = 0) {
         </div>`;
     questionPages.innerHTML = shellHtml;
 
-    // BRIDGE LOGIC: Only show if starting fresh (Phase 0, Index 0)
-    if (index === 0 && phase === 0) {
-        renderTransitionBridge();
-    } else {
-        renderQuestionContent(index);
-    }
+    // DIRECT ROUTE: Start Phase 0 Calibration immediately (Bridge Removed)
+    renderQuestionContent(index);
 }
 
 function renderTransitionBridge() {
@@ -1169,9 +1274,9 @@ document.getElementById('customerForm')?.addEventListener('submit', function (e)
         return;
     }
 
-    const childAgeRef = document.getElementById('childAge');
+    const childAgeRef = document.getElementById('childDob');
     if (childAgeRef && !childAgeRef.value) {
-        alert("Please select your Child's Age.");
+        alert("Please enter your Child's Date of Birth.");
         return;
     }
 
@@ -1184,7 +1289,8 @@ document.getElementById('customerForm')?.addEventListener('submit', function (e)
         childName: document.getElementById('childName')?.value,
         email: emailValue,
         phone: phoneValue,
-        childAge: document.getElementById('childAge')?.value,
+        childAge: calculateAgeFromDob(document.getElementById('childDob')?.value), // Store formatted age or DOB
+        dob: document.getElementById('childDob')?.value,
         partnerId: document.getElementById('partnerId')?.value,
         package: selectedPackage,
         amount: selectedPrice,
@@ -3174,6 +3280,16 @@ document.addEventListener('DOMContentLoaded', () => {
     if (urlParams.get('unlock') === 'sync') {
         setTimeout(() => {
             if (typeof window.openSyncMatchGate === 'function') window.openSyncMatchGate();
+        }, 500);
+    }
+
+    // NEW: "Verify Age-Grade Sync" Deep Link (?mode=sync)
+    if (urlParams.get('mode') === 'sync') {
+        setTimeout(() => {
+            if (typeof window.initializeQuizShell === 'function') {
+                // Must ensure Phase 1 logic
+                window.initializeQuizShell(0, 1);
+            }
         }, 500);
     }
 

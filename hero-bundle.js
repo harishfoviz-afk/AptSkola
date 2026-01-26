@@ -19,7 +19,9 @@
             { prefix: "START", word: "Knowing", pColor: "text-green-500", wColor: "text-[#FF6B35]" }
         ];
         const [index, setIndex] = useState(0);
-        const [buttonText, setButtonText] = useState("Start Diagnostic Scan: Build My Child's Learning Roadmap");
+        const currentYear = new Date().getFullYear();
+        const targetYear = new Date() < new Date(`${currentYear}-03-31`) ? currentYear : currentYear + 1;
+        const [buttonText, setButtonText] = useState(`Start ${targetYear} Grade 1 Admission Decoder Scan`);
         const [showToast, setShowToast] = useState(false);
 
         useEffect(() => {
@@ -34,15 +36,20 @@
         }, []);
 
         const triggerStart = (startAtIndex = 0) => {
+            console.log("[Hero] Trigger Start Clicked. Index:", startAtIndex);
             if (typeof window.initializeQuizShell === 'function') {
                 window.initializeQuizShell(startAtIndex);
             } else {
-                // Retry once after 200ms if script isn't ready
+                console.warn("[Hero] initializeQuizShell missing. Retrying...");
+                // Retry once after 200ms
                 setTimeout(() => {
                     if (typeof window.initializeQuizShell === 'function') {
                         window.initializeQuizShell(startAtIndex);
+                    } else {
+                        console.error("[Hero] initializeQuizShell Failed to Load.");
+                        alert("System is still loading. Please wait 2 seconds and try again.");
                     }
-                }, 200);
+                }, 500); // Increased timeout to 500ms
             }
         };
 
@@ -120,21 +127,21 @@
                         )
                     )
                 ),
-                h('p', { className: "text-[#FF6B35] font-black text-xl md:text-3xl mt-4 uppercase tracking-[0.25em] text-center drop-shadow-lg" },
-                    "Forensic Audit: Academic Trajectory & Board Alignment"
+                h('div', { className: "text-center px-4 max-w-5xl mx-auto mt-6" },
+                    h('h1', { className: "text-2xl md:text-4xl font-extrabold text-[#FF6B35] leading-[1.3] mb-4 tracking-tight" }, "School Board Selection is a 15-Year Financial & Academic Commitment."),
+                    h('p', { className: "text-lg md:text-xl font-bold text-white tracking-wide leading-relaxed" },
+                        "Is your child's Age, Grade, and Learning Style in perfect ",
+                        h('span', { className: "text-[#FF6B35] font-bold" }, "sync"),
+                        "?"
+                    )
                 )
             );
         };
 
-        // 4. Subtext
+        // 4. Subtext (Value Proposition)
         const renderSubtext = () => {
             return h('p', { className: "text-slate-400 text-lg md:text-2xl text-center max-w-3xl mx-auto mt-12 leading-relaxed font-medium" },
-                "Get a scientific, personalized board recommendation based on your child's unique psychology in ",
-                h('span', { className: "text-white underline underline-offset-4 decoration-[#FF6B35]/50 whitespace-nowrap" },
-                    h('span', { className: "inline-block mr-2" }, "⏱️"),
-                    "5 Minutes Neural Calibration"
-                ),
-                "."
+                "Stop the guesswork. Audit your child's alignment with NEP 2026 standards and find the Board that fits their future—and your budget."
             );
         };
 
@@ -153,15 +160,24 @@
             );
         };
 
-        // 6. CTA Button
+        // 6. CTA Button (Split Action)
         const renderCTA = () => {
-            return h('div', { className: "relative mt-16 group z-[40]" },
-                h('div', { className: "absolute -inset-4 bg-gradient-to-r from-[#FF6B35] via-orange-500 to-yellow-500 rounded-full blur-2xl opacity-40 group-hover:opacity-75 transition duration-1000 group-hover:duration-200" }),
+            return h('div', { className: "relative mt-16 z-[40] flex flex-col md:flex-row gap-4 items-center w-full max-w-2xl px-4" },
+                // Primary Button
+                h('div', { className: "relative group w-full md:w-auto flex-1" },
+                    h('div', { className: "absolute -inset-1 bg-gradient-to-r from-[#FF6B35] to-yellow-500 rounded-full blur opacity-40 group-hover:opacity-75 transition duration-1000" }),
+                    h('button', {
+                        onClick: () => triggerStart(0),
+                        className: "unstoppable-cta w-full relative bg-[#FF6B35] text-white px-6 py-4 rounded-full font-black text-lg md:text-xl shadow-xl hover:scale-105 active:scale-95 transition-all border-b-[4px] border-orange-800 flex items-center justify-center gap-2",
+                        style: { pointerEvents: 'auto' }
+                    }, "Get My Child’s Sync Status", h('span', { className: "animate-pulse" }, "→"))
+                ),
+                // Secondary Button (Ghost/Utility)
                 h('button', {
-                    onClick: () => triggerStart(0),
-                    className: "unstoppable-cta cta-button-pulse relative bg-[#FF6B35] text-white px-8 md:px-12 py-4 md:py-6 rounded-full font-black text-xl md:text-2xl shadow-[0_20px_50px_rgba(255,107,53,0.5)] hover:scale-105 active:scale-95 transition-all border-b-[6px] border-orange-800 flex items-center gap-4",
-                    style: { pointerEvents: 'auto', animationDelay: '3s' }
-                }, buttonText, h('span', { className: "animate-pulse inline-block text-3xl md:text-4xl" }, "→"))
+                    onClick: () => window.handleCostCalculatorClick ? window.handleCostCalculatorClick() : console.log("Calc not found"),
+                    className: "w-full md:w-auto flex-1 px-6 py-4 rounded-full font-bold text-slate-300 border-2 border-slate-600 hover:border-[#FF6B35] hover:text-[#FF6B35] hover:bg-slate-800/50 transition-all text-lg md:text-xl flex items-center justify-center gap-2",
+                    style: { pointerEvents: 'auto' }
+                }, "Calculate 'School Switch' Penalty")
             );
         };
 

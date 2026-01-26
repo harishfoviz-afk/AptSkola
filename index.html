@@ -186,8 +186,11 @@
             </div>
 
             <!-- 3. Headline -->
-            <div class="flex flex-col items-center justify-center gap-4 min-h-[160px]">
-                <div class="flex items-center gap-4 md:gap-8">
+            <!-- 3. Headline (Animation + Refined Text) -->
+            <div
+                class="flex flex-col items-center justify-center gap-4 min-h-[160px] text-center px-4 max-w-5xl mx-auto">
+                <!-- Restored Animation -->
+                <div class="flex items-center gap-4 md:gap-8 mb-6">
                     <span class="text-5xl md:text-8xl font-black transition-colors duration-500 text-red-500">
                         STOP
                     </span>
@@ -197,19 +200,23 @@
                         </span>
                     </div>
                 </div>
-                <p
-                    class="text-[#FF6B35] font-black text-xl md:text-3xl mt-4 uppercase tracking-[0.25em] text-center drop-shadow-lg">
-                    Forensic Audit: Academic Trajectory & Board Alignment
+
+                <!-- New Professional Text (Below Animation) -->
+                <h1 class="text-2xl md:text-4xl font-extrabold text-[#FF6B35] leading-[1.3] mb-4 tracking-tight">
+                    School Board Selection is a 15-Year Financial & Academic Commitment.
+                </h1>
+                <p class="text-lg md:text-xl font-normal text-slate-100 tracking-wide leading-relaxed opacity-90">
+                    Is your child's Age, Grade, and Learning Style in perfect <span
+                        class="text-[#FF6B35] font-bold">sync</span>?
                 </p>
             </div>
 
             <!-- 4. Subtext -->
             <p
                 class="text-slate-400 text-lg md:text-2xl text-center max-w-3xl mx-auto mt-12 leading-relaxed font-medium">
-                Get a scientific, personalized board recommendation based on your child's unique psychology in
-                <span class="text-white underline underline-offset-4 decoration-[#FF6B35]/50 whitespace-nowrap">
-                    <span class="inline-block mr-2">⏱️</span>5 Minutes Neural Calibration
-                </span>.
+                Stop the guesswork. Audit your child's alignment with NEP standards and find the Board that fits
+                their
+                future—and your budget.
             </p>
 
             <!-- 5. Social Proof -->
@@ -246,47 +253,180 @@
                 </p>
             </div>
 
-            <!-- 6. CTA Button -->
-            <div class="relative mt-16 group z-[40]">
-                <div
-                    class="absolute -inset-4 bg-gradient-to-r from-[#FF6B35] via-orange-500 to-yellow-500 rounded-full blur-2xl opacity-40 group-hover:opacity-75 transition duration-1000 group-hover:duration-200">
+            <!-- 6. CTA Button (Split Action) -->
+            <div class="relative mt-16 z-[40] flex flex-col md:flex-row gap-4 items-center w-full max-w-2xl px-4">
+                <!-- Primary Button -->
+                <div class="relative group w-full md:w-auto flex-1">
+                    <div
+                        class="absolute -inset-1 bg-gradient-to-r from-[#FF6B35] to-yellow-500 rounded-full blur opacity-40 group-hover:opacity-75 transition duration-1000">
+                    </div>
+                    <button onclick="if(typeof initializeQuizShell === 'function') initializeQuizShell(0);"
+                        class="unstoppable-cta w-full relative bg-[#FF6B35] text-white px-6 py-4 rounded-full font-black text-lg md:text-xl shadow-xl hover:scale-105 active:scale-95 transition-all border-b-[4px] border-orange-800 flex items-center justify-center gap-2 loaded"
+                        style="pointer-events: auto; opacity: 1;">
+                        Get My Child’s Sync Status <span class="animate-pulse">→</span>
+                    </button>
                 </div>
-                <button onclick="if(typeof initializeQuizShell === 'function') initializeQuizShell(0);"
-                    class="unstoppable-cta cta-button-pulse relative bg-[#FF6B35] text-white px-8 md:px-12 py-4 md:py-6 rounded-full font-black text-xl md:text-2xl shadow-[0_20px_50px_rgba(255,107,53,0.5)] hover:scale-105 active:scale-95 transition-all border-b-[6px] border-orange-800 flex items-center gap-4 loaded"
-                    style="pointer-events: auto; animation-delay: 3s; opacity: 1;">
-                    Start Diagnostic Scan: Build My Child's Learning Roadmap <span
-                        class="animate-pulse inline-block text-3xl md:text-4xl">→</span>
+                <!-- Secondary Button (Ghost) -->
+                <button onclick="if(typeof handleCostCalculatorClick === 'function') handleCostCalculatorClick();"
+                    class="w-full md:w-auto flex-1 px-6 py-4 rounded-full font-bold text-slate-300 border-2 border-slate-600 hover:border-[#FF6B35] hover:text-[#FF6B35] hover:bg-slate-800/50 transition-all text-lg md:text-xl flex items-center justify-center gap-2"
+                    style="pointer-events: auto;">
+                    Calculate 'School Switch' Penalty
                 </button>
-
             </div>
 
-            <!-- Background Atmosphere -->
+            <!-- 7. Roadmap Text -->
+            <p
+                class="text-slate-400 text-center mt-8 mb-2 w-full max-w-5xl mx-auto px-2 font-medium animate-pulse text-xs md:text-lg md:whitespace-nowrap leading-tight">
+                Your personalized roadmap begins here. Please answer calibration questions to align your child’s
+                profile.
+            </p>
+
+            <!-- 8. Question Embed -->
             <div
-                class="absolute top-1/4 left-1/4 w-96 h-96 bg-orange-500/10 rounded-full blur-[150px] pointer-events-none">
-            </div>
-            <div
-                class="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[180px] pointer-events-none">
-            </div>
-
-        </section>
-    </div>
-    <div id="landingPage">
-
-
-
-        <section id="aboutAptSkola" class="py-10 bg-white">
-            <div class="container mx-auto px-4 text-center">
-                <h2 class="text-4xl font-extrabold text-brand-black mb-8">Decoding the Leading Indicators of Academic
-                    Stagnation.</h2>
-
-                <div class="mx-auto bg-slate-50 p-8 rounded-3xl border border-slate-200 shadow-sm">
-                    <p class="text-lg leading-relaxed text-slate-700">
-                        To ensure that no child in India hates school simply because they are in the wrong ecosystem.
-                        By aligning the Board to the Brain, we future-proof your child's career before the first school
-                        bell even rings.
-                    </p>
+                class="mt-4 w-full max-w-4xl bg-slate-900/50 border border-slate-700/50 p-8 md:p-12 rounded-[40px] backdrop-blur-xl">
+                <div class="text-center mb-10">
+                    <span class="text-[#FF6B35] font-black uppercase tracking-[0.3em] text-sm">Verification Step 1:
+                        Baseline Momentum Audit (Subsidized Access)</span>
+                    <h2 class="text-white text-2xl md:text-4xl font-extrabold mt-4">How does your child process complex
+                        new data?</h2>
+                </div>
+                <!-- Interactive Options (wired to script.js logic via global handler) -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <button
+                        onclick="if(typeof initializeQuizShell === 'function') { window.answers=window.answers||{}; window.answers['p0_q1']=0; initializeQuizShell(1); }"
+                        class="p-6 bg-slate-800/50 border-2 border-slate-700 rounded-2xl text-white font-bold text-xl hover:bg-[#FF6B35] hover:border-[#FF6B35] transition-all transform hover:-translate-y-2">
+                        Visual/Charts
+                    </button>
+                    <button
+                        onclick="if(typeof initializeQuizShell === 'function') { window.answers=window.answers||{}; window.answers['p0_q1']=1; initializeQuizShell(1); }"
+                        class="p-6 bg-slate-800/50 border-2 border-slate-700 rounded-2xl text-white font-bold text-xl hover:bg-[#FF6B35] hover:border-[#FF6B35] transition-all transform hover:-translate-y-2">
+                        Auditory/Discussion
+                    </button>
+                    <button
+                        onclick="if(typeof initializeQuizShell === 'function') { window.answers=window.answers||{}; window.answers['p0_q1']=2; initializeQuizShell(1); }"
+                        class="p-6 bg-slate-800/50 border-2 border-slate-700 rounded-2xl text-white font-bold text-xl hover:bg-[#FF6B35] hover:border-[#FF6B35] transition-all transform hover:-translate-y-2">
+                        Kinesthetic/Build
+                    </button>
                 </div>
             </div>
+
+    </div>
+
+    <!-- Background Atmosphere -->
+    <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-orange-500/10 rounded-full blur-[150px] pointer-events-none">
+    </div>
+    <div
+        class="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[180px] pointer-events-none">
+    </div>
+
+    </section>
+    </div>
+
+    <!-- Cost of Confusion Calculator Section (Redesigned) -->
+    <section id="cost-calculator-section" class="hidden py-20 bg-slate-50 border-t border-slate-200">
+        <div class="container mx-auto px-4">
+            <div class="text-center max-w-3xl mx-auto mb-12">
+                <span class="text-[#FF6B35] font-black uppercase tracking-[0.2em] text-sm">Financial Diagnostic</span>
+                <h2 class="text-3xl md:text-5xl font-black text-slate-900 mt-4 mb-6">The Real Cost of "Choosing Wrong"
+                </h2>
+                <p class="text-lg text-slate-600">
+                    A wrong Board decision isn't just academic—it's a financial leak. See the 15-year impact.
+                </p>
+            </div>
+
+            <div
+                class="bg-white rounded-3xl shadow-xl border border-slate-200 p-8 md:p-12 max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <!-- Input Column -->
+                <div class="space-y-8">
+                    <div>
+                        <label class="block text-slate-700 font-bold mb-4 text-xl">Annual Tuition Fee Target</label>
+                        <div class="flex items-center gap-4 mb-4">
+                            <span class="text-3xl font-black text-slate-900" id="feeDisplay">₹1,50,000</span>
+                            <span class="text-sm text-slate-500 font-medium">per year</span>
+                        </div>
+                        <input type="range" id="tuitionSlider" min="50000" max="1000000" step="10000" value="150000"
+                            class="w-full h-3 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#FF6B35]"
+                            oninput="calculateNewConfusion()">
+                        <div
+                            class="flex justify-between text-xs text-slate-400 font-bold mt-2 uppercase tracking-wider">
+                            <span>₹50k</span>
+                            <span>₹10 Lakhs</span>
+                        </div>
+                    </div>
+
+                    <div class="p-6 bg-blue-50 border border-blue-100 rounded-2xl">
+                        <h4 class="font-bold text-blue-900 mb-2">15-Year Projection (With 10% Hike)</h4>
+                        <p class="text-3xl font-black text-blue-600" id="projectedTotal">₹60,00,000</p>
+                        <p class="text-xs text-blue-400 mt-1">Estimated total spend from Grade 1 to 12</p>
+                    </div>
+                </div>
+
+                <!-- Warning Box Column -->
+                <div class="relative group">
+                    <div
+                        class="absolute -inset-1 bg-gradient-to-br from-red-500 to-orange-600 rounded-[2rem] blur opacity-30 group-hover:opacity-50 transition duration-1000">
+                    </div>
+                    <div
+                        class="relative bg-slate-900 rounded-[1.7rem] p-8 md:p-10 border-l-[8px] border-red-500 text-white">
+                        <div class="flex items-center gap-3 mb-6">
+                            <div
+                                class="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center text-red-500 text-xl">
+                                ⚠️</div>
+                            <span class="text-red-400 font-bold uppercase tracking-widest text-sm">Leakage Alert</span>
+                        </div>
+
+                        <h3 class="text-2xl font-bold mb-2">Your "Cost of Confusion"</h3>
+                        <p class="text-sm text-slate-400 mb-6">The hidden price of switching schools later + remedial
+                            fixes.</p>
+
+                        <div class="mb-8">
+                            <div class="text-5xl md:text-6xl font-black text-red-500 mb-2" id="leakAmount">₹2,52,500
+                            </div>
+                            <p class="text-xs text-red-400/60 uppercase tracking-widest">Wasted Capital</p>
+                        </div>
+
+                        <div class="space-y-3 mb-8 text-sm text-slate-300 font-medium">
+                            <div class="flex justify-between border-b border-slate-800 pb-2">
+                                <span>Hidden Fees (35%)</span>
+                                <span class="text-white" id="breakdownHidden">₹52,500</span>
+                            </div>
+                            <div class="flex justify-between border-b border-slate-800 pb-2">
+                                <span>School Switch Penalty <span class="font-normal text-xs text-slate-400">-{Admission
+                                        (Sunk Cost), Registration (Double-Tax), Setup (Discarded Assets)}</span></span>
+                                <span class="text-white">₹1,50,000</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Remedial Tutoring</span>
+                                <span class="text-white">₹50,000</span>
+                            </div>
+                        </div>
+
+                        <button onclick="if(typeof initializeQuizShell === 'function') initializeQuizShell(0, 1);"
+                            class="w-full bg-red-600 hover:bg-red-500 text-white py-4 rounded-xl font-black text-lg shadow-lg shadow-red-900/20 transition-all flex items-center justify-center gap-2 group-hover:scale-[1.02] text-center no-underline cursor-pointer">
+                            Verify my child's Age-Grade Sync <span class="animate-pulse">→</span>
+                        </button>
+                        <p class="text-center text-[10px] text-slate-500 mt-3 font-bold uppercase tracking-wider">Stop
+                            the leak before Grade 1</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div id="landingPage" class="hidden">
+
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-4xl font-extrabold text-brand-black mb-8">Decoding the Leading Indicators of Academic
+                Stagnation.</h2>
+
+            <div class="mx-auto bg-slate-50 p-8 rounded-3xl border border-slate-200 shadow-sm">
+                <p class="text-lg leading-relaxed text-slate-700">
+                    To ensure that no child in India hates school simply because they are in the wrong ecosystem.
+                    By aligning the Board to the Brain, we future-proof your child's career before the first school
+                    bell even rings.
+                </p>
+            </div>
+        </div>
         </section>
 
         <!-- TESTIMONIALS BLOCK -->
@@ -357,22 +497,20 @@
             </div>
         </section>
 
-        <!-- CONTACT & POLICIES (IMAGE 1 STYLE) -->
-        <section id="contact-policies" class="py-20 bg-white relative">
+        <!-- CONTACT & POLICIES (Moved & Hidden) -->
+        <section id="contact-policies" class="hidden py-20 bg-white relative">
             <div class="container mx-auto px-4">
                 <h3 class="text-3xl font-bold text-center text-brand-navy mb-12">Contact & Policies</h3>
-
-                <!-- Unified Contact & Policies Grid (4 Columns) -->
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-8 max-w-7xl mx-auto text-left">
-                    <!-- Column 1: Contact Info -->
-                    <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                    <!-- Column 1: Contact -->
+                    <div id="contact" class="bg-slate-50 p-6 rounded-2xl border border-slate-100">
                         <h4
                             class="text-xl font-bold text-brand-navy mb-4 pb-2 border-b-2 border-brand-orange inline-block">
                             Contact Us</h4>
                         <div class="space-y-4">
                             <div>
-                                <p class="text-sm font-semibold text-slate-500 mb-1">Email</p>
-                                <a href="mailto:connect@aptskola.com"
+                                <p class="text-sm font-semibold text-slate-500 mb-1">Email</p><a
+                                    href="mailto:connect@aptskola.com"
                                     class="text-brand-navy font-bold hover:underline">connect@aptskola.com</a>
                             </div>
                             <div>
@@ -381,57 +519,52 @@
                             </div>
                         </div>
                     </div>
-
                     <!-- Column 2: Privacy -->
-                    <div>
+                    <div id="privacy">
                         <h4
                             class="text-xl font-bold text-brand-navy mb-4 pb-2 border-b-2 border-brand-orange inline-block">
                             Privacy Policy</h4>
-                        <p class="text-slate-600 text-sm leading-relaxed">
-                            Apt Skola collects user data (name, email, phone) solely for providing personalized career
-                            guidance services and communication related to the reports. We do not share, sell, or rent
-                            your personal information to third parties. All data is secured using industry-standard
-                            protocols.
-                        </p>
+                        <p class="text-slate-600 text-sm leading-relaxed">Apt Skola collects user data (name, email,
+                            phone)
+                            solely for providing personalized career guidance services...</p>
                     </div>
                     <!-- Column 3: Terms -->
-                    <div>
+                    <div id="terms">
                         <h4
                             class="text-xl font-bold text-brand-navy mb-4 pb-2 border-b-2 border-brand-orange inline-block">
                             Terms of Service</h4>
-                        <p class="text-slate-600 text-sm leading-relaxed">
-                            By using AptSkola.com and accessing our reports, you agree to our terms. This guidance is
-                            algorithmic and advisory only; ultimate decisions regarding school enrollment remain the
-                            sole responsibility of the parent. Service usage is strictly for personal, non-commercial
-                            use.
-                        </p>
+                        <p class="text-slate-600 text-sm leading-relaxed">By using AptSkola.com and accessing our
+                            reports,
+                            you agree to our terms...</p>
                     </div>
                     <!-- Column 4: Refund -->
-                    <div>
+                    <div id="refund">
                         <h4
                             class="text-xl font-bold text-brand-navy mb-4 pb-2 border-b-2 border-brand-orange inline-block">
                             Refund Policy</h4>
-                        <p class="text-slate-600 text-sm leading-relaxed">
-                            Full refund is available if the report has not yet been generated. Once the final report has
-                            been viewed or downloaded, services are considered rendered and no refund will be issued.
-                        </p>
+                        <p class="text-slate-600 text-sm leading-relaxed">Full refund is available if the report has not
+                            yet
+                            been generated...</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- FOOTER (Simplfied with Curve on Top) -->
+        <!-- FOOTER (Restored Inside Landing Page) -->
         <footer id="mainFooter" class="relative bg-brand-navy pt-20 pb-10 text-white border-t-0">
-
-
             <div class="container text-center relative z-20">
                 <div
                     class="flex justify-center flex-wrap gap-4 text-sm font-medium opacity-70 mb-8 border-b border-slate-700 pb-8 mx-auto max-w-2xl">
-                    <a href="#contact" class="hover:text-white transition-colors">Contact Us</a> <span>|</span>
-                    <a href="#Refund & Cancellation Policy" class="hover:text-white transition-colors">Refund &
-                        Cancellation Policy</a> <span>|</span>
-                    <a href="#privacy" class="hover:text-white transition-colors">Privacy</a> <span>|</span>
-                    <a href="#terms" class="hover:text-white transition-colors">Terms</a>
+                    <a href="javascript:void(0)" onclick="window.revealPolicies('contact')"
+                        class="hover:text-white transition-colors">Contact Us</a> <span>|</span>
+                    <a href="javascript:void(0)" onclick="window.revealPolicies('refund')"
+                        class="hover:text-white transition-colors">Refund Policy</a> <span>|</span>
+                    <a href="javascript:void(0)" onclick="window.revealPolicies('privacy')"
+                        class="hover:text-white transition-colors">Privacy</a> <span>|</span>
+                    <a href="javascript:void(0)" onclick="window.revealPolicies('terms')"
+                        class="hover:text-white transition-colors">Terms</a> <span>|</span>
+                    <a href="javascript:void(0)" onclick="openCollaborationModal('Partner')"
+                        class="text-[#FF6B35] font-bold hover:text-white transition-colors">Partner with us</a>
                 </div>
 
                 <p style="font-size: 1.5rem; margin-bottom: 20px; font-weight:900; letter-spacing: -0.5px;">
@@ -446,6 +579,8 @@
             </div>
         </footer>
     </div>
+
+
 
     <div id="syncMatchGate" class="details-page hidden">
         <div id="syncGateHeader"></div>
@@ -586,13 +721,9 @@
                             <input type="text" id="childName" name="childName" required autocomplete="off">
                         </div>
                         <div class="form-group">
-                            <label>Child's Age *</label>
-                            <select id="childAge" name="childAge" required>
-                                <option value="" disabled selected>-- Select Age Bracket --</option>
-                                <option value="5-10">5 - 10 yrs</option>
-                                <option value="10-15">10 - 15 yrs</option>
-                                <option value="15+">15+ yrs</option>
-                            </select>
+                            <label>Child's Date of Birth *</label>
+                            <input type="date" id="childDob" name="childDob" required
+                                onchange="validateGrade1Eligibility(this.value)">
                         </div>
                         <div class="form-group">
                             <label>Email Address *</label>
@@ -908,8 +1039,8 @@
                             <span class="text-4xl font-extrabold text-brand-navy">₹1,499</span>
                             <span class="text-lg text-slate-400 line-through ml-2">₹4,999</span>
                         </div>
-                        <div class="text-xs font-semibold text-brand-orange uppercase tracking-wide mb-3">Everything in
-                            The Smart Parent Toolkit, plus:</div>
+                        <div class="text-xs font-semibold text-brand-orange uppercase tracking-wide mb-3">Includes
+                            Hidden Fee Audit (Save up to ₹50k in unexpected first-year costs).</div>
                         <ul class="feature-list">
                             <li class="feature-item highlighted">
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
