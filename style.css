@@ -40,75 +40,13 @@
     }
 }
 
-/* Neural Frequency Preloader */
-.neural-loader {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    height: 50px;
-    margin-bottom: 20px;
-}
+/* Neural Frequency Preloader REMOVED */
 
-.neural-bar {
-    width: 6px;
-    background: #FF6B35;
-    border-radius: 99px;
-    animation: neuralWave 1s ease-in-out infinite;
-}
-
-.neural-bar:nth-child(1) {
-    animation-delay: 0.0s;
-    height: 15px;
-}
-
-.neural-bar:nth-child(2) {
-    animation-delay: 0.1s;
-    height: 25px;
-}
-
-.neural-bar:nth-child(3) {
-    animation-delay: 0.2s;
-    height: 35px;
-}
-
-.neural-bar:nth-child(4) {
-    animation-delay: 0.1s;
-    height: 25px;
-}
-
-.neural-bar:nth-child(5) {
-    animation-delay: 0.0s;
-    height: 15px;
-}
-
-@keyframes neuralWave {
-
-    0%,
-    100% {
-        height: 15px;
-        opacity: 0.5;
-    }
-
-    50% {
-        height: 45px;
-        opacity: 1;
-        box-shadow: 0 0 8px rgba(255, 107, 53, 0.4);
-    }
-}
-
-/* Main Content Initial State (Hidden until Preloader finishes) */
+/* Main Content Initial State (Visible Immediate) */
 #react-hero-root,
 .unstoppable-cta {
-    opacity: 0;
-    transition: opacity 1.5s ease-out;
-}
-
-#react-hero-root,
-.unstoppable-cta {
-    opacity: 0;
-    transition: opacity 1s ease-in;
-    /* Faster fade-in */
+    opacity: 1;
+    /* transition: opacity 1.5s ease-out; Removed for instant load */
 }
 
 #react-hero-root.loaded,

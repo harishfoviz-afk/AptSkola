@@ -2755,63 +2755,8 @@ window.openSampleReport = openSampleReport;
 window.closeSampleReport = closeSampleReport;
 // --- 11. GLOBAL PRELOADER LOGIC ---
 // --- 11. GLOBAL PRELOADER LOGIC (MINIMALIST) ---
-document.addEventListener('DOMContentLoaded', async () => {
-    const preloader = document.getElementById('global-preloader');
-    const textEl = document.getElementById('preloader-text');
-
-    // Sequence Configuration
-    const phrasings = [
-        "Authenticating Institutional Alignment Matrix...",
-        "Isolating 'Momentum Decay' risk factors in standard curriculum models...",
-        "Mapping Learning DNA logic-gates to Strategic Academic Roadmap..."
-    ];
-    const finalPhrase = "Forensic Insights Synchronized: The definitive path to your child’s academic journey is now live.";
-
-    // Utility for delays
-    const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
-    if (!preloader || !textEl) return;
-
-    // Phase 1: The Build-up
-    for (let phrase of phrasings) {
-        textEl.innerText = phrase;
-        textEl.style.color = '#FF6B35'; // Orange for phases
-        textEl.style.opacity = '1'; // Fade In
-        await wait(1800); // Read Time (Almost 2s)
-        textEl.style.opacity = '0'; // Fade Out
-        await wait(200); // Quick Transition
-    }
-
-    // Phase 2: The Final Reveal
-    textEl.innerText = finalPhrase;
-    textEl.style.fontSize = '1.4rem'; // Match Header Size for consistency
-    textEl.style.color = '#10B981'; // Green Color for Success
-    textEl.style.opacity = '1';
-
-    // Hold Final Reveal for 2 seconds (User Engagement)
-    await wait(2000);
-
-    // Ensure Page is actually loaded before dismissing
-    if (document.readyState !== 'complete') {
-        await new Promise(r => window.addEventListener('load', r));
-    }
-
-    // Phase 3: Reveal Page
-    preloader.style.opacity = '0';
-
-    // Unveil Main Content AFTER preloader starts fading
-    setTimeout(() => {
-        const heroRoot = document.getElementById('react-hero-root');
-        const ctas = document.querySelectorAll('.unstoppable-cta');
-
-        if (heroRoot) heroRoot.classList.add('loaded');
-        ctas.forEach(btn => btn.classList.add('loaded'));
-    }, 200); // Small delay to sync with fade
-
-    setTimeout(() => {
-        preloader.style.display = 'none';
-    }, 1000);
-});
+// --- 11. GLOBAL PRELOADER LOGIC REMOVED ---
+// (Cleaned up)
 
 window.renderReportToBrowser = renderReportToBrowser;
 window.downloadReport = downloadReport;

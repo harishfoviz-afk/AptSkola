@@ -80,7 +80,7 @@ const Hero = () => {
             className="text-xs font-bold text-slate-400 border border-slate-700/50 px-5 py-2 rounded-full hover:bg-slate-800 transition backdrop-blur-sm shadow-xl text-center"
             style={{ background: 'rgba(30, 41, 59, 0.4)' }}
           >
-            🔎 AI School/College Forensic Report
+            🔎 School/College Forensic Report
           </a>
         </div>
 
