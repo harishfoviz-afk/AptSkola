@@ -82,13 +82,13 @@
             return h('div', { className: "absolute top-6 right-6 flex flex-col md:flex-row gap-4 z-[1000]" },
                 h('button', {
                     onClick: () => window.openSyncMatchGate && window.openSyncMatchGate(),
-                    className: "text-xs font-bold text-slate-400 border border-slate-700/50 px-5 py-2 rounded-full hover:bg-slate-800 transition backdrop-blur-sm shadow-xl",
+                    className: "text-xs font-bold text-slate-400 border border-slate-700/50 px-5 py-2 rounded-full hover:bg-slate-800 transition-opacity duration-300 backdrop-blur-sm shadow-xl opacity-40 hover:opacity-100",
                     style: { background: 'rgba(30, 41, 59, 0.4)', cursor: 'pointer' }
                 }, "Unlock Parent & Child Sync Check"),
                 h('a', {
                     href: "https://xray.aptskola.com",
                     target: "_blank",
-                    className: "text-xs font-bold text-slate-400 border border-slate-700/50 px-5 py-2 rounded-full hover:bg-slate-800 transition backdrop-blur-sm shadow-xl text-center",
+                    className: "text-xs font-bold text-slate-400 border border-slate-700/50 px-5 py-2 rounded-full hover:bg-slate-800 transition-opacity duration-300 backdrop-blur-sm shadow-xl text-center opacity-40 hover:opacity-100",
                     style: { background: 'rgba(30, 41, 59, 0.4)' }
                 }, "🔎 School/College Forensic Report")
             );

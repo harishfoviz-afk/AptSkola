@@ -92,19 +92,52 @@ function validateGrade1Eligibility(birthDateString) {
 // --- MISSING QUIZ SHELL INITIALIZER ---
 
 // --- COST CALCULATOR HANDLER ---
-// --- COST CALCULATOR HANDLER ---
 window.handleCostCalculatorClick = function () {
     const section = document.getElementById('cost-calculator-section');
     const footer = document.getElementById('mainFooter');
 
+    // Hide Landing Page Elements to treat as separate page
+    const landing = document.getElementById('landingPage');
+    const hero = document.getElementById('react-hero-root');
+    if (landing) landing.classList.add('hidden');
+    if (hero) hero.classList.add('hidden');
+
+    window.scrollTo(0, 0);
+
     if (section) {
         section.classList.remove('hidden'); // Reveal Calculator
-        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     if (footer) {
         footer.classList.remove('hidden'); // Reveal Footer
-        footer.classList.add('visible-footer'); // Optional: For any custom styling
+        footer.classList.add('visible-footer');
+    }
+};
+
+// --- SYNC GATE HANDLER (RESTORED) ---
+window.openSyncMatchGate = function () {
+    const gate = document.getElementById('syncMatchGate');
+    const landing = document.getElementById('landingPage');
+    const hero = document.getElementById('react-hero-root');
+    const calc = document.getElementById('cost-calculator-section');
+    const footer = document.getElementById('mainFooter');
+
+    // Hide others
+    if (landing) landing.classList.add('hidden');
+    if (hero) hero.classList.add('hidden');
+    if (calc) calc.classList.add('hidden');
+    if (footer) footer.classList.add('hidden'); // Hide footer for gate
+
+    // Show Gate
+    if (gate) {
+        gate.classList.remove('hidden');
+        gate.classList.add('active');
+        gate.style.display = 'block';
+        gate.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+        // Focus Input if exists
+        const input = document.getElementById('syncOrderId');
+        if (input) setTimeout(() => input.focus(), 500);
     }
 };
 
