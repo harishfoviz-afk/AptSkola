@@ -117,7 +117,7 @@
                     )
                 ),
                 h('div', { className: "text-center px-4 max-w-5xl mx-auto mt-6" },
-                    h('h1', { className: "text-2xl md:text-4xl font-extrabold text-[#FF6B35] leading-[1.3] mb-4 tracking-tight" }, "School Board Selection is a 15-Year Financial & Academic Commitment."),
+                    h('h1', { className: "text-2xl md:text-4xl font-bold text-[#FF6B35] leading-[1.3] mb-4 tracking-tight" }, "School Board Selection is a 15 Year Financial & Academic Commitment."),
                     h('p', { className: "text-lg md:text-xl font-bold text-white tracking-wide leading-relaxed" },
                         "Is your child's Age, Grade, and Learning Style in perfect ",
                         h('span', { className: "text-[#FF6B35] font-bold" }, "sync"),
