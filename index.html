@@ -158,19 +158,10 @@
     </div>
     <div id="react-hero-root" style="opacity: 1;" class="loaded">
         <!-- STATIC APP SHELL (INSTANT LOAD) -->
-        <section class="relative pt-32 pb-20 px-4 overflow-hidden bg-[#0F172A] min-h-[95vh] flex flex-col items-center">
+        <section class="relative pt-16 pb-20 px-4 overflow-hidden bg-[#0F172A] min-h-[95vh] flex flex-col items-center">
             <!-- 1. Top Right Navigation -->
-            <div class="absolute top-6 right-6 flex flex-col md:flex-row gap-4 z-[1000]">
-                <button onclick="window.openSyncMatchGate && window.openSyncMatchGate()"
-                    class="text-xs font-bold text-slate-400 border border-slate-700/50 px-5 py-2 rounded-full hover:bg-slate-800 transition-opacity duration-300 backdrop-blur-sm shadow-xl opacity-40 hover:opacity-100"
-                    style="background: rgba(30, 41, 59, 0.4); cursor: pointer;">
-                    Unlock Parent & Child Sync Check
-                </button>
-                <a href="https://xray.aptskola.com" target="_blank"
-                    class="text-xs font-bold text-slate-400 border border-slate-700/50 px-5 py-2 rounded-full hover:bg-slate-800 transition-opacity duration-300 backdrop-blur-sm shadow-xl text-center opacity-40 hover:opacity-100"
-                    style="background: rgba(30, 41, 59, 0.4);">
-                    🔎 School/College Forensic Report
-                </a>
+            <!-- 1. Top Right Navigation (Removed) -->
+            <div class="absolute top-6 right-6 z-[1000]">
             </div>
 
             <!-- 2. Branding -->
@@ -212,66 +203,34 @@
             </div>
 
             <!-- 4. Subtext -->
-            <p
-                class="text-slate-400 text-lg md:text-2xl text-center max-w-3xl mx-auto mt-12 leading-relaxed font-medium">
-                Stop the guesswork. Audit your child's alignment with NEP standards and find the Board that fits
-                their
-                future—and your budget.
-            </p>
+
 
             <!-- 5. Social Proof -->
-            <div class="mt-12 flex flex-col items-center gap-4">
-                <div class="flex -space-x-4">
-                    <!-- Static Avatars -->
-                    <div
-                        class="w-12 h-12 rounded-full border-4 border-[#0F172A] bg-slate-700 flex items-center justify-center text-white font-bold text-xs overflow-hidden">
-                        <img src="https://i.pravatar.cc/100?img=11" class="w-full h-full object-cover">
-                    </div>
-                    <div
-                        class="w-12 h-12 rounded-full border-4 border-[#0F172A] bg-slate-700 flex items-center justify-center text-white font-bold text-xs overflow-hidden">
-                        <img src="https://i.pravatar.cc/100?img=12" class="w-full h-full object-cover">
-                    </div>
-                    <div
-                        class="w-12 h-12 rounded-full border-4 border-[#0F172A] bg-slate-700 flex items-center justify-center text-white font-bold text-xs overflow-hidden">
-                        <img src="https://i.pravatar.cc/100?img=13" class="w-full h-full object-cover">
-                    </div>
-                    <div
-                        class="w-12 h-12 rounded-full border-4 border-[#0F172A] bg-slate-700 flex items-center justify-center text-white font-bold text-xs overflow-hidden">
-                        <img src="https://i.pravatar.cc/100?img=14" class="w-full h-full object-cover">
-                    </div>
-                    <div
-                        class="w-12 h-12 rounded-full border-4 border-[#0F172A] bg-slate-700 flex items-center justify-center text-white font-bold text-xs overflow-hidden">
-                        <img src="https://i.pravatar.cc/100?img=15" class="w-full h-full object-cover">
-                    </div>
-                    <div
-                        class="w-12 h-12 rounded-full border-4 border-[#0F172A] bg-[#FF6B35] flex items-center justify-center text-white font-black text-xs">
-                        1K+
-                    </div>
-                </div>
-                <p class="text-slate-500 text-sm font-bold uppercase tracking-widest">
+            <div class="mt-6 flex flex-col items-center gap-4">
+                <!-- Avatars Removed -->
+                <div class="hidden"></div>
+                <p class="text-slate-500 text-xs md:text-sm font-light uppercase tracking-[0.2em] opacity-80"
+                    style="font-family: 'Inter', sans-serif;">
                     Joined by 1,000+ parents this week
                 </p>
             </div>
 
             <!-- 6. CTA Button (Split Action) -->
-            <div class="relative mt-16 z-[40] flex flex-col md:flex-row gap-4 items-center w-full max-w-2xl px-4">
+            <div class="relative mt-8 z-[40] flex flex-col gap-4 items-center w-full max-w-2xl px-4">
                 <!-- Primary Button -->
-                <div class="relative group w-full md:w-auto flex-1">
+                <div class="relative group w-full md:w-auto">
                     <div
                         class="absolute -inset-1 bg-gradient-to-r from-[#FF6B35] to-yellow-500 rounded-full blur opacity-40 group-hover:opacity-75 transition duration-1000">
                     </div>
                     <button onclick="if(typeof initializeQuizShell === 'function') initializeQuizShell(0);"
-                        class="unstoppable-cta w-full relative bg-[#FF6B35] text-white px-6 py-4 rounded-full font-black text-lg md:text-xl shadow-xl hover:scale-105 active:scale-95 transition-all border-b-[4px] border-orange-800 flex items-center justify-center gap-2 loaded"
+                        class="unstoppable-cta neural-pulse w-full relative bg-[#FF6B35] text-white px-8 py-5 rounded-full font-black text-xl md:text-2xl shadow-none hover:scale-105 active:scale-95 transition-all border-b-[4px] border-orange-800 flex items-center justify-center gap-2 loaded"
                         style="pointer-events: auto; opacity: 1;">
-                        Get My Child’s Sync Status <span class="animate-pulse">→</span>
+                        Initiate Forensic Sync Scan <span class="animate-pulse">→</span>
                     </button>
                 </div>
-                <!-- Secondary Button (Ghost) -->
-                <button onclick="if(typeof handleCostCalculatorClick === 'function') handleCostCalculatorClick();"
-                    class="w-full md:w-auto flex-1 px-6 py-4 rounded-full font-bold text-slate-300 border-2 border-slate-600 hover:border-[#FF6B35] hover:text-[#FF6B35] hover:bg-slate-800/50 transition-all text-lg md:text-xl flex items-center justify-center gap-2"
-                    style="pointer-events: auto;">
-                    Calculate 'School Switch' Penalty
-                </button>
+
+                <!-- Moved Text -->
+
             </div>
 
             <!-- 7. Roadmap Text -->
@@ -308,6 +267,33 @@
                         Kinesthetic/Build
                     </button>
                 </div>
+            </div>
+
+            <!-- Moved Text (Orange) -->
+            <p
+                class="text-[#FF6B35] text-lg md:text-xl text-center max-w-3xl mx-auto mt-8 mb-4 leading-relaxed font-bold">
+                Stop the guesswork. Audit your child's alignment with NEP standards and find the Board that fits their
+                future—and your budget.
+            </p>
+
+            <!-- New Button Location (After Phase 0) -->
+            <div
+                class="flex flex-col md:flex-row gap-4 justify-center items-center mt-8 w-full max-w-4xl px-4 animate-fade-in-up">
+                <!-- 1. Calculator -->
+                <button onclick="if(typeof handleCostCalculatorClick === 'function') handleCostCalculatorClick();"
+                    class="px-5 py-3 rounded-full font-bold text-slate-300 border border-slate-600 hover:border-[#FF6B35] hover:text-[#FF6B35] hover:bg-slate-800/50 transition-all text-sm md:text-base flex items-center gap-2">
+                    Calculate 'School Switch'
+                </button>
+                <!-- 2. Sync Check -->
+                <button onclick="window.openSyncMatchGate && window.openSyncMatchGate()"
+                    class="px-5 py-3 rounded-full font-bold text-slate-300 border border-slate-600 hover:border-[#FF6B35] hover:text-[#FF6B35] hover:bg-slate-800/50 transition-all text-sm md:text-base flex items-center gap-2">
+                    Unlock Parent & Child Sync Check
+                </button>
+                <!-- 3. Forensic Report -->
+                <a href="https://xray.aptskola.com" target="_blank"
+                    class="px-5 py-3 rounded-full font-bold text-slate-300 border border-slate-600 hover:border-[#FF6B35] hover:text-[#FF6B35] hover:bg-slate-800/50 transition-all text-sm md:text-base flex items-center gap-2 text-center no-underline">
+                    🔎 School/College Forensic Report
+                </a>
             </div>
 
     </div>
@@ -907,10 +893,10 @@
             <p style="color: var(--navy-light); font-size: 1rem; line-height: 1.6; margin-bottom: 20px;">
                 We are so excited to join you on this journey!<br><br>
                 Get ready to explore your child’s unique potential. Please keep your Order ID handy—to view your full
-                insights, simply head to aptskola.com and look for the "Unlock Parent & Child Sync Check" button in the
+                insights, simply head to aptskola.com and look for the "Unlock Parent & Child Sync Check" button on the
                 <span
-                    style="font-weight: 800; color: var(--sunrise-primary); border-bottom: 2px solid var(--sunrise-primary);">top
-                    right corner</span> of the page.
+                    style="font-weight: 800; color: var(--sunrise-primary); border-bottom: 2px solid var(--sunrise-primary);">landing
+                    page</span>.
             </p>
             <button onclick="closeBonusModalAndShowSuccess()" class="custom-cta-button">Noted. I will return to
                 AptSkola.com with my child to claim this.</button>
@@ -1119,6 +1105,25 @@
                         onclick="sharePDF()" id="shareBtn">Share Report 📲</button>
                 </div>
 
+                <!-- ADDED BUTTONS IN SUCCESS PAGE -->
+                <div class="flex flex-col md:flex-row gap-4 justify-center items-center mt-4 w-full px-4 mb-4">
+                    <!-- 1. Calculator -->
+                    <button onclick="if(typeof handleCostCalculatorClick === 'function') handleCostCalculatorClick();"
+                        class="px-5 py-3 rounded-full font-bold text-slate-700 border border-slate-300 hover:border-[#FF6B35] hover:text-[#FF6B35] hover:bg-orange-50 transition-all text-sm md:text-base flex items-center gap-2 bg-white shadow-sm">
+                        Calculate 'School Switch'
+                    </button>
+                    <!-- 2. Sync Check -->
+                    <button onclick="window.openSyncMatchGate && window.openSyncMatchGate()"
+                        class="px-5 py-3 rounded-full font-bold text-slate-700 border border-slate-300 hover:border-[#FF6B35] hover:text-[#FF6B35] hover:bg-orange-50 transition-all text-sm md:text-base flex items-center gap-2 bg-white shadow-sm">
+                        Unlock Parent & Child Sync Check
+                    </button>
+                    <!-- 3. Forensic Report -->
+                    <a href="https://xray.aptskola.com" target="_blank"
+                        class="px-5 py-3 rounded-full font-bold text-slate-700 border border-slate-300 hover:border-[#FF6B35] hover:text-[#FF6B35] hover:bg-orange-50 transition-all text-sm md:text-base flex items-center gap-2 text-center no-underline bg-white shadow-sm">
+                        🔎 School/College Forensic Report
+                    </a>
+                </div>
+
 
 
                 <div
@@ -1260,6 +1265,38 @@
         </div>
     </div>
 
+    <!-- Footer - Restored Legacy -->
+    <footer class="bg-slate-900 border-t border-slate-800 text-slate-400 py-10 text-center relative z-50">
+        <div class="container mx-auto px-6 flex flex-col items-center gap-6">
+
+            <!-- 1. Links Row -->
+            <div class="flex flex-wrap justify-center gap-4 text-sm font-medium">
+                <a href="#" class="hover:text-white transition-colors">Contact Us</a>
+                <span class="text-slate-600">|</span>
+                <a href="#" class="hover:text-white transition-colors">Refund & Cancellation Policy</a>
+                <span class="text-slate-600">|</span>
+                <a href="#" class="hover:text-white transition-colors">Privacy</a>
+                <span class="text-slate-600">|</span>
+                <a href="#" class="hover:text-white transition-colors">Terms</a>
+            </div>
+
+            <!-- Separator -->
+            <div class="w-full max-w-2xl h-px bg-slate-800/50"></div>
+
+            <!-- 2. Branding Row -->
+            <div class="flex items-center gap-3 text-lg md:text-xl">
+                <span class="font-black text-white">Apt <span class="text-[#FF6B35]">Skola</span></span>
+                <span class="text-slate-600 font-thin text-2xl">|</span>
+                <span class="text-slate-500 font-medium tracking-wide uppercase text-sm">A Foviz Venture</span>
+            </div>
+
+            <!-- 3. Copyright Row -->
+            <div class="text-xs text-slate-500 font-medium mt-2">
+                &copy; 2024 - 2026 Apt Skola, all rights reserved.
+            </div>
+
+        </div>
+    </footer>
 </body>
 
 </html>
