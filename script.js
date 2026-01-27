@@ -38,6 +38,37 @@ window.currentPhase = 0; // 0: Phase0, 1: Phase1, 2: Sync
     }
 })();
 
+// --- FOOTER HELPER ---
+window.toggleFooter = function (mode) {
+    const landingF = document.getElementById('landingFooter');
+    const minimalF = document.getElementById('minimalFooter');
+
+    if (mode === 'landing') {
+        if (landingF) landingF.classList.remove('hidden');
+        if (minimalF) minimalF.classList.add('hidden');
+    } else {
+        if (landingF) landingF.classList.add('hidden');
+        if (minimalF) minimalF.classList.remove('hidden');
+    }
+};
+
+// --- ANALYTICS HELPER ---
+window.triggerTrack = function (eventName, params = {}) {
+    console.log(`[TRACKING] ${eventName}`, params);
+
+    // 1. Google Tag Manager
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+        'event': eventName,
+        ...params
+    });
+
+    // 2. Meta Pixel (Safe Check)
+    if (typeof fbq === 'function') {
+        fbq('trackCustom', eventName, params);
+    }
+};
+
 
 // --- STATE MANAGEMENT ---
 window.initializeQuizShell = initializeQuizShell; // Expose to window immediately (Diagnostic Move)
@@ -108,10 +139,11 @@ window.handleCostCalculatorClick = function () {
         section.classList.remove('hidden'); // Reveal Calculator
     }
 
-    if (footer) {
-        footer.classList.remove('hidden'); // Reveal Footer
-        footer.classList.add('visible-footer');
+    if (section) {
+        section.classList.remove('hidden'); // Reveal Calculator
     }
+
+    window.toggleFooter('minimal');
 };
 
 // --- SYNC GATE HANDLER (RESTORED) ---
@@ -126,7 +158,10 @@ window.openSyncMatchGate = function () {
     if (landing) landing.classList.add('hidden');
     if (hero) hero.classList.add('hidden');
     if (calc) calc.classList.add('hidden');
-    if (footer) footer.classList.add('hidden'); // Hide footer for gate
+    if (hero) hero.classList.add('hidden');
+    if (calc) calc.classList.add('hidden');
+
+    window.toggleFooter('minimal');
 
     // Show Gate
     if (gate) {
@@ -833,6 +868,7 @@ function goToLandingPage() {
     });
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.toggleFooter('landing');
 }
 
 function getIntermediateHeaderHtml() {
@@ -846,7 +882,19 @@ function getIntermediateHeaderHtml() {
     </div>`;
 }
 function getIntermediateFooterHtml() {
-    return `<div class="intermediate-footer"><div class="max-w-7xl mx-auto text-center"><p class="text-xs font-medium opacity-70" style="font-size: 0.8rem !important;">&copy; 2024 - 2026 Apt Skola, all rights reserved.</p></div></div>`;
+    return `
+    <div class="intermediate-footer bg-slate-900 border-t border-slate-800 text-slate-400 py-6 text-center">
+        <div class="max-w-7xl mx-auto flex flex-col items-center gap-4">
+            <div class="flex items-center gap-3 text-lg md:text-xl">
+                 <span class="font-black text-white">Apt <span class="text-[#FF6B35]">Skola</span></span>
+                 <span class="text-slate-600 font-thin text-2xl">|</span>
+                 <span class="text-slate-500 font-medium tracking-wide uppercase text-sm">A Foviz Venture</span>
+            </div>
+            <div class="text-xs text-slate-500 font-medium">
+                &copy; 2024 - 2026 Apt Skola, all rights reserved.
+            </div>
+        </div>
+    </div>`;
 }
 
 // --- SYNC MATCH GATE LOGIC MOVED DOWN ---
@@ -1614,6 +1662,7 @@ function processSyncUpgrade() {
     };
 
     const rzp1 = new Razorpay(options);
+    window.triggerTrack('Payment_Page_Initiated', { amount: options.amount / 100, package: options.notes.package });
     rzp1.open();
 }
 
@@ -1759,6 +1808,7 @@ function showInstantSuccessPage() {
     }
 
     window.scrollTo({ top: 0, behavior: 'instant' });
+    window.toggleFooter('minimal');
 }
 
 
@@ -1789,12 +1839,16 @@ function openSyncMatchGate() {
         }
     });
 
+    // 2b. Explicitly ensure full Landing Footer is hidden via helper (redundant but safe)
+    window.toggleFooter('minimal');
+
     // 3. Show Sync Gate
     const gate = document.getElementById('syncMatchGate');
     if (gate) {
         gate.classList.remove('hidden');
         gate.classList.add('active');
         gate.style.display = 'flex';
+        window.toggleFooter('minimal'); // Ensure minimal footer
         window.scrollTo(0, 0);
     } else {
         console.error("Sync Match Gate element not found!");
@@ -3059,6 +3113,8 @@ function startPhase1() {
     window.currentPhase = 1;
     hasSeenMilestone1 = false;
     hasSeenMilestone2 = false;
+    window.toggleFooter('minimal'); // Switch to minimal footer for Questions
+    window.triggerTrack('Phase_1_Questions_Started');
     initializeQuizShell(0, 1);
 }
 
@@ -3068,6 +3124,15 @@ function showMomentumModal() {
     if (modal) {
         modal.classList.remove('hidden');
         setTimeout(() => modal.classList.add('active'), 10);
+
+        // Track Focus
+        const input = document.getElementById('momentumPhone');
+        if (input && !input.dataset.tracked) {
+            input.addEventListener('focus', () => {
+                window.triggerTrack('Lead_Field_Focus');
+                input.dataset.tracked = 'true'; // Fire once
+            });
+        }
     }
 }
 
@@ -3096,6 +3161,7 @@ function handleMomentumSubmit() {
         customerData.phone = phone;
         // Mock persistence / reserve session
         console.log("Session reserved for:", phone);
+        window.triggerTrack('Momentum_Submit');
     }
 
     const modal = document.getElementById('momentumModal');
@@ -3123,6 +3189,9 @@ function showDnaFinalization() {
         container.id = 'dnaFinalization';
         document.body.appendChild(container);
     }
+
+    // TRACK: Calibration Start
+    window.triggerTrack('Calibration_Start');
 
     // Colors for the bars (Orange, Blue, Green, Yellow, Indigo)
     const colors = ['#F97316', '#3B82F6', '#10B981', '#EAB308', '#6366F1'];
@@ -3248,6 +3317,9 @@ function showDnaFinalization() {
             pricing.classList.add('active');
             pricing.classList.add('highlight-pulse');
             pricing.scrollIntoView({ behavior: 'smooth' });
+
+            // TRACK: Pricing Viewed
+            window.triggerTrack('Pricing_Modal_Viewed');
         }
 
         document.getElementById('mainFooter').classList.remove('hidden');

@@ -37,6 +37,7 @@
 
         const triggerStart = (startAtIndex = 0) => {
             console.log("[Hero] Trigger Start Clicked. Index:", startAtIndex);
+            if (window.triggerTrack) window.triggerTrack('Scan_Initiated');
             if (typeof window.initializeQuizShell === 'function') {
                 window.initializeQuizShell(startAtIndex);
             } else {

@@ -11,6 +11,15 @@
         gtag('config', 'G-LL0LST5PQ5');
     </script>
 
+    <!-- Microsoft Clarity -->
+    <script type="text/javascript">
+        (function (c, l, a, r, i, t, y) {
+            c[a] = c[a] || function () { (c[a].q = c[a].q || []).push(arguments) };
+            t = l.createElement(r); t.async = 1; t.src = "https://www.clarity.ms/tag/" + i;
+            y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y);
+        })(window, document, "clarity", "script", "v83749y28o");
+    </script>
+
     <meta name="description"
         content="Stop guessing about CBSE, ICSE, or IB. Apt Skola uses scientific psychometrics to find the perfect school board match for your child's unique learning style in 5 minutes.">
 
@@ -1266,7 +1275,8 @@
     </div>
 
     <!-- Footer - Restored Legacy -->
-    <footer class="bg-slate-900 border-t border-slate-800 text-slate-400 py-10 text-center relative z-50">
+    <footer id="landingFooter"
+        class="bg-slate-900 border-t border-slate-800 text-slate-400 py-10 text-center relative z-50">
         <div class="container mx-auto px-6 flex flex-col items-center gap-6">
 
             <!-- 1. Links Row -->
@@ -1295,6 +1305,23 @@
                 &copy; 2024 - 2026 Apt Skola, all rights reserved.
             </div>
 
+        </div>
+    </footer>
+
+    <!-- Minimal Footer (For Non-Landing Pages) -->
+    <footer id="minimalFooter"
+        class="hidden bg-slate-900 border-t border-slate-800 text-slate-400 py-10 text-center relative z-50">
+        <div class="container mx-auto px-6 flex flex-col items-center gap-6">
+            <!-- Branding Row -->
+            <div class="flex items-center gap-3 text-lg md:text-xl">
+                <span class="font-black text-white">Apt <span class="text-[#FF6B35]">Skola</span></span>
+                <span class="text-slate-600 font-thin text-2xl">|</span>
+                <span class="text-slate-500 font-medium tracking-wide uppercase text-sm">A Foviz Venture</span>
+            </div>
+            <!-- Copyright Row -->
+            <div class="text-xs text-slate-500 font-medium mt-2">
+                &copy; 2024 - 2026 Apt Skola, all rights reserved.
+            </div>
         </div>
     </footer>
 </body>
