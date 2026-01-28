@@ -101,15 +101,16 @@
         const renderHeadline = () => {
             const currentSlide = slides[index];
             return h('div', { className: "flex flex-col items-center justify-center gap-4 min-h-[160px]" },
-                h('div', { className: "flex items-center gap-4 md:gap-8" },
+                // STABILIZED ANIMATION CONTAINER
+                h('div', { className: "flex items-center gap-4 md:gap-8 h-[120px] overflow-hidden mb-6" },
                     h(AnimatePresence, { mode: "wait" },
                         h(motion.div, {
-                            key: index, // Key by index to enforce full re-render of the pair
+                            key: index,
                             initial: { y: 20, opacity: 0 },
                             animate: { y: 0, opacity: 1 },
                             exit: { y: -20, opacity: 0 },
                             transition: { duration: 0.3, ease: "easeOut" },
-                            className: "flex items-center gap-4 md:gap-8"
+                            className: "flex items-center gap-4 md:gap-8 min-w-[300px] justify-center"
                         },
                             h('span', { className: `text-5xl md:text-8xl font-black ${currentSlide.pColor}` }, currentSlide.prefix),
                             h('span', { className: `text-5xl md:text-8xl font-black ${currentSlide.wColor}` }, currentSlide.word)
@@ -117,7 +118,11 @@
                     )
                 ),
                 h('div', { className: "text-center px-4 max-w-5xl mx-auto mt-6" },
-                    h('h1', { className: "text-2xl md:text-4xl font-bold text-[#FF6B35] leading-[1.3] mb-4 tracking-tight" }, "School Board Selection is a 15 Year Financial & Academic Commitment."),
+                    h('h1', { className: "text-2xl md:text-4xl font-bold text-[#FF6B35] leading-[1.3] mb-4 tracking-tight" },
+                        "School Board Selection is a ",
+                        h('span', { style: { fontFamily: 'Arial, sans-serif' } }, "15"),
+                        " Year Financial & Academic Commitment."
+                    ),
                     h('p', { className: "text-lg md:text-xl font-bold text-white tracking-wide leading-relaxed" },
                         "Is your child's Age, Grade, and Learning Style in perfect ",
                         h('span', { className: "text-[#FF6B35] font-bold" }, "sync"),
@@ -151,9 +156,13 @@
                     h('div', { className: "absolute -inset-1 bg-gradient-to-r from-[#FF6B35] to-yellow-500 rounded-full blur opacity-40 group-hover:opacity-75 transition duration-1000" }),
                     h('button', {
                         onClick: () => triggerStart(0),
-                        className: "unstoppable-cta neural-pulse w-full relative bg-[#FF6B35] text-white px-8 py-5 rounded-full font-black text-xl md:text-2xl shadow-none hover:scale-105 active:scale-95 transition-all border-b-[4px] border-orange-800 flex items-center justify-center gap-2",
+                        className: "unstoppable-cta neural-pulse w-full relative bg-[#FF6B35] text-white px-8 py-5 rounded-full font-black text-xl md:text-2xl shadow-none haptic-shadow overflow-hidden transition-all duration-300 ease-out border-b-[4px] border-orange-800 flex items-center justify-center gap-2",
                         style: { pointerEvents: 'auto' }
-                    }, "Initiate Forensic Sync Scan", h('span', { className: "animate-pulse" }, "→"))
+                    },
+                        // Radar Sweep Light
+                        h('div', { className: "radar-beam" }),
+                        "Initiate Forensic Sync Scan",
+                        h('span', { className: "animate-pulse" }, "→"))
                 ),
             );
         };

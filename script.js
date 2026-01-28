@@ -121,6 +121,88 @@ function validateGrade1Eligibility(birthDateString) {
 }
 
 // --- MISSING QUIZ SHELL INITIALIZER ---
+// --- RESTORED QUIZ SHELL INITIALIZER (WITH BRANDING) ---
+function initializeQuizShell(startAtIndex = 0, phase = 0) {
+    console.log("Initializing Quiz Shell at index:", startAtIndex);
+
+    // 1. Hide ALL Landing Elements (Strict Mode)
+    const elementsToHide = [
+        'landingPage',
+        'react-hero-root',
+        'cost-calculator-section',
+        'syncMatchGate',
+        'trust-stack-mechanism',
+        'trust-stack-authority',
+        'trust-stack-nudge',
+        'sticky-cta',
+        'testimonials',
+        'ecosystem',
+        'contact-policies',
+        'mainFooter',
+        'landingFooter'
+    ];
+
+    elementsToHide.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('hidden');
+    });
+
+    window.toggleFooter('minimal');
+
+    // 2. Prepare Quiz Container (With Persistent Branding)
+    let modal = document.getElementById('momentumModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'momentumModal';
+        modal.className = 'momentum-modal active';
+        document.body.appendChild(modal);
+    }
+
+    // INJECT BRANDING HEADER & FOOTER (Hardcoded Styles for Visibility)
+    modal.innerHTML = `
+        <div class="momentum-content">
+            <!-- Persistent Header -->
+            <div style="text-align: center; margin-bottom: 20px;">
+                <h1 style="font-size: 1.875rem; line-height: 2.25rem; font-weight: 900; color: #0F172A; letter-spacing: -0.05em; margin: 0;">
+                    Apt <span style="color: #FF6B35;">Skola</span>
+                </h1>
+                <div style="display: flex; align-items: center; justify-content: center; gap: 0.75rem; margin-top: 0.5rem; opacity: 0.7;">
+                   <div style="height: 1px; width: 2rem; background-color: #CBD5E1;"></div>
+                   <span style="font-size: 0.625rem; font-weight: 700; color: #94A3B8; text-transform: uppercase; letter-spacing: 0.2em;">Forensic Calibration</span>
+                   <div style="height: 1px; width: 2rem; background-color: #CBD5E1;"></div>
+                </div>
+            </div>
+                   <span class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Forensic Calibration</span>
+                   <div class="h-px w-8 bg-slate-300"></div>
+                </div>
+            </div>
+
+            <!-- Quiz Content -->
+            <div id="dynamicQuizContent"></div>
+
+            <!-- Persistent Footer -->
+            <div style="margin-top: 30px; text-align: center; font-size: 0.75rem; color: #94A3B8; border-top: 1px solid #E2E8F0; padding-top: 15px;">
+                &copy; 2024 Apt Skola. All rights reserved. <br>
+                <span style="opacity: 0.7;">Science-backed by Foviz.</span>
+            </div>
+        </div>
+    `;
+
+    modal.classList.remove('hidden');
+    modal.classList.add('active');
+    modal.style.zIndex = '99999'; // FORCE TOP LAYER
+    modal.style.display = 'block'; // Ensure visibility
+
+    // 3. Scroll to Top (CRITICAL FIX)
+    window.scrollTo(0, 0);
+    setTimeout(() => window.scrollTo(0, 0), 50);
+
+    // 4. Set State & Render
+    window.currentPhase = phase;
+    if (typeof renderQuestionContent === 'function') {
+        renderQuestionContent(startAtIndex);
+    }
+}
 
 // --- COST CALCULATOR HANDLER ---
 window.handleCostCalculatorClick = function () {
@@ -1171,13 +1253,33 @@ function initializeQuizShell(index, phase = 0) {
     questionPages.style.display = 'block';
 
     // 2. Hide EVERYTHING ELSE
-    const idsToHide = ['landingPage', 'react-hero-root', 'syncMatchGate', 'syncMatchTransition', 'detailsPage', 'paymentPageContainer', 'psychometricHistogram', 'dynamicRiskCard', 'pricingModal', 'cost-calculator-section'];
+    const idsToHide = [
+        'landingPage',
+        'react-hero-root',
+        'syncMatchGate',
+        'syncMatchTransition',
+        'detailsPage',
+        'paymentPageContainer',
+        'psychometricHistogram',
+        'dynamicRiskCard',
+        'pricingModal',
+        'cost-calculator-section',
+        'trust-stack-mechanism',
+        'trust-stack-authority',
+        'trust-stack-nudge',
+        'sticky-cta',
+        'testimonials',
+        'ecosystem',
+        'contact-policies',
+        'mainFooter',
+        'landingFooter'
+    ];
     idsToHide.forEach(id => {
         const el = document.getElementById(id);
         if (el) {
             el.classList.remove('active');
             el.classList.add('hidden');
-            el.style.display = ''; // Clear inline style
+            el.style.display = 'none'; // Force hide
         }
     });
 
@@ -1264,29 +1366,60 @@ function renderQuestionContent(index) {
         prevBtnHtml = `<button onclick="renderQuestionContent(${index - 1})" class="btn-prev" style="margin-top:20px; background:none; text-decoration:underline; border:none; color:#64748B; cursor:pointer;">← Previous Question</button>`;
     }
 
-    // Inject Milestones as banners in Phase 1
-    let milestoneBannerHtml = '';
-    if (window.currentPhase === 1) {
-        if (index === 5 && !hasSeenMilestone1) {
-            milestoneBannerHtml = getMilestoneBanner(1);
-            hasSeenMilestone1 = true;
-        } else if (index === 10 && !hasSeenMilestone2) {
-            milestoneBannerHtml = getMilestoneBanner(2);
-            hasSeenMilestone2 = true;
-        }
+    // SYSTEM LOG LOGIC (Bottom of Card)
+    // SYSTEM LOG LOGIC (Bottom of Card) - UPDATED FOR RANGES
+    let systemLogHtml = '';
+
+    // Q1-Q5: Initializing (Phase 0 usually has only 4 questions, but logic holds)
+    if (index >= 0 && index <= 4) {
+        systemLogHtml = `
+            <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-center gap-3 animate-pulse">
+                <div class="w-2 h-2 rounded-full bg-[#FF6B35]"></div>
+                <span class="font-mono text-[10px] text-slate-400 tracking-wider uppercase">Initializing Core Learning DNA...</span>
+            </div>`;
+    }
+    // Q6-Q10: Mapping (Only relevant if Phase 1)
+    else if (index >= 5 && index <= 9 && window.currentPhase === 1) {
+        systemLogHtml = `
+            <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-center gap-3">
+                <div class="w-2 h-2 rounded-full bg-[#FF6B35] animate-ping"></div>
+                <span class="font-mono text-[10px] text-slate-500 tracking-wider uppercase">[Status] Cognitive Baseline Mapped. Calibrating Board Compatibility...</span>
+            </div>`;
+    }
+    // Q11-Q15: Locked (Only relevant if Phase 1)
+    else if (index >= 10 && window.currentPhase === 1) {
+        systemLogHtml = `
+            <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-center gap-3">
+                <div class="w-2 h-2 rounded-full bg-[#FF6B35] animate-ping"></div>
+                <span class="font-mono text-[10px] text-slate-500 tracking-wider uppercase">[Status] Neural Profile Locked. Calculating Financial Trajectory...</span>
+            </div>`;
     }
 
     const dynamicQuizContent = document.getElementById('dynamicQuizContent');
     if (dynamicQuizContent) {
         dynamicQuizContent.innerHTML = `
-            ${milestoneBannerHtml}
-            <div class="progress-container">
-                <div class="progress-track"><div class="progress-fill" style="width: ${progressPercent}%"></div></div>
-                <div class="progress-label">Phase ${window.currentPhase} - Question ${index + 1}/${totalQ}</div>
+            <div class="quiz-card animate-fade-in-up">
+                <!-- Progress & Counter -->
+                <div class="flex justify-between items-center mb-2">
+                     <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Progress</span>
+                     <span class="text-xs font-bold text-[#FF6B35] font-mono">${index + 1}/${totalQ}</span>
+                </div>
+                <div class="w-full bg-slate-100 h-1.5 rounded-full mb-6 overflow-hidden">
+                    <div class="bg-[#FF6B35] h-full transition-all duration-500 ease-out" style="width: ${progressPercent}%"></div>
+                </div>
+                
+                <h3 class="text-xl md:text-2xl font-bold text-slate-800 mb-6 leading-tight">${qText}</h3>
+                
+                <div class="grid gap-3">
+                    ${optionsHTML}
+                </div>
+
+                <div class="flex justify-center items-center mt-6">
+                    ${prevBtnHtml}
+                </div>
+
+                ${systemLogHtml}
             </div>
-            <div class="question-text">${qText}</div>
-            <div class="options-grid">${optionsHTML}</div>
-            <div style="text-align:center;">${prevBtnHtml}</div>
         `;
     }
 }
@@ -2981,6 +3114,73 @@ window.openCollaborationModal = openCollaborationModal;
 window.toggleSyncTimer = toggleSyncTimer;
 window.handleSyncConfirmation = handleSyncConfirmation;
 
+// --- MISSING PARTNER MODAL ---
+function openCollaborationModal(type) {
+    console.log("Opening Collaboration Modal:", type);
+
+    // 1. Remove existing if any
+    const existing = document.getElementById('collaborationModal');
+    if (existing) existing.remove();
+
+    // 2. Create Modal HTML
+    const modal = document.createElement('div');
+    modal.id = 'collaborationModal';
+    modal.className = 'payment-modal active';
+    modal.style.zIndex = '9999';
+
+    const title = type === 'Partner' ? 'Educator Partnership' : 'Ambassador Program';
+    const sub = type === 'Partner' ? 'Join our Forensic Network' : 'Earn Rewards for Referrals';
+
+    modal.innerHTML = `
+        <div class="payment-modal-content" style="max-width: 550px; text-align: left; border-top: 5px solid #FF6B35;">
+            <button onclick="document.getElementById('collaborationModal').remove()" style="position:absolute; top:15px; right:15px; background:none; border:none; font-size:1.5rem; cursor:pointer;">&times;</button>
+            
+            <h3 style="color: #0F172A; font-weight: 800; font-size: 1.5rem; margin-bottom: 5px;">${title}</h3>
+            <p style="color: #64748B; margin-bottom: 25px;">${sub}</p>
+
+            <form onsubmit="handleCollaborationSubmit(event, '${type}')" style="display: flex; flex-direction: column; gap: 15px;">
+                <div>
+                    <label style="font-size: 0.85rem; font-weight: 700; color: #334155;">Full Name</label>
+                    <input type="text" name="name" required style="width: 100%; padding: 12px; border: 1px solid #CBD5E1; border-radius: 8px; margin-top: 5px;">
+                </div>
+                <div>
+                    <label style="font-size: 0.85rem; font-weight: 700; color: #334155;">WhatsApp Number</label>
+                    <input type="tel" name="phone" pattern="[6-9][0-9]{9}" required style="width: 100%; padding: 12px; border: 1px solid #CBD5E1; border-radius: 8px; margin-top: 5px;">
+                </div>
+                <div>
+                    <label style="font-size: 0.85rem; font-weight: 700; color: #334155;">Current Role / Institute</label>
+                    <input type="text" name="role" required style="width: 100%; padding: 12px; border: 1px solid #CBD5E1; border-radius: 8px; margin-top: 5px;">
+                </div>
+                
+                <button type="submit" class="custom-cta-button" style="margin-top: 10px; width: 100%;">Submit Interest →</button>
+            </form>
+            <p style="text-align: center; font-size: 0.75rem; color: #94A3B8; margin-top: 15px;">Our team will contact you within 24 hours.</p>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+}
+
+function handleCollaborationSubmit(e, type) {
+    e.preventDefault();
+    const btn = e.target.querySelector('button[type="submit"]');
+    btn.innerHTML = "Submitting...";
+    btn.disabled = true;
+
+    // Simulate API
+    setTimeout(() => {
+        btn.innerHTML = "Success! ✅";
+        btn.style.background = "#10B981";
+
+        // Track
+        if (window.triggerTrack) window.triggerTrack('Collaboration_Lead', { type: type });
+
+        setTimeout(() => {
+            document.getElementById('collaborationModal').remove();
+        }, 1500);
+    }, 1000);
+}
+
 function showPsychometricHistogram() {
     console.log("Rendering Preliminary Fitment Analysis...");
     const app = document.getElementById('questionPageApp');
@@ -3402,4 +3602,36 @@ document.addEventListener('DOMContentLoaded', () => {
     // 3. Dynamic Footer Year
     const yearEl = document.getElementById('copyrightYear');
     if (yearEl) yearEl.textContent = new Date().getFullYear();
+});
+
+// --- STICKY CTA LOGIC (CLARITY FIX) ---
+window.addEventListener('scroll', () => {
+    const sticky = document.getElementById('sticky-cta');
+    const hero = document.getElementById('react-hero-root');
+
+    // If we can't find elements, exit
+    if (!sticky || !hero) return;
+
+    // Logic: Show when user scrolls past 80% of the hero
+    const heroBottom = hero.offsetTop + hero.offsetHeight;
+    const scrollY = window.scrollY;
+
+    // Threshold: Show when we are near the bottom of the hero
+    if (scrollY > (heroBottom - 300)) {
+        sticky.classList.remove('translate-y-full');
+    } else {
+        sticky.classList.add('translate-y-full');
+    }
+
+    // HIDE SAFETY: If overlays are active, force hide
+    const calcSection = document.getElementById('cost-calculator-section');
+    const syncGate = document.getElementById('syncMatchGate');
+    const phase0Modal = document.querySelector('.momentum-modal.active'); // Heuristic check
+
+    const isCalcActive = calcSection && !calcSection.classList.contains('hidden');
+    const isSyncActive = syncGate && !syncGate.classList.contains('hidden');
+
+    if (isCalcActive || isSyncActive || phase0Modal) {
+        sticky.classList.add('translate-y-full');
+    }
 });
