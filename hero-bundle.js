@@ -23,11 +23,32 @@
         const targetYear = new Date() < new Date(`${currentYear}-03-31`) ? currentYear : currentYear + 1;
         const [buttonText, setButtonText] = useState(`Start ${targetYear} Grade 1 Admission Decoder Scan`);
         const [showToast, setShowToast] = useState(false);
+        const [showStickyCTA, setShowStickyCTA] = useState(false);
 
+        // Narrative Build State: Always 2 (Main Hero Visible Immediately)
+        const [introState, setIntroState] = useState(2);
+
+        // Scroll Listener
+        useEffect(() => {
+            const handleScroll = () => {
+                if (window.scrollY > 600) {
+                    setShowStickyCTA(true);
+                } else {
+                    setShowStickyCTA(false);
+                }
+            };
+            window.addEventListener('scroll', handleScroll);
+            return () => window.removeEventListener('scroll', handleScroll);
+        }, []);
+
+        // Rotation Timer (Active immediately)
         useEffect(() => {
             const timer = setInterval(() => setIndex((prev) => (prev + 1) % slides.length), 2000);
             return () => clearInterval(timer);
         }, []);
+
+        // Narrative Build Timeline REMOVED - Instant Load
+
 
         // Momentum Feature 2: Progressive Slide-In (Nudge)
         useEffect(() => {
@@ -78,38 +99,80 @@
 
         // --- RENDER HELPERS ---
 
-        // 1. Top Buttons (Removed)
-        const renderTopButtons = () => {
-            return h('div', { className: "absolute top-6 right-6 z-[1000]" });
-        };
-
-        // 2. Branding
-        const renderBranding = () => {
-            return h('div', { className: "mt-4 mb-12 text-center animate-fade-in-up" },
-                h('h1', { className: "text-5xl md:text-6xl font-black text-white tracking-tighter" },
-                    "Apt ", h('span', { className: "text-[#FF6B35]" }, "Skola")
-                ),
-                h('div', { className: "flex items-center justify-center gap-3 mt-4 opacity-70" },
-                    h('div', { className: "h-px w-8 bg-slate-600" }),
-                    h('span', { className: "text-sm font-bold text-slate-400 uppercase tracking-[0.2em]" }, "A Foviz Venture"),
-                    h('div', { className: "h-px w-8 bg-slate-600" })
+        // 1. Top Left Logo (New)
+        const renderTopLeftLogo = () => {
+            return h('div', { className: "absolute top-6 left-6 z-[100] animate-fade-in" },
+                h('div', { className: "flex flex-col items-start leading-none opacity-90 hover:opacity-100 transition-opacity" },
+                    h('h1', { className: "text-2xl md:text-3xl font-black text-white tracking-tighter" },
+                        "Apt ", h('span', { className: "text-[#FF6B35]" }, "Skola")
+                    ),
+                    h('span', { className: "text-[0.6rem] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1 ml-1" },
+                        "A Foviz Venture"
+                    )
                 )
             );
         };
 
+        // Narrative Intro Header (Persistent Horizontal)
+        // Narrative Intro Header (Persistent Horizontal)
+        const renderNarrativeHeader = () => {
+            return h('div', { className: "mt-8 w-full flex flex-col items-center justify-center z-40 min-h-[120px]" },
+                h('div', { className: "flex flex-col md:flex-row items-center gap-4 md:gap-8" },
+
+                    // Part 1: "Best" Question (Static)
+                    h('div', {
+                        className: "text-center md:text-right"
+                    },
+                        h('p', { className: "text-2xl md:text-5xl font-bold text-slate-500" },
+                            "What is the ",
+                            h('span', { className: "font-black text-white relative" }, "Best"),
+                            " Board?"
+                        )
+                    ),
+
+                    // Part 2: "Vs" Bounce (Static Container, Animated Inner)
+                    h('div', {
+                        className: "relative"
+                    },
+                        h('div', { className: "w-12 h-12 md:w-16 md:h-16 bg-[#FF6B35] rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(255,107,53,0.6)] animate-bounce" },
+                            h('span', { className: "text-white font-black text-lg md:text-xl italic" }, "Vs")
+                        )
+                    ),
+
+                    // Part 3: "Suits" Answer (Static)
+                    h('div', {
+                        className: "text-center md:text-left"
+                    },
+                        h('p', { className: "text-2xl md:text-5xl font-bold text-slate-200" },
+                            "What ",
+                            h('span', { className: "font-black text-[#FF6B35] tracking-wide", style: { fontFamily: "'Montserrat', sans-serif" } }, "Suits"),
+                            " ", h('br', { className: "md:hidden" }), "your child?"
+                        )
+                    )
+                )
+            );
+        };
+
+
+        // 2. Branding Spacer (Removed as Narrative Header assumes position)
+        // const renderBrandingSpacer = () => {
+        //     return h('div', { className: "h-24 md:h-32" });
+        // };
+
+
         // 3. Headline
         const renderHeadline = () => {
             const currentSlide = slides[index];
-            return h('div', { className: "flex flex-col items-center justify-center gap-4 min-h-[160px]" },
+            return h('div', { className: "flex flex-col items-center justify-center gap-4 min-h-[160px] mt-8" },
                 // STABILIZED ANIMATION CONTAINER
                 h('div', { className: "flex items-center gap-4 md:gap-8 h-[120px] overflow-hidden mb-6" },
                     h(AnimatePresence, { mode: "wait" },
                         h(motion.div, {
                             key: index,
-                            initial: { y: 20, opacity: 0 },
-                            animate: { y: 0, opacity: 1 },
-                            exit: { y: -20, opacity: 0 },
-                            transition: { duration: 0.3, ease: "easeOut" },
+                            initial: { opacity: 0 },
+                            animate: { opacity: 1 },
+                            exit: { opacity: 0 },
+                            transition: { duration: 0.2 },
                             className: "flex items-center gap-4 md:gap-8 min-w-[300px] justify-center"
                         },
                             h('span', { className: `text-5xl md:text-8xl font-black ${currentSlide.pColor}` }, currentSlide.prefix),
@@ -118,33 +181,82 @@
                     )
                 ),
                 h('div', { className: "text-center px-4 max-w-5xl mx-auto mt-6" },
-                    h('h1', { className: "text-2xl md:text-4xl font-bold text-[#FF6B35] leading-[1.3] mb-4 tracking-tight" },
-                        "School Board Selection is a ",
-                        h('span', { style: { fontFamily: 'Arial, sans-serif' } }, "15"),
-                        " Year Financial & Academic Commitment."
+                    h('h1', { className: "text-[#FF6B35] font-black text-xl md:text-3xl mt-4 tracking-normal text-center drop-shadow-lg leading-tight" },
+                        "School Board Selection is a 15 Year Financial & Academic Commitment."
                     ),
-                    h('p', { className: "text-lg md:text-xl font-bold text-white tracking-wide leading-relaxed" },
+                    h('p', { className: "text-white text-lg md:text-2xl text-center max-w-3xl mx-auto mt-12 leading-relaxed font-medium" },
                         "Is your child's Age, Grade, and Learning Style in perfect ",
-                        h('span', { className: "text-[#FF6B35] font-bold" }, "sync"),
+                        h('span', { className: "text-[#FF6B35] font-bold" }, "Sync"),
                         "?"
                     )
                 )
             );
         };
 
+        // ... match context ...
+
+
+
+
         // 4. Subtext (Value Proposition) - REMOVED (Moved to below CTA)
         const renderSubtext = () => {
             return null;
         };
 
-        // 5. Social Proof
+        // 4.5 Feature Block
+        const renderFeatures = () => {
+            return h('div', { className: "grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 text-center relative max-w-6xl mx-auto mt-12 mb-8 px-4" },
+
+                // 1. Clinical Input
+                h('div', { className: "p-6 rounded-2xl bg-white shadow-xl border border-slate-100 transform hover:-translate-y-1 transition-transform duration-300" },
+                    h('h4', { className: "text-[#FF6B35] font-bold text-xs uppercase tracking-[2px] font-['Montserrat'] mb-2" }, "THE INPUT (WHY?)"),
+                    h('div', { className: "mb-4 flex justify-center" },
+                        h('div', { className: "text-5xl filter drop-shadow-md animate-pulse-slow" }, "🧠")
+                    ),
+                    h('h3', { className: "text-lg md:text-xl font-black text-slate-900 mb-2" }, "Clinical Input"),
+                    h('p', { className: "text-slate-600 text-xs md:text-sm leading-relaxed" }, "15 psychometric parameters to map your child's naturally dominant learning DNA.")
+                ),
+
+                // 2. Neural Calibration
+                h('div', { className: "p-6 rounded-2xl bg-white shadow-xl border border-slate-100 transform hover:-translate-y-1 transition-transform duration-300" },
+                    h('h4', { className: "text-[#FF6B35] font-bold text-xs uppercase tracking-[2px] font-['Montserrat'] mb-2" }, "THE PROCESS (HOW?)"),
+                    h('div', { className: "mb-4 flex justify-center" },
+                        h('svg', { className: "w-14 h-14 text-slate-800 animate-spin-slow", fill: "none", stroke: "currentColor", strokeWidth: "2", viewBox: "0 0 24 24" },
+                            h('circle', { cx: "12", cy: "12", r: "3" }),
+                            h('path', { d: "M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" })
+                        )
+                    ),
+                    h('h3', { className: "text-lg md:text-xl font-black text-slate-900 mb-2" }, "Neural Calibration"),
+                    h('p', { className: "text-slate-600 text-xs md:text-sm leading-relaxed" }, "Forensic analysis of your child's traits vs. rigid NEP, CBSE, ICSE, and IB frameworks.")
+                ),
+
+                // 3. Actionable Roadmap
+                h('div', { className: "p-6 rounded-2xl bg-white shadow-xl border border-slate-100 transform hover:-translate-y-1 transition-transform duration-300" },
+                    h('h4', { className: "text-[#FF6B35] font-bold text-xs uppercase tracking-[2px] font-['Montserrat'] mb-2" }, "THE OUTPUT (WHAT?)"),
+                    h('div', { className: "mb-4 flex justify-center" },
+                        h('svg', { className: "w-14 h-14 text-[#F59E0B] animate-folder-float", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24" },
+                            h('path', { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: "1.5", d: "M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z" })
+                        )
+                    ),
+                    h('h3', { className: "text-lg md:text-xl font-black text-slate-900 mb-2" }, "Actionable Roadmap"),
+                    h('p', { className: "text-slate-600 text-xs md:text-sm leading-relaxed" }, "A Forensic Audit & Alignment Report delivered instantly to your inbox.")
+                )
+            );
+        };
+
+        // 5. Social Proof Banner (Full Width)
         const renderSocialProof = () => {
-            return h('div', { className: "mt-6 flex flex-col items-center gap-4" },
-                h('div', { className: "hidden" }), // Avatars Removed
-                h('p', {
-                    className: "text-slate-500 text-xs md:text-sm font-light uppercase tracking-[0.2em] opacity-80",
-                    style: { fontFamily: "'Inter', sans-serif" }
-                }, "Joined by 1,000+ parents this week")
+            return h('div', { className: "w-[calc(100%+2rem)] -mx-4 bg-slate-900 border-y border-slate-800 py-4 px-4 md:px-12 flex flex-col md:flex-row items-center justify-between gap-4 mt-8 mb-8" },
+                h('p', { className: "text-white text-sm md:text-base font-medium text-center md:text-left" },
+                    h('span', { className: "text-[#FF6B35] font-bold" }, "2,400+ Families"),
+                    " across India’s Top Tier Cities have synced their child’s future."
+                ),
+                h('div', { className: "flex items-center gap-6 text-slate-500 font-bold text-sm tracking-widest uppercase" },
+                    h('span', {}, "CBSE"),
+                    h('span', {}, "ICSE"),
+                    h('span', {}, "IB"),
+                    h('span', {}, "IGCSE")
+                )
             );
         };
 
@@ -176,11 +288,11 @@
 
         // 8. Question Embed
         const renderQuestionEmbed = () => {
-            return h('div', { className: "mt-4 w-full max-w-4xl bg-slate-900/50 border border-slate-700/50 p-8 md:p-12 rounded-[40px] backdrop-blur-xl" },
-                h('div', { className: "text-center mb-10" },
-                    h('span', { className: "text-[#FF6B35] font-black uppercase tracking-[0.3em] text-sm" }, "Verification Step 1: Baseline Momentum Audit (Subsidized Access)"),
-                    h('h2', { className: "text-white text-2xl md:text-4xl font-extrabold mt-4" }, "How does your child process complex new data?")
+            return h('div', { className: "mt-4 w-full max-w-4xl bg-slate-900/50 p-8 md:p-12 rounded-[40px] backdrop-blur-xl shadow-2xl" },
+                h('div', { className: "text-center" },
+                    h('h2', { className: "text-white text-2xl md:text-4xl font-extrabold mt-4 md:whitespace-nowrap" }, "How does your child process complex new data?")
                 ),
+                h('div', { className: "w-full h-px bg-slate-700/50 my-8" }), // Separator
                 h('div', { className: "grid grid-cols-1 md:grid-cols-3 gap-6" },
                     ["Visual/Charts", "Auditory/Discussion", "Kinesthetic/Build"].map((opt, i) =>
                         h('button', {
@@ -212,43 +324,80 @@
             );
         };
 
+        // 10. Sticky CTA (New)
+        const renderStickyCTA = () => {
+            return h(AnimatePresence, {},
+                showStickyCTA && h(motion.div, {
+                    initial: { y: 100, opacity: 0 },
+                    animate: { y: 0, opacity: 1 },
+                    exit: { y: 100, opacity: 0 },
+                    className: "fixed bottom-0 left-0 w-full z-[99999] bg-slate-50 border-t border-slate-200 shadow-[0_-5px_20px_rgba(0,0,0,0.1)] px-4 py-3 md:py-4 md:px-8 flex items-center justify-between"
+                },
+                    h('div', {},
+                        h('span', { className: "block text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest mb-0.5" }, "Don't Guess"),
+                        h('h3', { className: "text-slate-900 font-black text-sm md:text-xl leading-none" }, "Sync your child's future")
+                    ),
+                    h('button', {
+                        onClick: () => triggerStart(0),
+                        className: "bg-[#FF6B35] text-white px-5 py-2 md:px-8 md:py-3 rounded-full font-bold text-sm md:text-lg hover:scale-105 transition-transform shadow-lg flex items-center gap-2"
+                    },
+                        "Initiate Scan ",
+                        h('span', { className: "hidden md:inline" }, "→")
+                    )
+                )
+            );
+        };
+
         return h(Fragment, {},
             h('section', { className: "relative pt-16 pb-20 px-4 overflow-hidden bg-[#0F172A] min-h-[95vh] flex flex-col items-center" },
-                renderTopButtons(),
-                renderBranding(),
-                renderHeadline(),
-                renderSubtext(),
-                renderSocialProof(),
-                renderCTA(),
-                renderRoadmapText(),
-                renderQuestionEmbed(),
-                // Moved Text (Orange)
-                h('p', { className: "text-[#FF6B35] text-lg md:text-xl text-center max-w-3xl mx-auto mt-8 mb-4 leading-relaxed font-bold" },
-                    "Stop the guesswork. Audit your child's alignment with NEP standards and find the Board that fits their future—and your budget."
-                ),
-                // New Buttons After Phase 0
-                h('div', { className: "flex flex-col md:flex-row gap-4 justify-center items-center mt-8 w-full max-w-4xl px-4 animate-fade-in-up" },
-                    // 1. Calculator
-                    h('button', {
-                        onClick: () => window.handleCostCalculatorClick && window.handleCostCalculatorClick(),
-                        className: "px-5 py-3 rounded-full font-bold text-slate-300 border border-slate-600 hover:border-[#FF6B35] hover:text-[#FF6B35] hover:bg-slate-800/50 transition-all text-sm md:text-base flex items-center gap-2"
-                    }, "Calculate 'School Switch'"),
-                    // 2. Sync Check
-                    h('button', {
-                        onClick: () => window.openSyncMatchGate && window.openSyncMatchGate(),
-                        className: "px-5 py-3 rounded-full font-bold text-slate-300 border border-slate-600 hover:border-[#FF6B35] hover:text-[#FF6B35] hover:bg-slate-800/50 transition-all text-sm md:text-base flex items-center gap-2"
-                    }, "Unlock Parent & Child Sync Check"),
-                    // 3. Forensic Report
-                    h('a', {
-                        href: "https://xray.aptskola.com",
-                        target: "_blank",
-                        className: "px-5 py-3 rounded-full font-bold text-slate-300 border border-slate-600 hover:border-[#FF6B35] hover:text-[#FF6B35] hover:bg-slate-800/50 transition-all text-sm md:text-base flex items-center gap-2 text-center no-underline"
-                    }, "🔎 School/College Forensic Report")
+                renderTopLeftLogo(),
+                renderNarrativeHeader(),
+                h('div', {
+                    className: `flex flex-col items-center w-full`
+                },
+                    // Spacer removed as Narrative Header takes that space now
+                    renderHeadline(),
+                    renderSubtext(),
+                    renderFeatures(),
+                    renderCTA(),
+                    renderSocialProof(),
+                    renderRoadmapText(),
+                    renderQuestionEmbed(),
+
+                    // New Buttons After Phase 0
+                    h('div', { className: "flex flex-col md:flex-row gap-4 justify-center items-center mt-8 w-full max-w-4xl px-4 animate-fade-in-up" },
+                        // 1. Calculator
+                        h('button', {
+                            onClick: () => window.handleCostCalculatorClick && window.handleCostCalculatorClick(),
+                            className: "group px-6 py-3 rounded-xl font-bold text-slate-100 border border-slate-500 bg-slate-800/60 hover:border-[#FF6B35] hover:text-white hover:bg-slate-800/80 transition-all text-sm flex items-center gap-2 shadow-lg backdrop-blur-sm"
+                        },
+                            h('span', { className: "text-lg transition-all" }, "🧮"),
+                            " Calculate 'School Switch'"
+                        ),
+                        // 2. Sync Check
+                        h('button', {
+                            onClick: () => window.openSyncMatchGate && window.openSyncMatchGate(),
+                            className: "group px-6 py-3 rounded-xl font-bold text-slate-100 border border-slate-500 bg-slate-800/60 hover:border-[#FF6B35] hover:text-white hover:bg-slate-800/80 transition-all text-sm flex items-center gap-2 shadow-lg backdrop-blur-sm"
+                        },
+                            h('span', { className: "text-lg transition-all" }, "🔐"),
+                            " Unlock Parent & Child Sync Check"
+                        ),
+                        // 3. Forensic Report
+                        h('a', {
+                            href: "https://xray.aptskola.com",
+                            target: "_blank",
+                            className: "group px-6 py-3 rounded-xl font-bold text-slate-100 border border-slate-500 bg-slate-800/60 hover:border-[#FF6B35] hover:text-white hover:bg-slate-800/80 transition-all text-sm flex items-center gap-2 no-underline text-center shadow-lg backdrop-blur-sm"
+                        },
+                            h('span', { className: "text-lg transition-all" }, "🔎"),
+                            " School/College Forensic Report"
+                        )
+                    )
                 ),
                 h('div', { className: "absolute top-1/4 left-1/4 w-96 h-96 bg-orange-500/10 rounded-full blur-[150px] pointer-events-none" }),
                 h('div', { className: "absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[180px] pointer-events-none" })
             ),
-            renderToast()
+            renderToast(),
+            renderStickyCTA()
         );
     };
 

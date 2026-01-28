@@ -194,8 +194,8 @@ function initializeQuizShell(startAtIndex = 0, phase = 0) {
     modal.style.display = 'block'; // Ensure visibility
 
     // 3. Scroll to Top (CRITICAL FIX)
-    window.scrollTo(0, 0);
-    setTimeout(() => window.scrollTo(0, 0), 50);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 50);
 
     // 4. Set State & Render
     window.currentPhase = phase;
@@ -215,7 +215,7 @@ window.handleCostCalculatorClick = function () {
     if (landing) landing.classList.add('hidden');
     if (hero) hero.classList.add('hidden');
 
-    window.scrollTo(0, 0);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 
     if (section) {
         section.classList.remove('hidden'); // Reveal Calculator
