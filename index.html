@@ -112,6 +112,25 @@
         .haptic-shadow:hover {
             box-shadow: 0 15px 35px -5px rgba(249, 115, 22, 0.5), 0 0 0 2px rgba(255, 255, 255, 0.2) inset !important;
         }
+
+        /* Custom Breakpoint Logic for 360px */
+        .micro-mobile-only {
+            display: block;
+        }
+
+        .micro-mobile-hidden {
+            display: none;
+        }
+
+        @media (min-width: 360px) {
+            .micro-mobile-only {
+                display: none !important;
+            }
+
+            .micro-mobile-hidden {
+                display: block !important;
+            }
+        }
     </style>
     <script type="text/javascript">
         (function (c, l, a, r, i, t, y) {
@@ -268,10 +287,16 @@
     </div>
     <div id="react-hero-root" style="opacity: 1; min-height: 95vh; width: 100%; display: block;" class="loaded">
         <!-- STATIC APP SHELL (INSTANT LOAD) -->
-        <section class="relative pt-16 pb-20 px-4 overflow-hidden bg-[#0F172A] min-h-[95vh] flex flex-col items-center">
+        <section class="relative pt-12 pb-20 px-4 overflow-hidden bg-[#0F172A] min-h-[95vh] flex flex-col items-center">
             <!-- 1. Top Right Navigation -->
-            <!-- 1. Top Right Navigation (Removed) -->
-            <div class="absolute top-6 right-6 z-[1000]">
+            <!-- 1.5 Top Right Social Proof (New) -->
+            <div class="absolute top-6 right-6 z-[100] flex items-center gap-2">
+                <div class="w-2 h-2 rounded-full bg-[#FF6B35] animate-pulse shadow-[0_0_8px_#FF6B35]"></div>
+                <p class="text-[10px] font-bold text-white uppercase tracking-wider leading-none"
+                    style="font-family: 'Inter', sans-serif;">
+                    <span class="micro-mobile-only text-[#FF6B35]">2.4K+ Families</span>
+                    <span class="micro-mobile-hidden">2,400+ Families Audited</span>
+                </p>
             </div>
 
             <!-- 2. Branding -->
@@ -288,7 +313,8 @@
             </div>
 
             <!-- Narrative Header (Synced with React) -->
-            <div class="mt-8 w-full flex flex-col items-center justify-center z-40 min-h-[120px]">
+            <!-- Narrative Header (Synced with React) -->
+            <div class="mt-8 w-full flex flex-col items-center justify-center z-40 min-h-[80px]">
                 <div class="flex flex-col md:flex-row items-center gap-4 md:gap-8">
                     <!-- Part 1: "Best" Question -->
                     <div class="text-center md:text-right">
@@ -298,17 +324,18 @@
                         </p>
                     </div>
                     <!-- Part 2: "Vs" Bounce -->
-                    <div class="relative">
+                    <div class="relative cursor-pointer"
+                        onclick="if(typeof initializeQuizShell === 'function') initializeQuizShell(0);">
                         <div
-                            class="w-12 h-12 md:w-16 md:h-16 bg-[#FF6B35] rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(255,107,53,0.6)] animate-bounce">
+                            class="w-12 h-12 md:w-16 md:h-16 bg-[#FF6B35] rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(255,107,53,0.6)] animate-bounce hover:scale-110 transition-transform">
                             <span class="text-white font-black text-lg md:text-xl italic">Vs</span>
                         </div>
                     </div>
                     <!-- Part 3: "Suits" Answer -->
                     <div class="text-center md:text-left">
-                        <p class="text-2xl md:text-5xl font-bold text-slate-200">
+                        <p class="text-xl md:text-5xl font-bold text-slate-200 whitespace-nowrap">
                             What <span class="font-black text-[#FF6B35]"
-                                style="font-family: 'Montserrat', sans-serif;">Suits</span> <br class="md:hidden" />your
+                                style="font-family: 'Montserrat', sans-serif;">Suits</span> your
                             child?
                         </p>
                     </div>
@@ -319,53 +346,42 @@
             <!-- 3. Headline (Animation + Refined Text) -->
             <!-- 3. Headline (STOP/Worrying + Subtext) -->
             <div
-                class="flex flex-col items-center justify-center gap-4 min-h-[160px] text-center px-4 max-w-5xl mx-auto mt-8">
-                <!-- STOP Animation -->
-                <div class="flex items-center gap-4 md:gap-8 h-[120px] overflow-hidden mb-6">
-                    <span class="text-5xl md:text-8xl font-black transition-colors duration-500 text-red-500">
-                        STOP
-                    </span>
-                    <div class="flex items-center gap-4 md:gap-8 min-w-[300px] justify-center">
-                        <span class="text-5xl md:text-8xl font-black text-white">
-                            Worrying
-                        </span>
-                    </div>
+                class="flex flex-col items-center justify-center gap-2 min-h-[60px] text-center px-4 max-w-5xl mx-auto mt-1">
+                <!-- New Headline (Replaces STOP/Worrying) -->
+                <div
+                    style="margin-bottom: 0.25rem; font-size: clamp(18px, 5vw, 28px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; width: 100%;">
+                    <span style="color: #94A3B8;">From Enquiring</span>
+                    <span style="color: #94A3B8; font-style: italic;">&nbsp;to</span>
+                    <span style="color: #FF6B35; font-weight: 800;">&nbsp;Knowing</span>
                 </div>
 
-                <!-- Subtext (Synced) -->
-                <p
-                    class="text-[#FF6B35] font-black text-xl md:text-3xl mt-4 tracking-normal text-center drop-shadow-lg leading-tight">
-                    School Board Selection is a 15 Year Financial & Academic Commitment.
-                </p>
-                <p
-                    className="text-white text-lg md:text-2xl text-center max-w-3xl mx-auto mt-12 leading-relaxed font-medium">
-                    Is your child's Age, Grade, and Learning Style in perfect <span
-                        class="text-[#FF6B35] font-bold">Sync</span>?
-                </p>
+                <!-- Subtext (Synced) REMOVED -->
+                <!-- Subtext (Synced) REMOVED -->
             </div>
 
             <!-- 4. Feature Block (Synced) -->
-            <div
-                class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 text-center relative max-w-6xl mx-auto mt-12 mb-8 px-4">
+            <!-- 4. Feature Block (Synced) -->
+            <div class="grid grid-cols-3 gap-2 md:gap-8 text-center relative max-w-6xl mx-auto mt-2 md:mt-12 mb-8 px-2">
                 <!-- Connector Line (Desktop) -->
                 <div class="hidden md:block absolute top-12 left-[16%] right-[16%] h-0.5 bg-slate-700/50 -z-10"></div>
 
                 <!-- 1. Clinical Input -->
                 <div
-                    class="p-6 rounded-2xl bg-white shadow-xl border border-slate-100 transform hover:-translate-y-1 transition-transform duration-300">
+                    class="p-2 md:p-6 rounded-2xl bg-white shadow-xl border border-slate-100 transform hover:-translate-y-1 transition-transform duration-300">
                     <h4 class="text-[#FF6B35] font-bold text-xs uppercase tracking-[2px] font-['Montserrat'] mb-2">THE
                         INPUT (WHY?)</h4>
                     <div class="mb-4 flex justify-center">
                         <div class="text-5xl filter drop-shadow-md animate-pulse-slow">🧠</div>
                     </div>
-                    <h3 class="text-lg md:text-xl font-black text-slate-900 mb-2">Clinical Input</h3>
-                    <p class="text-slate-600 text-xs md:text-sm leading-relaxed">15 psychometric parameters to map your
+                    <h3 class="text-xs md:text-xl font-black text-slate-900 mb-1 md:mb-2">Clinical Input</h3>
+                    <p class="hidden md:block text-slate-600 text-xs md:text-sm leading-relaxed">15 psychometric
+                        parameters to map your
                         child's naturally dominant learning DNA.</p>
                 </div>
 
                 <!-- 2. Neural Calibration -->
                 <div
-                    class="p-6 rounded-2xl bg-white shadow-xl border border-slate-100 transform hover:-translate-y-1 transition-transform duration-300">
+                    class="p-2 md:p-6 rounded-2xl bg-white shadow-xl border border-slate-100 transform hover:-translate-y-1 transition-transform duration-300">
                     <h4 class="text-[#FF6B35] font-bold text-xs uppercase tracking-[2px] font-['Montserrat'] mb-2">THE
                         PROCESS (HOW?)</h4>
                     <div class="mb-4 flex justify-center">
@@ -376,14 +392,15 @@
                                 d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
                         </svg>
                     </div>
-                    <h3 class="text-lg md:text-xl font-black text-slate-900 mb-2">Neural Calibration</h3>
-                    <p class="text-slate-600 text-xs md:text-sm leading-relaxed">Forensic analysis of your child's
+                    <h3 class="text-xs md:text-xl font-black text-slate-900 mb-1 md:mb-2">Neural Link</h3>
+                    <p class="hidden md:block text-slate-600 text-xs md:text-sm leading-relaxed">Forensic analysis of
+                        your child's
                         traits vs. rigid NEP, CBSE, ICSE, and IB frameworks.</p>
                 </div>
 
                 <!-- 3. Actionable Roadmap -->
                 <div
-                    class="p-6 rounded-2xl bg-white shadow-xl border border-slate-100 transform hover:-translate-y-1 transition-transform duration-300">
+                    class="p-2 md:p-6 rounded-2xl bg-white shadow-xl border border-slate-100 transform hover:-translate-y-1 transition-transform duration-300">
                     <h4 class="text-[#FF6B35] font-bold text-xs uppercase tracking-[2px] font-['Montserrat'] mb-2">THE
                         OUTPUT (WHAT?)</h4>
                     <div class="mb-4 flex justify-center">
@@ -394,24 +411,17 @@
                             </path>
                         </svg>
                     </div>
-                    <h3 class="text-lg md:text-xl font-black text-slate-900 mb-2">Actionable Roadmap</h3>
-                    <p class="text-slate-600 text-xs md:text-sm leading-relaxed">A Forensic Audit & Alignment
+                    <h3 class="text-xs md:text-xl font-black text-slate-900 mb-1 md:mb-2">Roadmap</h3>
+                    <p class="hidden md:block text-slate-600 text-xs md:text-sm leading-relaxed">A Forensic Audit &
+                        Alignment
                         Report delivered instantly to your inbox.</p>
                 </div>
             </div>
 
-            <!-- 5. Social Proof (Synced) -->
-            <div class="mt-2 flex flex-col items-center gap-4">
-                <div class="hidden"></div>
-                <p class="text-slate-400 text-xs md:text-sm font-medium uppercase tracking-[0.2em] opacity-90"
-                    style="font-family: 'Inter', sans-serif;">
-                    <span class="text-[#FF6B35] font-bold">2,400+ Families</span> across India’s Top Tier Cities have
-                    synced their child’s future.
-                </p>
-            </div>
+
 
             <!-- 6. CTA Button (Split Action) -->
-            <div class="relative mt-8 z-[40] flex flex-col gap-4 items-center w-full max-w-2xl px-4">
+            <div class="relative mt-4 z-[40] flex flex-col gap-4 items-center w-full max-w-2xl px-4">
                 <!-- Primary Button -->
                 <div class="relative group w-full md:w-auto">
                     <div
@@ -431,10 +441,15 @@
 
             <!-- 7. Roadmap Text -->
             <p
-                class="text-slate-400 text-center mt-8 mb-2 w-full max-w-5xl mx-auto px-2 font-medium animate-pulse text-xs md:text-lg md:whitespace-nowrap leading-tight">
+                class="text-[#FF6B35] font-black text-xl md:text-3xl mb-4 mt-12 tracking-normal text-center drop-shadow-lg leading-tight">
+                School Board Selection is a 15 Year Financial & Academic Commitment.
+            </p>
+            <p
+                class="text-slate-400 text-center mt-2 mb-2 w-full max-w-5xl mx-auto px-2 font-medium animate-pulse text-xs md:text-lg md:whitespace-nowrap leading-tight">
                 Your personalized roadmap begins here. Please answer calibration questions to align your child’s
                 profile.
             </p>
+
 
             <!-- 8. Question Embed -->
             <div class="mt-4 w-full max-w-4xl bg-slate-900/50 p-8 md:p-12 rounded-[40px] backdrop-blur-xl shadow-2xl">
@@ -467,7 +482,15 @@
                 </div>
             </div>
 
-            <!-- Moved Text (Orange) -->
+            <!-- 5. Social Proof (Synced) Moved Again -->
+            <div class="mt-8 mb-4 flex flex-col items-center gap-4">
+                <div class="hidden"></div>
+                <p class="text-slate-400 text-xs md:text-sm font-medium uppercase tracking-[0.2em] opacity-90"
+                    style="font-family: 'Inter', sans-serif; text-align: center;">
+                    <span class="text-[#FF6B35] font-bold">2,400+ Families</span> across India’s Top Tier Cities have
+                    synced their child’s future.
+                </p>
+            </div>
 
 
             <!-- New Button Location (After Phase 0) -->

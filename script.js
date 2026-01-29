@@ -530,8 +530,19 @@ const MASTER_DATA = {
 
 
 const phase0Questions = [
-    { id: "p0_q1", text: "How does your child process complex new data?", options: ["Visual/Charts", "Auditory/Discussion", "Kinesthetic/Build"] },
-    { id: "p0_q2", text: "Which environment triggers their best ideas?", options: ["Quiet/Structured", "Collaborative/Noisy", "Outdoor/Nature"] },
+    {
+        id: "p0_q1",
+        type: "input",
+        title: "Forensic Calibration",
+        text: "To personalize your 12-page Forensic Audit, who are we calibrating this report for?",
+        placeholder: "Type Child's Name...",
+        autoFocus: true
+    },
+    {
+        id: "p0_q2",
+        text: "Target Academic Cycle: Which grade is your child currently navigating?",
+        options: ["Preschool / Kindergarten", "Grades 1-5 (Primary)", "Grades 6-8 (Middle)", "Grades 9-12 (High School)"]
+    },
     { id: "p0_q3", text: "How do they handle a completely new puzzle?", options: ["Study the box/instructions", "Try and fail repeatedly", "Ask someone to show them"] },
     { id: "p0_q4", text: "What is their natural curiosity driver?", options: ["How things work", "Why things happen", "What can I create"] }
 ];
@@ -1284,7 +1295,12 @@ function initializeQuizShell(index, phase = 0) {
     });
 
     const shellHtml = `
-        <div id="questionPageApp" class="question-page active">
+        <div id="questionPageApp" class="question-page active" style="background-color: #F8FAFC; min-height: 100vh;">
+            <!-- Social Proof Header -->
+            <div style="background: #F1F5F9; color: #64748B; font-size: 0.7rem; font-weight: 600; text-align: center; padding: 8px 16px; border-bottom: 1px solid #E2E8F0; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                 <span style="width: 6px; height: 6px; background: #10B981; border-radius: 50%;"></span>
+                 Joined by 2,400+ Families this month. Your data is encrypted & private.
+            </div>
             ${getIntermediateHeaderHtml()}
             <div class="question-content-wrapper"><div id="dynamicQuizContent" class="question-container"></div></div>
             ${getIntermediateFooterHtml()}
@@ -1318,6 +1334,36 @@ function renderTransitionBridge() {
             container.style.opacity = '1';
         });
     }
+}
+
+// --- INPUT HANDLING ---
+function handleQuizInputEnter(event, qId, index) {
+    if (event.key === 'Enter') {
+        submitQuizInput(qId, index);
+    }
+}
+
+function submitQuizInput(qId, index) {
+    const input = document.getElementById(`quizInput_${qId}`);
+    if (!input) return;
+
+    const value = input.value.trim();
+    if (!value) {
+        input.style.borderColor = '#EF4444';
+        setTimeout(() => input.style.borderColor = '#E2E8F0', 2000);
+        return;
+    }
+
+    // Save Data
+    if (qId === 'p0_q1') {
+        customerData.childName = value;
+        answers[qId] = value;
+    } else {
+        answers[qId] = value;
+    }
+
+    // Next Question
+    renderQuestionContent(index + 1);
 }
 
 function renderQuestionContent(index) {
@@ -1355,11 +1401,38 @@ function renderQuestionContent(index) {
         }
     }
 
-    const progressPercent = ((index + 1) / totalQ * 100).toFixed(0);
-    const optionsHTML = qOptions.map((opt, i) => {
-        const isSelected = answers[q.id] === i ? 'selected' : '';
-        return `<div class="option-card ${isSelected}" onclick="selectOption('${q.id}', ${i}, ${index}, this)">${opt}</div>`;
-    }).join('');
+    const progressPercent = Math.max(15, ((index + 1) / totalQ * 100).toFixed(0));
+
+    // INPUT TYPE HANDLING (New Phase 0 Logic)
+    let contentHTML = '';
+    if (q.type === 'input') {
+        contentHTML = `
+            <div class="input-card" style="text-align:center;">
+                <input type="text" id="quizInput_${q.id}" 
+                    placeholder="${q.placeholder || 'Type here...'}" 
+                    class="hero-input" 
+                    style="width: 100%; padding: 16px; border: 2px solid #E2E8F0; border-radius: 12px; font-size: 1.1rem; outline: none; transition: all 0.3s;"
+                    onkeypress="handleQuizInputEnter(event, '${q.id}', ${index})"
+                />
+                <button onclick="submitQuizInput('${q.id}', ${index})" class="hero-btn-primary" style="margin-top: 20px; width: 100%;">
+                    Continue →
+                </button>
+            </div>
+        `;
+        // Auto-focus logic
+        setTimeout(() => {
+            const inp = document.getElementById(`quizInput_${q.id}`);
+            if (inp) inp.focus();
+        }, 100);
+    } else {
+        // STANDARD OPTIONS
+        contentHTML = qOptions.map((opt, i) => {
+            const isSelected = answers[q.id] === i ? 'selected' : '';
+            return `<div class="option-card ${isSelected} slide-in-up" onclick="selectOption('${q.id}', ${i}, ${index}, this)" style="animation-delay: ${i * 0.05}s;">${opt}</div>`;
+        }).join('');
+    }
+
+    const optionsHTML = contentHTML;
 
     let prevBtnHtml = '';
     if (index > 0) {

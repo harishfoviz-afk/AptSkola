@@ -113,10 +113,21 @@
             );
         };
 
+        // 1.5 Top Right Social Proof (New)
+        const renderTopRightSocialProof = () => {
+            return h('div', { className: "absolute top-6 right-6 z-[100] flex items-center gap-2" },
+                h('div', { className: "w-2 h-2 rounded-full bg-[#FF6B35] animate-pulse shadow-[0_0_8px_#FF6B35]" }),
+                h('p', { className: "text-[10px] font-bold text-white uppercase tracking-wider leading-none", style: { fontFamily: "'Inter', sans-serif" } },
+                    h('span', { className: "micro-mobile-only text-[#FF6B35]" }, "2.4K+ Families"),
+                    h('span', { className: "micro-mobile-hidden" }, "2,400+ Families Audited")
+                )
+            );
+        };
+
         // Narrative Intro Header (Persistent Horizontal)
         // Narrative Intro Header (Persistent Horizontal)
         const renderNarrativeHeader = () => {
-            return h('div', { className: "mt-8 w-full flex flex-col items-center justify-center z-40 min-h-[120px]" },
+            return h('div', { className: "mt-8 w-full flex flex-col items-center justify-center z-40 min-h-[80px]" },
                 h('div', { className: "flex flex-col md:flex-row items-center gap-4 md:gap-8" },
 
                     // Part 1: "Best" Question (Static)
@@ -132,21 +143,23 @@
 
                     // Part 2: "Vs" Bounce (Static Container, Animated Inner)
                     h('div', {
-                        className: "relative"
+                        className: "relative cursor-pointer",
+                        onClick: () => triggerStart(0)
                     },
-                        h('div', { className: "w-12 h-12 md:w-16 md:h-16 bg-[#FF6B35] rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(255,107,53,0.6)] animate-bounce" },
+                        h('div', { className: "w-12 h-12 md:w-16 md:h-16 bg-[#FF6B35] rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(255,107,53,0.6)] animate-bounce hover:scale-110 transition-transform" },
                             h('span', { className: "text-white font-black text-lg md:text-xl italic" }, "Vs")
                         )
                     ),
+
 
                     // Part 3: "Suits" Answer (Static)
                     h('div', {
                         className: "text-center md:text-left"
                     },
-                        h('p', { className: "text-2xl md:text-5xl font-bold text-slate-200" },
+                        h('p', { className: "text-xl md:text-5xl font-bold text-slate-200 whitespace-nowrap" },
                             "What ",
                             h('span', { className: "font-black text-[#FF6B35] tracking-wide", style: { fontFamily: "'Montserrat', sans-serif" } }, "Suits"),
-                            " ", h('br', { className: "md:hidden" }), "your child?"
+                            " your child?"
                         )
                     )
                 )
@@ -163,32 +176,16 @@
         // 3. Headline
         const renderHeadline = () => {
             const currentSlide = slides[index];
-            return h('div', { className: "flex flex-col items-center justify-center gap-4 min-h-[160px] mt-8" },
-                // STABILIZED ANIMATION CONTAINER
-                h('div', { className: "flex items-center gap-4 md:gap-8 h-[120px] overflow-hidden mb-6" },
-                    h(AnimatePresence, { mode: "wait" },
-                        h(motion.div, {
-                            key: index,
-                            initial: { opacity: 0 },
-                            animate: { opacity: 1 },
-                            exit: { opacity: 0 },
-                            transition: { duration: 0.2 },
-                            className: "flex items-center gap-4 md:gap-8 min-w-[300px] justify-center"
-                        },
-                            h('span', { className: `text-5xl md:text-8xl font-black ${currentSlide.pColor}` }, currentSlide.prefix),
-                            h('span', { className: `text-5xl md:text-8xl font-black ${currentSlide.wColor}` }, currentSlide.word)
-                        )
-                    )
+            return h('div', { className: "flex flex-col items-center justify-center gap-2 min-h-[60px] mt-1" },
+                // New Headline (Replaces STOP/Worrying)
+                h('div', { style: { marginBottom: '0.25rem', fontSize: 'clamp(18px, 5vw, 28px)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: 'center', width: '100%' } },
+                    h('span', { style: { color: '#94A3B8' } }, "From Enquiring"),
+                    h('span', { style: { color: '#94A3B8', fontStyle: 'italic' } }, " to"),
+                    h('span', { style: { color: '#FF6B35', fontWeight: 800 } }, " Knowing")
                 ),
                 h('div', { className: "text-center px-4 max-w-5xl mx-auto mt-6" },
-                    h('h1', { className: "text-[#FF6B35] font-black text-xl md:text-3xl mt-4 tracking-normal text-center drop-shadow-lg leading-tight" },
-                        "School Board Selection is a 15 Year Financial & Academic Commitment."
-                    ),
-                    h('p', { className: "text-white text-lg md:text-2xl text-center max-w-3xl mx-auto mt-12 leading-relaxed font-medium" },
-                        "Is your child's Age, Grade, and Learning Style in perfect ",
-                        h('span', { className: "text-[#FF6B35] font-bold" }, "Sync"),
-                        "?"
-                    )
+                    /* Subtext Moved */
+                    /* Subtext Removed */
                 )
             );
         };
@@ -205,20 +202,20 @@
 
         // 4.5 Feature Block
         const renderFeatures = () => {
-            return h('div', { className: "grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 text-center relative max-w-6xl mx-auto mt-12 mb-8 px-4" },
+            return h('div', { className: "grid grid-cols-3 gap-2 md:gap-8 text-center relative max-w-6xl mx-auto mt-0 md:mt-12 mb-8 px-2" },
 
                 // 1. Clinical Input
-                h('div', { className: "p-6 rounded-2xl bg-white shadow-xl border border-slate-100 transform hover:-translate-y-1 transition-transform duration-300" },
+                h('div', { className: "p-2 md:p-6 rounded-2xl bg-white shadow-xl border border-slate-100 transform hover:-translate-y-1 transition-transform duration-300" },
                     h('h4', { className: "text-[#FF6B35] font-bold text-xs uppercase tracking-[2px] font-['Montserrat'] mb-2" }, "THE INPUT (WHY?)"),
                     h('div', { className: "mb-4 flex justify-center" },
                         h('div', { className: "text-5xl filter drop-shadow-md animate-pulse-slow" }, "🧠")
                     ),
-                    h('h3', { className: "text-lg md:text-xl font-black text-slate-900 mb-2" }, "Clinical Input"),
-                    h('p', { className: "text-slate-600 text-xs md:text-sm leading-relaxed" }, "15 psychometric parameters to map your child's naturally dominant learning DNA.")
+                    h('h3', { className: "text-xs md:text-xl font-black text-slate-900 mb-1 md:mb-2" }, "Clinical Input"),
+                    h('p', { className: "hidden md:block text-slate-600 text-xs md:text-sm leading-relaxed" }, "15 psychometric parameters to map your child's naturally dominant learning DNA.")
                 ),
 
                 // 2. Neural Calibration
-                h('div', { className: "p-6 rounded-2xl bg-white shadow-xl border border-slate-100 transform hover:-translate-y-1 transition-transform duration-300" },
+                h('div', { className: "p-2 md:p-6 rounded-2xl bg-white shadow-xl border border-slate-100 transform hover:-translate-y-1 transition-transform duration-300" },
                     h('h4', { className: "text-[#FF6B35] font-bold text-xs uppercase tracking-[2px] font-['Montserrat'] mb-2" }, "THE PROCESS (HOW?)"),
                     h('div', { className: "mb-4 flex justify-center" },
                         h('svg', { className: "w-14 h-14 text-slate-800 animate-spin-slow", fill: "none", stroke: "currentColor", strokeWidth: "2", viewBox: "0 0 24 24" },
@@ -226,20 +223,20 @@
                             h('path', { d: "M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" })
                         )
                     ),
-                    h('h3', { className: "text-lg md:text-xl font-black text-slate-900 mb-2" }, "Neural Calibration"),
-                    h('p', { className: "text-slate-600 text-xs md:text-sm leading-relaxed" }, "Forensic analysis of your child's traits vs. rigid NEP, CBSE, ICSE, and IB frameworks.")
+                    h('h3', { className: "text-xs md:text-xl font-black text-slate-900 mb-1 md:mb-2" }, "Neural Link"),
+                    h('p', { className: "hidden md:block text-slate-600 text-xs md:text-sm leading-relaxed" }, "Forensic analysis of your child's traits vs. rigid NEP, CBSE, ICSE, and IB frameworks.")
                 ),
 
                 // 3. Actionable Roadmap
-                h('div', { className: "p-6 rounded-2xl bg-white shadow-xl border border-slate-100 transform hover:-translate-y-1 transition-transform duration-300" },
+                h('div', { className: "p-2 md:p-6 rounded-2xl bg-white shadow-xl border border-slate-100 transform hover:-translate-y-1 transition-transform duration-300" },
                     h('h4', { className: "text-[#FF6B35] font-bold text-xs uppercase tracking-[2px] font-['Montserrat'] mb-2" }, "THE OUTPUT (WHAT?)"),
                     h('div', { className: "mb-4 flex justify-center" },
                         h('svg', { className: "w-14 h-14 text-[#F59E0B] animate-folder-float", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24" },
                             h('path', { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: "1.5", d: "M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z" })
                         )
                     ),
-                    h('h3', { className: "text-lg md:text-xl font-black text-slate-900 mb-2" }, "Actionable Roadmap"),
-                    h('p', { className: "text-slate-600 text-xs md:text-sm leading-relaxed" }, "A Forensic Audit & Alignment Report delivered instantly to your inbox.")
+                    h('h3', { className: "text-xs md:text-xl font-black text-slate-900 mb-1 md:mb-2" }, "Roadmap"),
+                    h('p', { className: "hidden md:block text-slate-600 text-xs md:text-sm leading-relaxed" }, "A Forensic Audit & Alignment Report delivered instantly to your inbox.")
                 )
             );
         };
@@ -262,7 +259,7 @@
 
         // 6. CTA Button (Split Action)
         const renderCTA = () => {
-            return h('div', { className: "relative mt-8 z-[40] flex flex-col gap-4 items-center w-full max-w-2xl px-4" },
+            return h('div', { className: "relative mt-4 z-[40] flex flex-col gap-4 items-center w-full max-w-2xl px-4" },
                 // Primary Button
                 h('div', { className: "relative group w-full md:w-auto" },
                     h('div', { className: "absolute -inset-1 bg-gradient-to-r from-[#FF6B35] to-yellow-500 rounded-full blur opacity-40 group-hover:opacity-75 transition duration-1000" }),
@@ -281,8 +278,13 @@
 
         // 7. Roadmap Text
         const renderRoadmapText = () => {
-            return h('p', { className: "text-slate-400 text-center mt-8 mb-2 w-full max-w-5xl mx-auto px-2 font-medium animate-pulse text-xs md:text-lg md:whitespace-nowrap leading-tight" },
-                "Your personalized roadmap begins here. Please answer calibration questions to align your child’s profile."
+            return h(Fragment, {},
+                h('p', { className: "text-[#FF6B35] font-black text-xl md:text-3xl mb-4 mt-12 tracking-normal text-center drop-shadow-lg leading-tight" },
+                    "School Board Selection is a 15 Year Financial & Academic Commitment."
+                ),
+                h('p', { className: "text-slate-400 text-center mt-2 mb-2 w-full max-w-5xl mx-auto px-2 font-medium animate-pulse text-xs md:text-lg md:whitespace-nowrap leading-tight" },
+                    "Your personalized roadmap begins here. Please answer calibration questions to align your child’s profile."
+                )
             );
         };
 
@@ -349,8 +351,9 @@
         };
 
         return h(Fragment, {},
-            h('section', { className: "relative pt-16 pb-20 px-4 overflow-hidden bg-[#0F172A] min-h-[95vh] flex flex-col items-center" },
+            h('section', { className: "relative pt-12 pb-20 px-4 overflow-hidden bg-[#0F172A] min-h-[95vh] flex flex-col items-center" },
                 renderTopLeftLogo(),
+                renderTopRightSocialProof(),
                 renderNarrativeHeader(),
                 h('div', {
                     className: `flex flex-col items-center w-full`
@@ -360,9 +363,9 @@
                     renderSubtext(),
                     renderFeatures(),
                     renderCTA(),
-                    renderSocialProof(),
                     renderRoadmapText(),
                     renderQuestionEmbed(),
+                    renderSocialProof(),
 
                     // New Buttons After Phase 0
                     h('div', { className: "flex flex-col md:flex-row gap-4 justify-center items-center mt-8 w-full max-w-4xl px-4 animate-fade-in-up" },
