@@ -2858,9 +2858,9 @@ async function renderReportToBrowser() {
 
     // --- UNIVERSAL FOOTER (Included in all packages) ---
     html += `
-        < div class="report-card" style = "margin-top:40px; padding:20px; background:#F1F5F9; border-radius:8px; font-size:0.8rem; color:#64748B; text-align:justify;" >
+        <div class="report-card" style="margin-top:40px; padding:20px; background:#F1F5F9; border-radius:8px; font-size:0.8rem; color:#64748B; text-align:justify;">
             <strong>DISCLAIMER:</strong> This report is advisory only.The final enrollment decision remains the sole responsibility of the parent.The outcome of this report is purely based on the user input provided..
-        </div >
+        </div>
         <div style="text-align: center; margin-top: 20px; padding-bottom: 20px;">
             <p class="text-xs font-medium opacity-70" style="font-size: 0.8rem !important; color: #64748B;">&copy; 2024 - 2026 Apt Skola, all rights reserved.</p>
         </div>

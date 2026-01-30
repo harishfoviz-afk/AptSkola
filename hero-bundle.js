@@ -180,7 +180,7 @@
         // Narrative Intro Header (Persistent Horizontal)
         // Narrative Intro Header (Persistent Horizontal)
         const renderNarrativeHeader = () => {
-            return h('div', { className: "mt-2 w-full flex flex-col items-center justify-center z-40 min-h-[80px]" },
+            return h('div', { className: "mt-8 w-full flex flex-col items-center justify-center z-40 min-h-[80px]" },
                 h('div', { className: "flex flex-col md:flex-row items-center gap-4 md:gap-8" },
 
                     // Part 1: "Best" Question (Static)

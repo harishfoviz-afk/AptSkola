@@ -154,7 +154,7 @@ const Hero = () => {
         </div>
 
         {/* Narrative Intro Header */}
-        <div className="mt-2 w-full flex flex-col items-center justify-center z-40 min-h-[80px]">
+        <div className="mt-8 w-full flex flex-col items-center justify-center z-40 min-h-[80px]">
           <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8">
             <div className="text-center md:text-right">
               <p className="text-2xl md:text-4xl font-bold text-slate-500">
