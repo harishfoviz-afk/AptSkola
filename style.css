@@ -11,6 +11,35 @@
     --shadow-soft: 0 10px 40px -10px rgba(15, 23, 42, 0.1);
 }
 
+/* GLOBAL STICKY HEADER */
+#global-sticky-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 100000;
+    /* Higher than modals */
+    background: var(--navy-premium);
+    padding: 1.5rem 2rem;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #1E293B;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+#global-sticky-header h1 {
+    font-size: 1.5rem;
+    line-height: 1;
+    font-weight: 900;
+    color: var(--white);
+    letter-spacing: -0.05em;
+    margin: 0;
+}
+
+#global-sticky-header h1 span {
+    color: var(--sunrise-primary);
+}
+
 /* NEW: Validation Feedback Styles */
 .input-error {
     border: 2px solid #EF4444 !important;
@@ -389,7 +418,7 @@ body {
 .option-card {
     padding: 20px 25px;
     background: #F8FAFC;
-    border-radius: 12px;
+    border-radius: 16px;
     cursor: pointer;
     transition: all 0.2s ease;
     font-size: 1.1rem;
@@ -401,12 +430,24 @@ body {
 
 .option-card:hover {
     background: #F1F5F9;
+    transform: translateY(-2px);
 }
 
 .option-card.selected {
-    border-color: var(--navy-premium);
+    border-color: var(--sunrise-primary);
     background: #fff;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 10px 20px rgba(255, 107, 53, 0.1);
+}
+
+.quiz-card {
+    background: white;
+    border-radius: 24px;
+    padding: 30px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.05);
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    border: 1px solid #F1F5F9;
 }
 
 /* Other Pages */
@@ -598,6 +639,27 @@ body {
     100% {
         transform: rotate(360deg);
     }
+}
+
+/* NEW: Arrow Pulse Animation */
+@keyframes arrowMove {
+    0% {
+        transform: translateX(0);
+    }
+
+    50% {
+        transform: translateX(5px);
+    }
+
+    100% {
+        transform: translateX(0);
+    }
+}
+
+.arrow-pulse {
+    display: inline-block;
+    animation: arrowMove 1.5s infinite ease-in-out;
+    margin: 0 0.5rem;
 }
 
 /* FOOTER */

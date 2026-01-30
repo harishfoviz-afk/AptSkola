@@ -149,6 +149,10 @@ function initializeQuizShell(startAtIndex = 0, phase = 0) {
 
     window.toggleFooter('minimal');
 
+    // Show Global Sticky Header
+    const globalHeader = document.getElementById('global-sticky-header');
+    if (globalHeader) globalHeader.classList.remove('hidden');
+
     // 2. Prepare Quiz Container (With Persistent Branding)
     let modal = document.getElementById('momentumModal');
     if (!modal) {
@@ -159,32 +163,11 @@ function initializeQuizShell(startAtIndex = 0, phase = 0) {
     }
 
     // INJECT BRANDING HEADER & FOOTER (Hardcoded Styles for Visibility)
+    // NO LOCAL HEADER INJECTED - USING GLOBAL STICKY HEADER
     modal.innerHTML = `
-        <div class="momentum-content">
-            <!-- Persistent Header -->
-            <div style="text-align: center; margin-bottom: 20px;">
-                <h1 style="font-size: 1.875rem; line-height: 2.25rem; font-weight: 900; color: #0F172A; letter-spacing: -0.05em; margin: 0;">
-                    Apt <span style="color: #FF6B35;">Skola</span>
-                </h1>
-                <div style="display: flex; align-items: center; justify-content: center; gap: 0.75rem; margin-top: 0.5rem; opacity: 0.7;">
-                   <div style="height: 1px; width: 2rem; background-color: #CBD5E1;"></div>
-                   <span style="font-size: 0.625rem; font-weight: 700; color: #94A3B8; text-transform: uppercase; letter-spacing: 0.2em;">Forensic Calibration</span>
-                   <div style="height: 1px; width: 2rem; background-color: #CBD5E1;"></div>
-                </div>
-            </div>
-                   <span class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Forensic Calibration</span>
-                   <div class="h-px w-8 bg-slate-300"></div>
-                </div>
-            </div>
-
-            <!-- Quiz Content -->
-            <div id="dynamicQuizContent"></div>
-
-            <!-- Persistent Footer -->
-            <div style="margin-top: 30px; text-align: center; font-size: 0.75rem; color: #94A3B8; border-top: 1px solid #E2E8F0; padding-top: 15px;">
-                &copy; 2024 Apt Skola. All rights reserved. <br>
-                <span style="opacity: 0.7;">Science-backed by Foviz.</span>
-            </div>
+        <div class="momentum-content" style="width: 100%; display: flex; flex-direction: column; align-items: center; padding-top: 80px;">
+            <!-- Quiz Content Wrapper (Centered) -->
+            <div id="dynamicQuizContent" style="width: 100%; max-width: 800px; padding: 2rem 1rem; flex-grow: 1;"></div>
         </div>
     `;
 
@@ -192,6 +175,18 @@ function initializeQuizShell(startAtIndex = 0, phase = 0) {
     modal.classList.add('active');
     modal.style.zIndex = '99999'; // FORCE TOP LAYER
     modal.style.display = 'block'; // Ensure visibility
+
+    // FORCE FULL SCREEN STYLES (Override CSS Class Defaults)
+    // FORCE FULL SCREEN STYLES (Override CSS Class Defaults)
+    modal.style.setProperty('max-width', '100%', 'important');
+    modal.style.setProperty('height', '100%', 'important');
+    modal.style.setProperty('top', '0', 'important');
+    modal.style.setProperty('bottom', 'auto', 'important');
+    modal.style.setProperty('border-radius', '0', 'important');
+    modal.style.setProperty('transform', 'none', 'important');
+    modal.style.setProperty('padding', '0', 'important');
+    modal.style.setProperty('background-color', '#F8FAFC', 'important'); // Light background
+    modal.style.setProperty('overflow-y', 'auto', 'important');
 
     // 3. Scroll to Top (CRITICAL FIX)
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -226,6 +221,8 @@ window.handleCostCalculatorClick = function () {
     }
 
     window.toggleFooter('minimal');
+    const globalHeader = document.getElementById('global-sticky-header');
+    if (globalHeader) globalHeader.classList.remove('hidden');
 };
 
 // --- SYNC GATE HANDLER (RESTORED) ---
@@ -244,6 +241,8 @@ window.openSyncMatchGate = function () {
     if (calc) calc.classList.add('hidden');
 
     window.toggleFooter('minimal');
+    const globalHeader = document.getElementById('global-sticky-header');
+    if (globalHeader) globalHeader.classList.remove('hidden');
 
     // Show Gate
     if (gate) {
@@ -528,19 +527,102 @@ const MASTER_DATA = {
     }
 };
 
+// --- DEEP DIVE MODAL LOGIC ---
+window.showDeepDive = function (type) {
+    const contentMap = {
+        'input': {
+            title: 'THE INPUT',
+            icon: '🧠',
+            text: 'We analyze psychometric parameters of your child\'s learning DNA. This isn\'t just an Assessment; it’s a behavioral data-capture session designed to strip away selection bias.',
+            btnText: 'Begin Mapping'
+        },
+        'process': {
+            title: 'THE PROCESS',
+            icon: '⚙️',
+            text: 'Your answers are cross-referenced against 48 academic variables across CBSE, ICSE, IB, and Cambridge frameworks. We identify the \'Friction Points\' between a board\'s rigor and your child\'s natural rhythm.',
+            btnText: 'Start Calibration'
+        },
+        'output': {
+            title: 'THE OUTPUT',
+            icon: '📂',
+            text: 'A Forensic Audit report. It provides a risk-weighted board recommendation for your child\'s upcoming academic cycle, cross-referenced against a specific learning DNA alignment',
+            btnText: 'Initiate Calibration'
+        }
+    };
+
+    const data = contentMap[type];
+    if (!data) return;
+
+    let modal = document.getElementById('deepDiveModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'deepDiveModal';
+        modal.style.cssText = `
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; align-items: center; justify-content: center;
+            z-index: 10000;
+            backdrop-filter: blur(8px);
+            background: rgba(15, 23, 42, 0.4);
+            opacity: 0; transition: opacity 0.3s ease;
+        `;
+        modal.onclick = (e) => { if (e.target === modal) window.closeDeepDive(); };
+        document.body.appendChild(modal);
+    }
+
+    modal.innerHTML = `
+        <div style="
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid #FF6B35;
+            padding: 30px;
+            border-radius: 24px;
+            max-width: 90%;
+            width: 400px;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        ">
+            <div style="font-size: 3rem; margin-bottom: 20px;">${data.icon}</div>
+            <h3 style="color: #FF6B35; font-size: 0.75rem; font-weight: 800; letter-spacing: 2px; margin-bottom: 15px; font-family: 'Inter', sans-serif;">${data.title}</h3>
+            <p style="color: #F8FAFC; line-height: 1.6; font-size: 0.95rem; margin-bottom: 25px;">${data.text}</p>
+            <button onclick="window.closeDeepDive(); window.initializeQuizShell(0);" style="
+                background: #FF6B35; color: white; border: none; padding: 12px 30px; border-radius: 99px;
+                font-weight: 700; cursor: pointer; transition: all 0.2s;
+            ">${data.btnText}</button>
+        </div>
+    `;
+
+    modal.style.display = 'flex';
+    setTimeout(() => {
+        modal.style.opacity = '1';
+        modal.querySelector('div').style.transform = 'scale(1)';
+    }, 10);
+};
+
+window.closeDeepDive = function () {
+    const modal = document.getElementById('deepDiveModal');
+    if (modal) {
+        modal.style.opacity = '0';
+        modal.querySelector('div').style.transform = 'scale(0.9)';
+        setTimeout(() => { modal.style.display = 'none'; }, 300);
+    }
+};
+
+
 
 const phase0Questions = [
     {
         id: "p0_q1",
         type: "input",
         title: "Forensic Calibration",
-        text: "To personalize your 12-page Forensic Audit, who are we calibrating this report for?",
+        text: "To personalize your Forensic Audit, who are we calibrating this report for?",
         placeholder: "Type Child's Name...",
         autoFocus: true
     },
     {
         id: "p0_q2",
-        text: "Target Academic Cycle: Which grade is your child currently navigating?",
+        getDynamicText: (name) => `Which grade is ${name} currently navigating?`,
+        text: "Which grade is your child currently navigating?",
         options: ["Preschool / Kindergarten", "Grades 1-5 (Primary)", "Grades 6-8 (Middle)", "Grades 9-12 (High School)"]
     },
     { id: "p0_q3", text: "How do they handle a completely new puzzle?", options: ["Study the box/instructions", "Try and fail repeatedly", "Ask someone to show them"] },
@@ -548,18 +630,43 @@ const phase0Questions = [
 ];
 
 const phase1Questions = [
-    { id: "q1", text: "How does your child learn best?", options: ["By seeing images, videos, and diagrams (Visual)", "By listening to stories and discussions (Auditory)", "By doing experiments and building things (Kinesthetic)", "A mix of everything / Adaptable"] },
-    { id: "q2", text: "What subject does your child naturally enjoy?", options: ["Maths, Logic, and Puzzles", "English, Stories, and Art", "Science, Nature, and asking 'Why?'", "A bit of everything / Balanced"] },
+    {
+        id: "q1",
+        getDynamicText: (name) => `How does ${name} learn best?`,
+        text: "How does your child learn best?",
+        options: ["By seeing images, videos, and diagrams (Visual)", "By listening to stories and discussions (Auditory)", "By doing experiments and building things (Kinesthetic)", "A mix of everything / Adaptable"]
+    },
+    {
+        id: "q2",
+        getDynamicText: (name) => `What subject does ${name} naturally enjoy?`,
+        text: "What subject does your child naturally enjoy?",
+        options: ["Maths, Logic, and Puzzles", "English, Stories, and Art", "Science, Nature, and asking 'Why?'", "A bit of everything / Balanced"]
+    },
     { id: "q3", text: "What is the big future goal?", options: ["Crack Indian Exams (IIT-JEE / NEET / UPSC)", "Study Abroad (University in US/UK/Canada)", "Entrepreneurship or Creative Arts", "Not sure yet / Keep options open"] },
     { id: "q4", text: "What is your comfortable annual budget for school fees?", options: ["Below ₹1 Lakh", "₹1 Lakh - ₹3 Lakhs", "₹3 Lakhs - ₹6 Lakhs", "Above ₹6 Lakhs"] },
     { id: "q5", text: "Will you be moving cities in the next few years?", options: ["No, we are settled here.", "Yes, likely to move within India.", "Yes, likely to move to another Country.", "Unsure"] },
     { id: "q6", text: "What teaching style do you prefer?", options: ["Structured: Textbooks and clear syllabus", "Inquiry: Research and self-exploration", "Flexible: Student-led (like Montessori)", "Balanced approach"] },
-    { id: "q7", text: "How much study load can your child handle?", options: ["High Volume (Can memorize lots of details)", "Concept Focus (Understands logic, less memory)", "Practical Focus (Prefers doing over reading)"] },
+    {
+        id: "q7",
+        getDynamicText: (name) => `How much study load can ${name} handle?`,
+        text: "How much study load can your child handle?",
+        options: ["High Volume (Can memorize lots of details)", "Concept Focus (Understands logic, less memory)", "Practical Focus (Prefers doing over reading)"]
+    },
     { id: "q8", text: "Is 'Global Recognition' important to you?", options: ["Yes, it's critical.", "It's important.", "Nice to have.", "Not important."] },
     { id: "q9", text: "Should the school focus heavily on Regional Languages?", options: ["Yes, they must be fluent in the local language.", "Basic functional knowledge is enough.", "No, English is the main focus."] },
-    { id: "q10", text: "How does your child react to exams?", options: ["They are competitive and handle pressure well.", "They prefer projects and assignments.", "They get very anxious about tests."] },
+    {
+        id: "q10",
+        getDynamicText: (name) => `How does ${name} react to exams?`,
+        text: "How does your child react to exams?",
+        options: ["They are competitive and handle pressure well.", "They prefer projects and assignments.", "They get very anxious about tests."]
+    },
     { id: "q11", text: "How important are Sports & Arts?", options: ["Very High - Equal to academics.", "Moderate - Good for hobbies.", "Low - Academics come first."] },
-    { id: "q12", text: "What grade is your child entering?", options: ["Preschool / Kindergarten", "Primary (Grades 1-5)", "Middle (Grades 6-8)", "High School (Grades 9+)"] },
+    {
+        id: "q12",
+        getDynamicText: (name) => `What is your primary objective for ${name}'s board selection?`,
+        text: "What is your primary objective for this board selection roadmap?",
+        options: ["Immediate Fit: Solve current academic friction.", "Future Prep: Align with 11th/12th career goals.", "Global Edge: Prepare for international mobility."]
+    },
     { id: "q13", text: "What class size do you prefer?", options: ["Small (Less than 25 kids)", "Standard (25-40 kids)", "Large (40+ kids)"] },
     { id: "q14", text: "How involved do you want to be in homework?", options: ["High (I will help daily)", "Moderate (Weekly check-ins)", "Low (School should manage it)"] },
     { id: "q15", text: "Where are you looking for schools?", options: ["Metro City (Delhi, Mumbai, Hyd, etc.)", "Tier-2 City (Jaipur, Vizag, etc.)", "Small Town / Rural Area"] }
@@ -966,13 +1073,17 @@ function goToLandingPage() {
 
 function getIntermediateHeaderHtml() {
     return `
-    <div class="intermediate-header">
-        <div class="max-w-7xl mx-auto flex items-center justify-start">
-            <a href="javascript:void(0)" onclick="goToLandingPage()" class="logo-link cursor-pointer" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 4px;">
-                <span class="font-bold text-xl text-white">Apt <span class="text-brand-orange">Skola</span></span>
-            </a>
+        <div style="background: #0F172A; padding: 20px 24px; display: flex; align-items: center; width: 100%; border-bottom: 1px solid #1E293B;">
+            <div onclick="window.location.reload()" style="cursor: pointer; display: flex; flex-direction: column; align-items: flex-start; line-height: 1;">
+                 <h1 class="text-2xl md:text-3xl font-black text-white tracking-tighter" style="margin: 0; font-family: 'Montserrat', sans-serif;">
+                    Apt <span class="text-[#FF6B35]">Skola</span>
+                </h1>
+                <span class="text-[0.6rem] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1 ml-1" style="font-family: 'Inter', sans-serif;">
+                    A Foviz Venture
+                </span>
+            </div>
         </div>
-    </div>`;
+    `;
 }
 function getIntermediateFooterHtml() {
     return `
@@ -1200,6 +1311,11 @@ function proceedToQuiz(pkg, price) {
             if (payBtn) payBtn.innerText = `Pay ₹${selectedPrice} via Razorpay Link →`;
         }
         window.scrollTo({ top: 0, behavior: 'instant' });
+
+        // Inject Header
+        const pHeader = document.getElementById('paymentHeader');
+        if (pHeader) pHeader.innerHTML = getIntermediateHeaderHtml();
+
         return;
     }
     // -------------------------------------------
@@ -1234,10 +1350,15 @@ function proceedToQuiz(pkg, price) {
 // Helper to generate Quiz Header
 function getIntermediateHeaderHtml() {
     return `
-        <div style="text-align: center; padding-top: 20px; padding-bottom: 5px;">
-            <p style="font-size: 0.8rem; font-weight: 700; color: #94A3B8; letter-spacing: 1px; text-transform: uppercase;">
-                Apt Skola <span style="color: #FF6B35;">//</span> Calibration
-            </p>
+        <div style="background: #0F172A; padding: 20px 24px; display: flex; align-items: center; width: 100%; border-bottom: 1px solid #1E293B;">
+            <div onclick="window.location.reload()" style="cursor: pointer; display: flex; flex-direction: column; align-items: flex-start; line-height: 1;">
+                 <h1 class="text-2xl md:text-3xl font-black text-white tracking-tighter" style="margin: 0; font-family: 'Montserrat', sans-serif;">
+                    Apt <span class="text-[#FF6B35]">Skola</span>
+                </h1>
+                <span class="text-[0.6rem] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1 ml-1" style="font-family: 'Inter', sans-serif;">
+                    A Foviz Venture
+                </span>
+            </div>
         </div>
     `;
 }
@@ -1296,11 +1417,6 @@ function initializeQuizShell(index, phase = 0) {
 
     const shellHtml = `
         <div id="questionPageApp" class="question-page active" style="background-color: #F8FAFC; min-height: 100vh;">
-            <!-- Social Proof Header -->
-            <div style="background: #F1F5F9; color: #64748B; font-size: 0.7rem; font-weight: 600; text-align: center; padding: 8px 16px; border-bottom: 1px solid #E2E8F0; display: flex; align-items: center; justify-content: center; gap: 6px;">
-                 <span style="width: 6px; height: 6px; background: #10B981; border-radius: 50%;"></span>
-                 Joined by 2,400+ Families this month. Your data is encrypted & private.
-            </div>
             ${getIntermediateHeaderHtml()}
             <div class="question-content-wrapper"><div id="dynamicQuizContent" class="question-container"></div></div>
             ${getIntermediateFooterHtml()}
@@ -1389,6 +1505,9 @@ function renderQuestionContent(index) {
     if (!q) return;
 
     let qText = q.text;
+    if (q.getDynamicText && customerData.childName) {
+        qText = q.getDynamicText(customerData.childName);
+    }
     let qOptions = q.options || [];
 
     if (q.isObservation) {
@@ -1398,6 +1517,19 @@ function renderQuestionContent(index) {
         } else if (q.options_variants) {
             // FALLBACK: If age is missing or invalid, default to 5-10 to prevent blank options
             qOptions = q.options_variants["5-10"];
+        }
+
+        // NEW: Smart Replacement for Observation Questions
+        // Replaces "your child" or "Child" with actual name if available
+        if (customerData.childName && customerData.childName.trim() !== "") {
+            const name = customerData.childName;
+            // Case-insensitive replace for "your child" -> Name
+            // We use a regex to capture 'your child' (case insensitive)
+            qText = qText.replace(/your child/gi, name);
+            // Also replace standalone "Child" if it appears as a proper noun holder
+            // But be careful not to break words like "Children". 
+            // The user asked specifically for "Child" -> Name
+            qText = qText.replace(/\bChild\b/g, name);
         }
     }
 
@@ -1526,16 +1658,49 @@ function getMilestoneBanner(blockId) {
 
 function selectOption(qId, val, idx, el) {
     answers[qId] = val;
+
+    // DATA INHERITANCE: Map Phase 0 Grade to financial/sync logic
+    if (qId === "p0_q2") {
+        const gradeMap = {
+            0: "Preschool",
+            1: "Grades 1-5",
+            2: "Grades 6-8",
+            3: "Grades 9-12"
+        };
+        customerData.childAge = (val === 0) ? "3-5" : (val === 1 ? "5-10" : (val === 2 ? "10-15" : "15+"));
+        customerData.gradeLevel = gradeMap[val];
+    }
+
     Array.from(el.parentNode.children).forEach(child => child.classList.remove('selected'));
     el.classList.add('selected');
     setTimeout(() => { renderQuestionContent(idx + 1); }, 300);
 }
 
 function showDetailsPage() {
+    console.log("showDetailsPage called");
+
+    // Inject Header
+    const dHeader = document.getElementById('detailsHeader');
+    if (dHeader) dHeader.innerHTML = getIntermediateHeaderHtml();
+
     const detailsPage = document.getElementById('detailsPage');
     if (detailsPage) {
         detailsPage.classList.remove('hidden');
         detailsPage.classList.add('active');
+
+        // NEW: Auto-fill Child Name
+        const childNameInput = document.getElementById('childName');
+        const prefillName = childNameInput.value || customerData.childName || answers['p0_q1'] || "";
+
+        if (childNameInput && prefillName) {
+            console.log("Auto-filling Child Name:", prefillName);
+            childNameInput.value = prefillName;
+
+            // Ensure data consistency
+            if (!customerData.childName) {
+                customerData.childName = prefillName;
+            }
+        }
     }
 }
 
@@ -1586,7 +1751,7 @@ document.getElementById('customerForm')?.addEventListener('submit', function (e)
     };
 
     // Step 2: Silent Persistence
-    localStorage.setItem(`aptskola_session_${newOrderId}`, JSON.stringify({
+    localStorage.setItem(`aptskola_session_${newOrderId} `, JSON.stringify({
         answers: answers,
         customerData: customerData,
         selectedPackage: selectedPackage,
@@ -1647,7 +1812,7 @@ function handlePaymentSuccess() {
     customerData.amount = selectedPrice;
     customerData.package = selectedPackage;
 
-    localStorage.setItem(`aptskola_session_${orderId}`, JSON.stringify({
+    localStorage.setItem(`aptskola_session_${orderId} `, JSON.stringify({
         answers: answers,
         customerData: customerData,
         selectedPackage: selectedPackage,
@@ -1729,7 +1894,7 @@ async function triggerAutomatedEmail() {
 
     // Build the Branded Header and Basic Info
     let htmlSummary = `
-        <div style="border: 1px solid #E2E8F0; border-radius: 16px; overflow: hidden; font-family: sans-serif; margin: 20px 0;">
+        < div style = "border: 1px solid #E2E8F0; border-radius: 16px; overflow: hidden; font-family: sans-serif; margin: 20px 0;" >
             <div style="background-color: #0F172A; color: #ffffff; padding: 25px; text-align: center;">
                 <h2 style="margin: 0; font-size: 22px; letter-spacing: 0.5px;">${data.title}</h2>
                 <p style="margin: 8px 0 0; color: #FF6B35; font-weight: 800; font-size: 16px;">
@@ -1765,19 +1930,19 @@ async function triggerAutomatedEmail() {
         `;
     }
 
-    htmlSummary += `</div></div>`;
+    htmlSummary += `</div></div > `;
 
     // ADDED: Partnership Invitation (Captured from Educator Partner Section)
     htmlSummary += `
-        <div style="margin-top: 20px; padding: 15px; border: 1px dashed #CBD5E1; border-radius: 8px; background-color: #F8FAFC; text-align: center;">
+        < div style = "margin-top: 20px; padding: 15px; border: 1px dashed #CBD5E1; border-radius: 8px; background-color: #F8FAFC; text-align: center;" >
             <h4 style="margin: 0 0 10px 0; color: #0F172A; font-size: 14px;">🤝 Join the Apt Skola Network</h4>
             <p style="margin: 0; color: #475569; font-size: 13px; line-height: 1.5;">
                 Teachers & Tutors: Earn <strong>₹300</strong> for student referrals and 
                 <strong>₹3,000</strong> per session for school-wide engagement. 
             </p>
             <a href="https://aptskola.com/#educatorPartner" style="display: inline-block; margin-top: 10px; color: #FF6B35; font-weight: 700; text-decoration: none; font-size: 13px;">Register as Partner →</a>
-        </div>
-    `;
+        </div >
+        `;
 
     try {
         console.log("Sending email for package:", selectedPackage, "price:", selectedPrice);
@@ -1817,7 +1982,7 @@ function processSyncUpgrade() {
             isSyncMatchMode = true;
 
             // Save elevated state
-            localStorage.setItem(`aptskola_session_${customerData.orderId}`, JSON.stringify({ answers, customerData }));
+            localStorage.setItem(`aptskola_session_${customerData.orderId} `, JSON.stringify({ answers, customerData }));
 
             const upgradeBlock = document.getElementById('upgradeBlock');
             const startBtn = document.getElementById('startSyncBtn');
@@ -1899,7 +2064,7 @@ function handleManualBoardConfirmation() {
     }
 
     // Persist again
-    localStorage.setItem(`aptskola_session_${customerData.orderId}`, JSON.stringify({ answers, customerData, selectedPackage, selectedPrice }));
+    localStorage.setItem(`aptskola_session_${customerData.orderId} `, JSON.stringify({ answers, customerData, selectedPackage, selectedPrice }));
 
     // Start
     initializeQuizShell(0, 2);
@@ -1957,8 +2122,8 @@ function showInstantSuccessPage() {
             <p style="color: #C2410C; font-size: 0.8rem; margin-top: 5px;">
                 We have sent a summary to your email, but the full 15-year roadmap is only saved locally on this browser. Download the PDF to keep it forever.
             </p>
-        </div>
-    `;
+        </div >
+        `;
         successContainer.insertAdjacentHTML('afterbegin', backupNotice);
     }
 
@@ -1968,6 +2133,11 @@ function showInstantSuccessPage() {
     if (successPage) {
         successPage.classList.remove('hidden');
         successPage.classList.add('active');
+
+        // Inject Header
+        const sHeader = document.getElementById('successHeader');
+        if (sHeader) sHeader.innerHTML = getIntermediateHeaderHtml();
+
         window.scrollTo({ top: 0, behavior: 'instant' });
 
         // Wait a bit for DOM to update, then check for buttons
@@ -2051,6 +2221,10 @@ function openSyncMatchGate() {
     // 3. Show Sync Gate
     const gate = document.getElementById('syncMatchGate');
     if (gate) {
+        // Inject Header
+        const gHeader = document.getElementById('syncGateHeader');
+        if (gHeader) gHeader.innerHTML = getIntermediateHeaderHtml();
+
         gate.classList.remove('hidden');
         gate.classList.add('active');
         gate.style.display = 'flex';
@@ -2084,7 +2258,7 @@ function validateAndStartSyncMatch() {
     customerData.childAge = syncChildAge; // Ensure Age is captured BEFORE session load
 
     // Check if order exists
-    const sessionKey = `aptskola_session_${orderId}`;
+    const sessionKey = `aptskola_session_${orderId} `;
     const sessionData = localStorage.getItem(sessionKey);
 
     // FIX: Allow AS5 users to upgrade even if session is missing (Cross-Device logic)
@@ -2205,6 +2379,11 @@ function startSyncCountdown() {
             if (display) display.innerText = timeLeft;
             if (timeLeft <= 0) {
                 clearInterval(syncTimer);
+
+                // Inject Header for transition
+                const tHeader = document.getElementById('syncTransitionHeader');
+                if (tHeader) tHeader.innerHTML = getIntermediateHeaderHtml();
+
                 finalizeSyncStart();
             }
         }
@@ -2234,8 +2413,8 @@ function showBridgeMilestone() {
                 ${bridgeHtml}
             </div>
             <button onclick="calculateSyncMatch()" class="custom-cta-button" style="margin-top:20px;">Unlock Full Report & Verification →</button>
-        </div>
-    `;
+        </div >
+        `;
 }
 
 function getAlignmentData() {
@@ -2290,7 +2469,7 @@ function getAlignmentData() {
     let isConflict = (parentRec !== normalizedDNA);
 
     let bridgeHtml = isConflict ? `
-		<div class="report-card" style="border: 2px solid var(--sunrise-primary); background: #FFF9F2; margin-top: 20px;">
+        <div class="report-card" style="border: 2px solid var(--sunrise-primary); background: #FFF9F2; margin-top: 20px;">
 			<h3 style="color: var(--navy-premium); font-weight: 800; font-size: 1.2rem; margin-bottom: 10px;">Bridge Narrative: Conflict Resolution</h3>
 			<p style="color: var(--navy-light); font-size: 0.95rem; line-height: 1.6; margin-bottom: 10px;">
 				<strong>The Mismatch:</strong> Your strategic goal is <strong>${parentRec}</strong>, but our forensic DNA audit shows your child’s natural cognitive engine thrives on <strong>${traits[topDNA]}</strong>, which is the hallmark of the <strong>${normalizedDNA}</strong> ecosystem.
@@ -2304,13 +2483,13 @@ function getAlignmentData() {
 			<p style="color: var(--navy-light); font-size: 0.95rem; line-height: 1.6;">
 				<strong>Final Verdict:</strong> Alignment is possible by choosing the board for the "Certificate" but selecting the specific school campus for the "Culture".
 			</p>
-		</div>` : `
-    <div class="report-card" style="border: 2px solid #22C55E; background: #F0FDF4; margin-top: 20px;">
+		</div > ` : `
+        <div class="report-card" style="border: 2px solid #22C55E; background: #F0FDF4; margin-top: 20px;">
         <h3 style="color: #166534; font-weight: 800; font-size: 1.2rem; margin-bottom: 10px;">✅ PERFECT ALIGNMENT</h3>
         <p style="color: #166534; font-size: 0.95rem; line-height: 1.6;">
             Your parenting vision and your child’s cognitive DNA are in a rare state of "Scientific Sync." Your choice of <strong>${parentRec}</strong> perfectly supports their natural strength in <strong>${traits[topDNA]}</strong>. This foundation minimizes academic friction and maximizes their potential for high-tier university placements.
         </p>
-    </div>`;
+    </div > `;
 
     return { parentRec, normalizedDNA, bridgeHtml, isConflict, parentMatchScore, topScore };
 }
@@ -2352,67 +2531,67 @@ function calculateSyncMatch() {
     if (successPage) {
         successPage.innerHTML = `
             ${getIntermediateHeaderHtml()}
-            <div class="success-content-wrapper">
-                <div class="success-container">
-                    ${manualDisclaimer}
-                    <div style="text-align:center; font-size:0.85rem; color:#64748B; margin-bottom:15px; font-weight:700;">
-                        ${customerData.childName || "Student"} | Age: ${customerData.childAge || "N/A"} | Order ID: ${customerData.orderId || "N/A"}
-                    </div>
-                    
-                    <h2 style="color:var(--navy-premium); text-align:center;">Sync Match Report 🔄</h2>
-                    
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-top:30px;">
-                        <div class="sync-score-block">
-                            <div class="sync-score-title">Parent Vision</div>
-                            <div class="sync-score-value">${parentMatchScore}%</div>
-                            <div class="sync-score-sub">${parentRec}</div>
-                        </div>
-                        <div class="sync-score-block">
-                            <div class="sync-score-title">Child DNA</div>
-                            <div class="sync-score-value">${topScore}%</div>
-                            <div class="sync-score-sub">${normalizedDNA}</div>
-                        </div>
-                    </div>
-                    
-                    ${bridgeHtml}
-                    
-                    <div class="apt-skola-exclusive" style="text-align:center;">
-                        <h3 style="color:#1E40AF; font-size:1.1rem; font-weight:800; margin:0 0 10px 0;">Apt Skola Exclusive: AI Forensic School X-ray</h3>
-                        
-                        <div style="font-size:1.8rem; font-weight:900; color:#1D4ED8; margin:5px 0 10px;">
-                            ₹99 <span style="font-size:0.9rem; color:#64748B; text-decoration:line-through; font-weight:500;">₹399</span>
-                        </div>
-                        <p style="font-size:0.9rem; color:#475569; margin-bottom:15px; line-height:1.4;">
-                            Spot hidden red flags, library authenticity, and teacher turnover using our proprietary AI vision tool.
-                        </p>
-                        <a href="https://xray.aptskola.com" target="_blank" class="btn-xray" style="display:inline-block;">Get X-ray (75% OFF)</a>
-                    </div>
-                    
-                    
-                    <!-- Partnership / Ambassador Form -->
-                    <!-- Partnership / Ambassador Form -->
-                    <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #E2E8F0;">
-                        <button onclick="openCollaborationModal('Ambassador')" class="btn-ambassador">
-                            <span>✨</span> Thank you and Be our Ambassadors and earn cash rewards from 300 to 3000 🤝✨
-                        </button>
-                    </div>
+    <div class="success-content-wrapper">
+        <div class="success-container">
+            ${manualDisclaimer}
+            <div style="text-align:center; font-size:0.85rem; color:#64748B; margin-bottom:15px; font-weight:700;">
+                ${customerData.childName || "Student"} | Age: ${customerData.childAge || "N/A"} | Order ID: ${customerData.orderId || "N/A"}
+            </div>
 
-                    <!-- End Session Button Moved Up -->
-                    <button class="custom-cta-button" style="margin-top:30px; background: #64748B;" onclick="endFullSession()">End Session</button>
+            <h2 style="color:var(--navy-premium); text-align:center;">Sync Match Report 🔄</h2>
 
-                    <!-- Foviz Banner -->
-                    ${fovizBannerHtml}
-
-                    <!-- Download/Share Buttons Moved to Bottom -->
-                    <div style="display: flex; gap: 10px; margin-top: 30px;">
-                        <button id="downloadSyncBtn" class="custom-cta-button" style="flex:1;" onclick="downloadSyncReportPDF()">Download Report ⬇️</button>
-                        <button id="shareSyncBtn" class="custom-cta-button" style="flex:1; background: #10B981;" onclick="shareSyncReport()">Share Report 📲</button>
-                    </div>
-
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-top:30px;">
+                <div class="sync-score-block">
+                    <div class="sync-score-title">Parent Vision</div>
+                    <div class="sync-score-value">${parentMatchScore}%</div>
+                    <div class="sync-score-sub">${parentRec}</div>
+                </div>
+                <div class="sync-score-block">
+                    <div class="sync-score-title">Child DNA</div>
+                    <div class="sync-score-value">${topScore}%</div>
+                    <div class="sync-score-sub">${normalizedDNA}</div>
                 </div>
             </div>
+
+            ${bridgeHtml}
+
+            <div class="apt-skola-exclusive" style="text-align:center;">
+                <h3 style="color:#1E40AF; font-size:1.1rem; font-weight:800; margin:0 0 10px 0;">Apt Skola Exclusive: AI Forensic School X-ray</h3>
+
+                <div style="font-size:1.8rem; font-weight:900; color:#1D4ED8; margin:5px 0 10px;">
+                    ₹99 <span style="font-size:0.9rem; color:#64748B; text-decoration:line-through; font-weight:500;">₹399</span>
+                </div>
+                <p style="font-size:0.9rem; color:#475569; margin-bottom:15px; line-height:1.4;">
+                    Spot hidden red flags, library authenticity, and teacher turnover using our proprietary AI vision tool.
+                </p>
+                <a href="https://xray.aptskola.com" target="_blank" class="btn-xray" style="display:inline-block;">Get X-ray (75% OFF)</a>
+            </div>
+
+
+            <!-- Partnership / Ambassador Form -->
+            <!-- Partnership / Ambassador Form -->
+            <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #E2E8F0;">
+                <button onclick="openCollaborationModal('Ambassador')" class="btn-ambassador">
+                    <span>✨</span> Thank you and Be our Ambassadors and earn cash rewards from 300 to 3000 🤝✨
+                </button>
+            </div>
+
+            <!-- End Session Button Moved Up -->
+            <button class="custom-cta-button" style="margin-top:30px; background: #64748B;" onclick="endFullSession()">End Session</button>
+
+            <!-- Foviz Banner -->
+            ${fovizBannerHtml}
+
+            <!-- Download/Share Buttons Moved to Bottom -->
+            <div style="display: flex; gap: 10px; margin-top: 30px;">
+                <button id="downloadSyncBtn" class="custom-cta-button" style="flex:1;" onclick="downloadSyncReportPDF()">Download Report ⬇️</button>
+                <button id="shareSyncBtn" class="custom-cta-button" style="flex:1; background: #10B981;" onclick="shareSyncReport()">Share Report 📲</button>
+            </div>
+
+        </div>
+    </div>
             ${getIntermediateFooterHtml()}
-        `;
+    `;
         successPage.classList.remove('hidden');
         successPage.classList.add('active');
     }
@@ -2420,7 +2599,7 @@ function calculateSyncMatch() {
 
 function endFullSession() {
     if (customerData.orderId && customerData.orderId !== 'N/A') {
-        localStorage.removeItem(`aptskola_session_${customerData.orderId}`);
+        localStorage.removeItem(`aptskola_session_${customerData.orderId} `);
     }
     goToLandingPage();
 }
@@ -2433,7 +2612,7 @@ async function renderReportToBrowser() {
 
     const lastOrderId = localStorage.getItem('aptskola_last_order_id');
     console.log("Last order ID:", lastOrderId);
-    const sessionData = JSON.parse(localStorage.getItem(`aptskola_session_${lastOrderId}`));
+    const sessionData = JSON.parse(localStorage.getItem(`aptskola_session_${lastOrderId} `));
     if (sessionData) {
         sessionAnswers = sessionData.answers;
         sessionCustomerData = sessionData.customerData;
@@ -2472,7 +2651,7 @@ async function renderReportToBrowser() {
     const data = MASTER_DATA[boardKey];
     console.log("Board data found:", !!data);
     if (!data) {
-        throw new Error(`Board data not found for key: ${boardKey}`);
+        throw new Error(`Board data not found for key: ${boardKey} `);
     }
     const amount = (sessionData && sessionData.selectedPrice) ? sessionData.selectedPrice : (sessionCustomerData.amount || 599);
     const pkgName = (sessionData && sessionData.selectedPackage) ? sessionData.selectedPackage : (sessionCustomerData.package || '');
@@ -2487,7 +2666,7 @@ async function renderReportToBrowser() {
                 <div class="text-slate-300 text-lg font-medium mt-1">${sessionCustomerData.package} Report</div>
                 <div class="text-slate-400 text-xs mt-3 uppercase tracking-widest">ID: ${sessionCustomerData.orderId} | Prepared for: ${sessionCustomerData.childName}</div>
             </div>
-        </div>
+        </div >
 
         <div class="report-card !p-0 overflow-hidden">
             <div class="report-header-bg" style="margin: 0;">THE RECOMMENDED ARCHETYPE</div>
@@ -2594,7 +2773,7 @@ async function renderReportToBrowser() {
     // --- PREMIUM BLOCKS (₹999 and above) ---
     if (isPremium) {
         html += `
-            <div class="report-card">
+        <div class="report-card">
                 <div class="report-header-bg">🧐 RISK MITIGATION & VETTING</div>
                 <div class="space-y-3 p-4">
                     ${MASTER_DATA.vetting.redFlags.map(f => `
@@ -2604,49 +2783,49 @@ async function renderReportToBrowser() {
                         </div>
                     `).join('')}
                 </div>
-            </div>
+            </div >
 
-            <div class="report-card">
-                <div class="report-header-bg">15-YEAR FEE FORECASTER (12% Inflation)</div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start p-4">
-                     <!-- Col 1 -->
-                     <div>
-                        <table class="w-full text-sm">
-                            <thead class="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200">
-                                <tr><th class="py-2 text-left pl-2">Grade</th><th class="py-2 text-right pr-2">Projected Fee</th></tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-100">
-                                ${MASTER_DATA.financial.projectionTable.slice(0, 8).map(r => `
+        <div class="report-card">
+            <div class="report-header-bg">15-YEAR FEE FORECASTER (12% Inflation)</div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start p-4">
+                <!-- Col 1 -->
+                <div>
+                    <table class="w-full text-sm">
+                        <thead class="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200">
+                            <tr><th class="py-2 text-left pl-2">Grade</th><th class="py-2 text-right pr-2">Projected Fee</th></tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            ${MASTER_DATA.financial.projectionTable.slice(0, 8).map(r => `
                                     <tr><td class="py-2 pl-2 text-slate-700 font-medium">${r.grade}</td><td class="py-2 pr-2 text-right font-bold text-slate-900">${r.fee}</td></tr>
                                 `).join('')}
-                            </tbody>
-                        </table>
-                     </div>
-                     <!-- Col 2 -->
-                     <div>
-                        <table class="w-full text-sm mb-4">
-                            <thead class="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200">
-                                <tr><th class="py-2 text-left pl-2">Grade</th><th class="py-2 text-right pr-2">Projected Fee</th></tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-100">
-                                ${MASTER_DATA.financial.projectionTable.slice(8, 15).map(r => `
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Col 2 -->
+                <div>
+                    <table class="w-full text-sm mb-4">
+                        <thead class="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200">
+                            <tr><th class="py-2 text-left pl-2">Grade</th><th class="py-2 text-right pr-2">Projected Fee</th></tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            ${MASTER_DATA.financial.projectionTable.slice(8, 15).map(r => `
                                     <tr><td class="py-2 pl-2 text-slate-700 font-medium">${r.grade}</td><td class="py-2 pr-2 text-right font-bold text-slate-900">${r.fee}</td></tr>
                                 `).join('')}
-                            </tbody>
-                        </table>
-                        <div class="p-3 bg-blue-50 text-blue-900 text-xs rounded-lg border border-blue-100 leading-relaxed">
-                             <strong>💰 Smart Planning Tip:</strong> Early investments in high-yield mutual funds can offset up to 40% of these projected costs.
-                        </div>
-                     </div>
+                        </tbody>
+                    </table>
+                    <div class="p-3 bg-blue-50 text-blue-900 text-xs rounded-lg border border-blue-100 leading-relaxed">
+                        <strong>💰 Smart Planning Tip:</strong> Early investments in high-yield mutual funds can offset up to 40% of these projected costs.
+                    </div>
                 </div>
             </div>
-        `;
+        </div>
+    `;
     }
 
     // --- PRO BLOCKS (₹1499 only) ---
     if (isPro) {
         html += `
-            <div class="report-card">
+        <div class="report-card">
                 <div class="report-header-bg">🤝 FEE NEGOTIATION STRATEGIES</div>
                 <div class="space-y-6 p-4">
                     ${MASTER_DATA.concierge.negotiation.map(n => `
@@ -2659,12 +2838,12 @@ async function renderReportToBrowser() {
                         </div>
                     `).join('')}
                 </div>
-            </div>
+            </div >
 
-            <div class="report-card">
-                <div class="report-header-bg">🎙️ PARENT INTERVIEW MASTERY</div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
-                    ${MASTER_DATA.interviewMastery.part2.slice(0, 6).map(i => `
+        <div class="report-card">
+            <div class="report-header-bg">🎙️ PARENT INTERVIEW MASTERY</div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
+                ${MASTER_DATA.interviewMastery.part2.slice(0, 6).map(i => `
                         <div class="bg-white border boundary-slate-200 rounded-lg p-5 shadow-sm hover:shadow-md transition-all">
                             <h4 class="font-bold text-slate-800 text-sm mb-3">${i.q}</h4>
                             <div class="text-xs text-emerald-700 font-bold bg-emerald-50 px-2 py-1 rounded inline-block border border-emerald-100">
@@ -2672,16 +2851,16 @@ async function renderReportToBrowser() {
                             </div>
                         </div>
                     `).join('')}
-                </div>
             </div>
-        `;
+        </div>
+    `;
     }
 
     // --- UNIVERSAL FOOTER (Included in all packages) ---
     html += `
-        <div class="report-card" style="margin-top:40px; padding:20px; background:#F1F5F9; border-radius:8px; font-size:0.8rem; color:#64748B; text-align:justify;">
-            <strong>DISCLAIMER:</strong> This report is advisory only. The final enrollment decision remains the sole responsibility of the parent. The outcome of this report is purely based on the user input provided..
-        </div>
+        < div class="report-card" style = "margin-top:40px; padding:20px; background:#F1F5F9; border-radius:8px; font-size:0.8rem; color:#64748B; text-align:justify;" >
+            <strong>DISCLAIMER:</strong> This report is advisory only.The final enrollment decision remains the sole responsibility of the parent.The outcome of this report is purely based on the user input provided..
+        </div >
         <div style="text-align: center; margin-top: 20px; padding-bottom: 20px;">
             <p class="text-xs font-medium opacity-70" style="font-size: 0.8rem !important; color: #64748B;">&copy; 2024 - 2026 Apt Skola, all rights reserved.</p>
         </div>
@@ -2776,7 +2955,7 @@ async function downloadReport() {
         pdf.setTextColor(15, 23, 42);
 
         // Header Text
-        const headerText = `Name: ${customerData.childName || "Student"}  |  Age: ${customerData.childAge || "N/A"}  |  Order ID: ${customerData.orderId || "N/A"}`;
+        const headerText = `Name: ${customerData.childName || "Student"}  | Age: ${customerData.childAge || "N/A"}  | Order ID: ${customerData.orderId || "N/A"} `;
         pdf.text(headerText, pdfWidth / 2, 20, { align: 'center' });
 
         let currentY = 45;
@@ -2860,7 +3039,7 @@ async function sharePDF() {
         pdf.setTextColor(15, 23, 42);
 
         // Remove "Apt Skola" large header, kept only the details line as first line
-        const headerText = `Name: ${customerData.childName || "Student"}  |  Age: ${customerData.childAge || "N/A"}  |  Order ID: ${customerData.orderId || "N/A"}`;
+        const headerText = `Name: ${customerData.childName || "Student"}  | Age: ${customerData.childAge || "N/A"}  | Order ID: ${customerData.orderId || "N/A"} `;
         pdf.text(headerText, margin, 20);
 
         let currentY = 45;
@@ -3091,7 +3270,7 @@ function recoverSession() {
     const orderId = recoveryInput ? recoveryInput.value.trim() : '';
     if (!orderId) { alert("Please enter your Order ID."); return; }
 
-    const savedSession = localStorage.getItem(`aptskola_session_${orderId}`);
+    const savedSession = localStorage.getItem(`aptskola_session_${orderId} `);
     if (savedSession) {
         const data = JSON.parse(savedSession);
         answers = data.answers;
@@ -3205,7 +3384,7 @@ function openCollaborationModal(type) {
     const sub = type === 'Partner' ? 'Join our Forensic Network' : 'Earn Rewards for Referrals';
 
     modal.innerHTML = `
-        <div class="payment-modal-content" style="max-width: 550px; text-align: left; border-top: 5px solid #FF6B35;">
+        < div class="payment-modal-content" style = "max-width: 550px; text-align: left; border-top: 5px solid #FF6B35;" >
             <button onclick="document.getElementById('collaborationModal').remove()" style="position:absolute; top:15px; right:15px; background:none; border:none; font-size:1.5rem; cursor:pointer;">&times;</button>
             
             <h3 style="color: #0F172A; font-weight: 800; font-size: 1.5rem; margin-bottom: 5px;">${title}</h3>
@@ -3228,8 +3407,8 @@ function openCollaborationModal(type) {
                 <button type="submit" class="custom-cta-button" style="margin-top: 10px; width: 100%;">Submit Interest →</button>
             </form>
             <p style="text-align: center; font-size: 0.75rem; color: #94A3B8; margin-top: 15px;">Our team will contact you within 24 hours.</p>
-        </div>
-    `;
+        </div >
+        `;
 
     document.body.appendChild(modal);
 }
@@ -3267,7 +3446,7 @@ function showPsychometricHistogram() {
         <div class="assessment-results-card">
             <div class="results-header">
                 <h2 class="text-4xl font-black text-brand-navy mb-4">Preliminary Fitment Analysis</h2>
-                <p class="text-slate-600">Analyzing your child's neural patterns based on cognitive architecture inputs.</p>
+                <p class="text-slate-600">Analyzing ${customerData.childName || "your child"}'s neural patterns based on cognitive architecture inputs.</p>
             </div>
             
             <div class="histogram-grid">
@@ -3293,7 +3472,7 @@ function showPsychometricHistogram() {
                 <button onclick="showDynamicRiskCard()" class="custom-cta-button" style="width: 100%; max-width: 400px;">View Misalignment Risk →</button>
             </div>
         </div>
-    `;
+        `;
     container.classList.add('active');
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
@@ -3367,7 +3546,7 @@ function showDynamicRiskCard() {
             </div>
             
             <div class="risk-message-box">
-                <p class="text-lg text-red-800 mb-6">Your child is a <strong>${selectedPersona}</strong>. There is a <span class="font-black">65% risk</span> that a standard curriculum will suppress their natural logic processing.</p>
+                <p class="text-lg text-red-800 mb-6">Your child (${customerData.childName || "Student"}) is a <strong>${selectedPersona}</strong>. There is a <span class="font-black">65% risk</span> that a standard curriculum will suppress their natural logic processing.</p>
             </div>
 
             <div class="dashboard-note">
@@ -3377,7 +3556,7 @@ function showDynamicRiskCard() {
             
             <button onclick="showMomentumModal()" class="custom-cta-button risk-cta" style="width: 100%; max-width: 400px; margin: 0 auto;">Authorize and Calibrate with Phase 1</button>
         </div>
-    `;
+        `;
     container.classList.add('active');
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -3500,14 +3679,14 @@ function showDnaFinalization() {
                 <span class="mr-1">⚡</span> Deep Logic: ${microInsights[i]}
             </p>
         </div>
-    `).join('');
+        `).join('');
 
     container.innerHTML = `
         <div class="assessment-results-card">
             <div class="results-header">
                 <div class="text-center mb-6">
                     <h2 class="text-4xl font-black text-brand-navy mb-4">Analyzing Your Child’s Potential</h2>
-                    <p class="text-slate-600 text-sm">Analyzing your child's neural patterns based on cognitive architecture inputs.</p>
+                    <p class="text-slate-600 text-sm">Analyzing ${customerData.childName || "your child"}'s neural patterns based on cognitive architecture inputs.</p>
                 </div>
             </div>
 
@@ -3520,7 +3699,7 @@ function showDnaFinalization() {
                 <p id="dnaStatusText" class="text-brand-orange font-bold text-sm animate-pulse">CALIBRATING NEURAL PATTERNS...</p>
             </div>
         </div>
-    `;
+        `;
 
     container.classList.add('active'); // Ensure container is visible
     window.scrollTo(0, 0);
@@ -3603,7 +3782,7 @@ function showDnaFinalization() {
 
 function createDnaBarHtml(label = "Roadmap Calibration Progress") {
     return `
-    <div class="dna-bar-container">
+        <div class="dna-bar-container">
         <div class="dna-bar-label">${label}</div>
         <div class="dna-bar-track">
             <div class="dna-bar-liquid"></div>

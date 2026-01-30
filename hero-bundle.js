@@ -18,7 +18,57 @@
             { prefix: "STOP", word: "Guessing", pColor: "text-red-500", wColor: "text-white" },
             { prefix: "START", word: "Knowing", pColor: "text-green-500", wColor: "text-[#FF6B35]" }
         ];
+
+        // --- BOARD DATA CONSTANTS ---
+        const BOARD_DATA = {
+            'CBSE': {
+                name: 'CBSE',
+                tagline: 'The "National Standard"',
+                methodology: 'Focused on academic depth, standardized testing, and memory retention. Designed for the Indian competitive landscape (JEE/NEET).',
+                forensicReality: 'High volume of content. Strong in Math and Science, but often lower on critical inquiry and soft-skill development.',
+                risks: [
+                    { title: 'Rote-Learning Trap', text: 'High risk of "Study for the Exam" burnout.' },
+                    { title: 'Global Pivot Difficulty', text: 'Transitioning to Liberal Arts or International Universities may require additional bridging.' }
+                ],
+                stat: '42% of CBSE parents report "High Academic Stress" by Grade 6.'
+            },
+            'IB': {
+                name: 'IB - International Baccalaureate',
+                tagline: 'The "Global DNA"',
+                methodology: 'Inquiry-based learning. It doesn\'t teach "What" to think, but "How" to think. Focus on research and holistic development.',
+                forensicReality: 'Extremely high university acceptance abroad. Very demanding for both students and parents (it\'s a lifestyle, not just a board).',
+                risks: [
+                    { title: 'Financial Escalation', text: 'Highest 15-year cost projection (fees + international exposure).' },
+                    { title: 'Local Rigor Gap', text: 'May feel "light" compared to Indian competitive entrance exams (JEE).' }
+                ],
+                stat: 'IB graduates show 30% higher readiness for Ivy League research frameworks.'
+            },
+            'IGCSE': {
+                name: 'Cambridge - IGCSE',
+                tagline: 'The "Concept Specialist"',
+                methodology: 'Practical application of concepts. It focuses on understanding and solving real-world problems. Very flexible subject choices.',
+                forensicReality: 'Excellent balance for students who want a global standard without the extreme "Inquiry" pressure of IB.',
+                risks: [
+                    { title: 'Consistency Risk', text: 'Requires a school with highly trained faculty to be effective.' },
+                    { title: 'Board Transition', text: 'Moving back to a national board in Grade 11 can be a difficult structural jump.' }
+                ],
+                stat: 'Preferred by 65% of students pursuing Specialized Creative or Technical careers.'
+            },
+            'ICSE': {
+                name: 'ICSE',
+                tagline: 'The "Literary Rigor"',
+                methodology: 'Vast syllabus with a heavy focus on English language, literature, and detailed social sciences.',
+                forensicReality: 'Produces excellent communicators and analytical thinkers. More "diverse" subjects than CBSE.',
+                risks: [
+                    { title: 'Analytical Fatigue', text: 'The sheer volume of the syllabus can overwhelm students in early middle school.' },
+                    { title: 'Standardization Drift', text: 'Moving away from ICSE after Grade 10 is common, causing a "System Shock".' }
+                ],
+                stat: 'ICSE students score 18% higher on standardized English proficiency tests globally.'
+            }
+        };
+
         const [index, setIndex] = useState(0);
+        const [selectedBoard, setSelectedBoard] = useState(null); // New State for Modal
         const currentYear = new Date().getFullYear();
         const targetYear = new Date() < new Date(`${currentYear}-03-31`) ? currentYear : currentYear + 1;
         const [buttonText, setButtonText] = useState(`Start ${targetYear} Grade 1 Admission Decoder Scan`);
@@ -101,8 +151,11 @@
 
         // 1. Top Left Logo (New)
         const renderTopLeftLogo = () => {
-            return h('div', { className: "absolute top-6 left-6 z-[100] animate-fade-in" },
-                h('div', { className: "flex flex-col items-start leading-none opacity-90 hover:opacity-100 transition-opacity" },
+            return h('div', { className: "absolute top-6 left-6 z-[100]" },
+                h('div', {
+                    className: "flex flex-col items-start leading-none opacity-90 hover:opacity-100 transition-opacity cursor-pointer",
+                    onClick: () => window.location.reload()
+                },
                     h('h1', { className: "text-2xl md:text-3xl font-black text-white tracking-tighter" },
                         "Apt ", h('span', { className: "text-[#FF6B35]" }, "Skola")
                     ),
@@ -127,14 +180,14 @@
         // Narrative Intro Header (Persistent Horizontal)
         // Narrative Intro Header (Persistent Horizontal)
         const renderNarrativeHeader = () => {
-            return h('div', { className: "mt-8 w-full flex flex-col items-center justify-center z-40 min-h-[80px]" },
+            return h('div', { className: "mt-2 w-full flex flex-col items-center justify-center z-40 min-h-[80px]" },
                 h('div', { className: "flex flex-col md:flex-row items-center gap-4 md:gap-8" },
 
                     // Part 1: "Best" Question (Static)
                     h('div', {
                         className: "text-center md:text-right"
                     },
-                        h('p', { className: "text-2xl md:text-5xl font-bold text-slate-500" },
+                        h('p', { className: "text-2xl md:text-4xl font-bold text-slate-500" },
                             "What is the ",
                             h('span', { className: "font-black text-white relative" }, "Best"),
                             " Board?"
@@ -152,11 +205,10 @@
                     ),
 
 
-                    // Part 3: "Suits" Answer (Static)
                     h('div', {
                         className: "text-center md:text-left"
                     },
-                        h('p', { className: "text-xl md:text-5xl font-bold text-slate-200 whitespace-nowrap" },
+                        h('p', { className: "text-xl md:text-4xl font-bold text-slate-200 whitespace-nowrap" },
                             "What ",
                             h('span', { className: "font-black text-[#FF6B35] tracking-wide", style: { fontFamily: "'Montserrat', sans-serif" } }, "Suits"),
                             " your child?"
@@ -176,12 +228,16 @@
         // 3. Headline
         const renderHeadline = () => {
             const currentSlide = slides[index];
-            return h('div', { className: "flex flex-col items-center justify-center gap-2 min-h-[60px] mt-1" },
+            return h('div', { className: "flex flex-col items-center justify-center gap-2 min-h-[60px] text-center px-4 max-w-5xl mx-auto mt-1" },
                 // New Headline (Replaces STOP/Worrying)
                 h('div', { style: { marginBottom: '0.25rem', fontSize: 'clamp(18px, 5vw, 28px)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: 'center', width: '100%' } },
-                    h('span', { style: { color: '#94A3B8' } }, "From Enquiring"),
-                    h('span', { style: { color: '#94A3B8', fontStyle: 'italic' } }, " to"),
-                    h('span', { style: { color: '#FF6B35', fontWeight: 800 } }, " Knowing")
+                    h('span', { className: "text-slate-400" }, "From Enquiring "),
+                    // Animated Arrow (Replaces "to")
+                    h('span', {
+                        className: "arrow-pulse text-[#FF6B35] font-black text-2xl md:text-3xl relative top-[2px]",
+                        style: { display: 'inline-block' }
+                    }, "→"),
+                    h('span', { className: "text-[#FF6B35] font-extrabold" }, " Knowing")
                 ),
                 h('div', { className: "text-center px-4 max-w-5xl mx-auto mt-6" },
                     /* Subtext Moved */
@@ -202,11 +258,16 @@
 
         // 4.5 Feature Block
         const renderFeatures = () => {
-            return h('div', { className: "grid grid-cols-3 gap-2 md:gap-8 text-center relative max-w-6xl mx-auto mt-0 md:mt-12 mb-8 px-2" },
+            return h('div', { className: "grid grid-cols-3 gap-2 md:gap-8 text-center relative max-w-6xl mx-auto mt-0 md:mt-4 mb-4 px-2" },
 
                 // 1. Clinical Input
-                h('div', { className: "p-2 md:p-6 rounded-2xl bg-white shadow-xl border border-slate-100 transform hover:-translate-y-1 transition-transform duration-300" },
-                    h('h4', { className: "text-[#FF6B35] font-bold text-xs uppercase tracking-[2px] font-['Montserrat'] mb-2" }, "THE INPUT (WHY?)"),
+                h('div', {
+                    className: "p-2 md:p-6 rounded-2xl bg-white shadow-xl border border-slate-100 transform hover:-translate-y-1 transition-transform duration-300 cursor-pointer",
+                    onClick: () => window.showDeepDive && window.showDeepDive('input')
+                },
+                    h('h4', { className: "text-[#FF6B35] font-bold text-[10px] uppercase tracking-[2px] font-['Montserrat'] mb-2 flex items-center justify-center gap-1" },
+                        "THE INPUT"
+                    ),
                     h('div', { className: "mb-4 flex justify-center" },
                         h('div', { className: "text-5xl filter drop-shadow-md animate-pulse-slow" }, "🧠")
                     ),
@@ -215,8 +276,13 @@
                 ),
 
                 // 2. Neural Calibration
-                h('div', { className: "p-2 md:p-6 rounded-2xl bg-white shadow-xl border border-slate-100 transform hover:-translate-y-1 transition-transform duration-300" },
-                    h('h4', { className: "text-[#FF6B35] font-bold text-xs uppercase tracking-[2px] font-['Montserrat'] mb-2" }, "THE PROCESS (HOW?)"),
+                h('div', {
+                    className: "p-2 md:p-6 rounded-2xl bg-white shadow-xl border border-slate-100 transform hover:-translate-y-1 transition-transform duration-300 cursor-pointer",
+                    onClick: () => window.showDeepDive && window.showDeepDive('process')
+                },
+                    h('h4', { className: "text-[#FF6B35] font-bold text-[10px] uppercase tracking-[2px] font-['Montserrat'] mb-2 flex items-center justify-center gap-1" },
+                        "PROCESS"
+                    ),
                     h('div', { className: "mb-4 flex justify-center" },
                         h('svg', { className: "w-14 h-14 text-slate-800 animate-spin-slow", fill: "none", stroke: "currentColor", strokeWidth: "2", viewBox: "0 0 24 24" },
                             h('circle', { cx: "12", cy: "12", r: "3" }),
@@ -228,8 +294,13 @@
                 ),
 
                 // 3. Actionable Roadmap
-                h('div', { className: "p-2 md:p-6 rounded-2xl bg-white shadow-xl border border-slate-100 transform hover:-translate-y-1 transition-transform duration-300" },
-                    h('h4', { className: "text-[#FF6B35] font-bold text-xs uppercase tracking-[2px] font-['Montserrat'] mb-2" }, "THE OUTPUT (WHAT?)"),
+                h('div', {
+                    className: "p-2 md:p-6 rounded-2xl bg-white shadow-xl border border-slate-100 transform hover:-translate-y-1 transition-transform duration-300 cursor-pointer",
+                    onClick: () => window.showDeepDive && window.showDeepDive('output')
+                },
+                    h('h4', { className: "text-[#FF6B35] font-bold text-[10px] uppercase tracking-[2px] font-['Montserrat'] mb-2 flex items-center justify-center gap-1" },
+                        "THE OUTPUT"
+                    ),
                     h('div', { className: "mb-4 flex justify-center" },
                         h('svg', { className: "w-14 h-14 text-[#F59E0B] animate-folder-float", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24" },
                             h('path', { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: "1.5", d: "M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z" })
@@ -262,7 +333,8 @@
             return h('div', { className: "relative mt-4 z-[40] flex flex-col gap-4 items-center w-full max-w-2xl px-4" },
                 // Primary Button
                 h('div', { className: "relative group w-full md:w-auto" },
-                    h('div', { className: "absolute -inset-1 bg-gradient-to-r from-[#FF6B35] to-yellow-500 rounded-full blur opacity-40 group-hover:opacity-75 transition duration-1000" }),
+
+                    // h('div', { className: "absolute -inset-1 bg-gradient-to-r from-[#FF6B35] to-yellow-500 rounded-full blur opacity-40 group-hover:opacity-75 transition duration-1000" }),
                     h('button', {
                         onClick: () => triggerStart(0),
                         className: "unstoppable-cta neural-pulse w-full relative bg-[#FF6B35] text-white px-8 py-5 rounded-full font-black text-xl md:text-2xl shadow-none haptic-shadow overflow-hidden transition-all duration-300 ease-out border-b-[4px] border-orange-800 flex items-center justify-center gap-2",
@@ -279,7 +351,7 @@
         // 7. Roadmap Text
         const renderRoadmapText = () => {
             return h(Fragment, {},
-                h('p', { className: "text-[#FF6B35] font-black text-xl md:text-3xl mb-4 mt-12 tracking-normal text-center drop-shadow-lg leading-tight" },
+                h('p', { className: "text-[#FF6B35] font-black text-xl md:text-3xl mb-4 mt-4 tracking-normal text-center drop-shadow-lg leading-tight" },
                     "School Board Selection is a 15 Year Financial & Academic Commitment."
                 ),
                 h('p', { className: "text-slate-400 text-center mt-2 mb-2 w-full max-w-5xl mx-auto px-2 font-medium animate-pulse text-xs md:text-lg md:whitespace-nowrap leading-tight" },
@@ -350,8 +422,119 @@
             );
         };
 
+        // 11. Board Modal (Glassmorphism)
+        const renderBoardModal = () => {
+            return h(AnimatePresence, {},
+                selectedBoard && h(motion.div, {
+                    initial: { opacity: 0 },
+                    animate: { opacity: 1 },
+                    exit: { opacity: 0 },
+                    className: "fixed inset-0 z-[100001] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm"
+                },
+                    h(motion.div, {
+                        initial: { scale: 0.9, opacity: 0 },
+                        animate: { scale: 1, opacity: 1 },
+                        exit: { scale: 0.9, opacity: 0 },
+                        className: "relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-slate-900/80 border border-[#FF6B35] rounded-3xl p-6 md:p-10 shadow-2xl custom-scrollbar",
+                        style: { backdropFilter: "blur(12px)" }
+                    },
+                        // Close Button
+                        h('button', {
+                            onClick: () => setSelectedBoard(null),
+                            className: "absolute top-4 right-4 text-slate-400 hover:text-white"
+                        }, "✕"),
+
+                        // Header
+                        h('h2', { className: "text-2xl md:text-3xl font-black text-white mb-1" }, BOARD_DATA[selectedBoard].name),
+                        h('p', { className: "text-[#FF6B35] font-bold uppercase tracking-widest text-sm mb-6" }, BOARD_DATA[selectedBoard].tagline),
+
+                        // Content Grid
+                        h('div', { className: "space-y-6 text-left" },
+                            // Methodology
+                            h('div', {},
+                                h('h4', { className: "text-slate-300 font-bold uppercase text-xs mb-1" }, "The Methodology"),
+                                h('p', { className: "text-slate-100 text-sm leading-relaxed" }, BOARD_DATA[selectedBoard].methodology)
+                            ),
+                            // Forensic Reality
+                            h('div', {},
+                                h('h4', { className: "text-slate-300 font-bold uppercase text-xs mb-1" }, "The Forensic Reality"),
+                                h('p', { className: "text-slate-100 text-sm leading-relaxed" }, BOARD_DATA[selectedBoard].forensicReality)
+                            ),
+                            // Risk Profile
+                            h('div', { className: "bg-red-500/10 border border-red-500/30 p-4 rounded-xl" },
+                                h('h4', { className: "text-red-400 font-bold uppercase text-xs mb-3" }, "Forensic Risk Profile"),
+                                BOARD_DATA[selectedBoard].risks.map((risk, i) =>
+                                    h('div', { key: i, className: "mb-3 last:mb-0" },
+                                        h('strong', { className: "text-white text-sm" }, "⚠️ " + risk.title + ": "),
+                                        h('span', { className: "text-slate-300 text-sm" }, risk.text)
+                                    )
+                                )
+                            ),
+                            // Stat
+                            h('div', { className: "bg-[#FF6B35]/10 border border-[#FF6B35]/30 p-3 rounded-lg flex items-start gap-3" },
+                                h('span', { className: "text-xl" }, "📊"),
+                                h('p', { className: "text-slate-200 text-xs font-medium italic" },
+                                    h('strong', { className: "text-[#FF6B35]" }, "Apt Skola Stat: "),
+                                    BOARD_DATA[selectedBoard].stat
+                                )
+                            )
+                        ),
+
+                        // Footer Buttons - REPLACED WITH ONE BUTTON
+                        h('div', { className: "mt-8 pt-6 border-t border-slate-700 w-full" },
+                            h('button', {
+                                onClick: () => { setSelectedBoard(null); triggerStart(0); },
+                                className: "w-full py-4 px-6 rounded-xl bg-[#FF6B35] text-white font-black text-sm md:text-lg hover:bg-orange-600 transition-all shadow-[0_0_20px_rgba(255,107,53,0.4)] flex items-center justify-center gap-2"
+                            },
+                                "See how my child's Learning Style fits into the " + BOARD_DATA[selectedBoard].name,
+                                h('span', { className: "animate-pulse" }, "→")
+                            )
+                        )
+                    )
+                )
+            );
+        };
+
+        // 12. Render Board Grid (Refactored)
+        const renderBoardGrid = () => {
+            return h('div', { className: "mb-4 mt-4 text-center w-full max-w-lg mx-auto px-4" },
+                // Section Label
+                h('p', {
+                    className: "text-white font-bold mb-3 uppercase text-center",
+                    style: { fontSize: '11px', letterSpacing: '1.5px', textShadow: '0 0 10px rgba(255, 255, 255, 0.5)' }
+                }, "Select a board to view its Methodology & Risk Profile"),
+
+                // Board Button Grid
+                h('div', { className: "grid grid-cols-2 md:grid-cols-4 gap-3" },
+                    Object.keys(BOARD_DATA).map(boardKey =>
+                        h('button', {
+                            key: boardKey,
+                            onClick: () => setSelectedBoard(boardKey),
+                            className: "py-3 px-2 rounded-xl text-[10px] md:text-sm font-bold transition-all duration-300",
+                            style: {
+                                background: 'rgba(255, 255, 255, 0.03)',
+                                backdropFilter: 'blur(10px)',
+                                border: '1px solid rgba(255, 255, 255, 0.1)',
+                                color: '#94A3B8'
+                            },
+                            onMouseEnter: (e) => {
+                                e.currentTarget.style.borderColor = '#FF6B35';
+                                e.currentTarget.style.color = '#FFFFFF';
+                                e.currentTarget.style.boxShadow = '0 0 15px rgba(255, 107, 53, 0.2)';
+                            },
+                            onMouseLeave: (e) => {
+                                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                                e.currentTarget.style.color = '#94A3B8';
+                                e.currentTarget.style.boxShadow = 'none';
+                            }
+                        }, boardKey)
+                    )
+                )
+            );
+        };
+
         return h(Fragment, {},
-            h('section', { className: "relative pt-12 pb-20 px-4 overflow-hidden bg-[#0F172A] min-h-[95vh] flex flex-col items-center" },
+            h('section', { className: "relative pt-14 pb-12 px-4 overflow-hidden bg-[#0F172A] min-h-[95vh] flex flex-col items-center" },
                 renderTopLeftLogo(),
                 renderTopRightSocialProof(),
                 renderNarrativeHeader(),
@@ -360,6 +543,7 @@
                 },
                     // Spacer removed as Narrative Header takes that space now
                     renderHeadline(),
+                    renderBoardGrid(), // Moved Here
                     renderSubtext(),
                     renderFeatures(),
                     renderCTA(),
@@ -400,7 +584,8 @@
                 h('div', { className: "absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[180px] pointer-events-none" })
             ),
             renderToast(),
-            renderStickyCTA()
+            renderStickyCTA(),
+            renderBoardModal()
         );
     };
 
