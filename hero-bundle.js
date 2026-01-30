@@ -101,8 +101,11 @@
 
         // 1. Top Left Logo (New)
         const renderTopLeftLogo = () => {
-            return h('div', { className: "absolute top-6 left-6 z-[100] animate-fade-in" },
-                h('div', { className: "flex flex-col items-start leading-none opacity-90 hover:opacity-100 transition-opacity" },
+            return h('div', { className: "absolute top-6 left-6 z-[100]" },
+                h('div', {
+                    className: "flex flex-col items-start leading-none opacity-90 hover:opacity-100 transition-opacity cursor-pointer",
+                    onClick: () => window.location.reload()
+                },
                     h('h1', { className: "text-2xl md:text-3xl font-black text-white tracking-tighter" },
                         "Apt ", h('span', { className: "text-[#FF6B35]" }, "Skola")
                     ),
@@ -205,8 +208,13 @@
             return h('div', { className: "grid grid-cols-3 gap-2 md:gap-8 text-center relative max-w-6xl mx-auto mt-0 md:mt-12 mb-8 px-2" },
 
                 // 1. Clinical Input
-                h('div', { className: "p-2 md:p-6 rounded-2xl bg-white shadow-xl border border-slate-100 transform hover:-translate-y-1 transition-transform duration-300" },
-                    h('h4', { className: "text-[#FF6B35] font-bold text-xs uppercase tracking-[2px] font-['Montserrat'] mb-2" }, "THE INPUT (WHY?)"),
+                h('div', {
+                    className: "p-2 md:p-6 rounded-2xl bg-white shadow-xl border border-slate-100 transform hover:-translate-y-1 transition-transform duration-300 cursor-pointer",
+                    onClick: () => window.showDeepDive && window.showDeepDive('input')
+                },
+                    h('h4', { className: "text-[#FF6B35] font-bold text-[10px] uppercase tracking-[2px] font-['Montserrat'] mb-2 flex items-center justify-center gap-1" },
+                        "THE INPUT ", h('span', { className: "text-[8px] opacity-60" }, "ⓘ")
+                    ),
                     h('div', { className: "mb-4 flex justify-center" },
                         h('div', { className: "text-5xl filter drop-shadow-md animate-pulse-slow" }, "🧠")
                     ),
@@ -215,8 +223,13 @@
                 ),
 
                 // 2. Neural Calibration
-                h('div', { className: "p-2 md:p-6 rounded-2xl bg-white shadow-xl border border-slate-100 transform hover:-translate-y-1 transition-transform duration-300" },
-                    h('h4', { className: "text-[#FF6B35] font-bold text-xs uppercase tracking-[2px] font-['Montserrat'] mb-2" }, "THE PROCESS (HOW?)"),
+                h('div', {
+                    className: "p-2 md:p-6 rounded-2xl bg-white shadow-xl border border-slate-100 transform hover:-translate-y-1 transition-transform duration-300 cursor-pointer",
+                    onClick: () => window.showDeepDive && window.showDeepDive('process')
+                },
+                    h('h4', { className: "text-[#FF6B35] font-bold text-[10px] uppercase tracking-[2px] font-['Montserrat'] mb-2 flex items-center justify-center gap-1" },
+                        "THE PROCESS ", h('span', { className: "text-[8px] opacity-60" }, "ⓘ")
+                    ),
                     h('div', { className: "mb-4 flex justify-center" },
                         h('svg', { className: "w-14 h-14 text-slate-800 animate-spin-slow", fill: "none", stroke: "currentColor", strokeWidth: "2", viewBox: "0 0 24 24" },
                             h('circle', { cx: "12", cy: "12", r: "3" }),
@@ -228,8 +241,13 @@
                 ),
 
                 // 3. Actionable Roadmap
-                h('div', { className: "p-2 md:p-6 rounded-2xl bg-white shadow-xl border border-slate-100 transform hover:-translate-y-1 transition-transform duration-300" },
-                    h('h4', { className: "text-[#FF6B35] font-bold text-xs uppercase tracking-[2px] font-['Montserrat'] mb-2" }, "THE OUTPUT (WHAT?)"),
+                h('div', {
+                    className: "p-2 md:p-6 rounded-2xl bg-white shadow-xl border border-slate-100 transform hover:-translate-y-1 transition-transform duration-300 cursor-pointer",
+                    onClick: () => window.showDeepDive && window.showDeepDive('output')
+                },
+                    h('h4', { className: "text-[#FF6B35] font-bold text-[10px] uppercase tracking-[2px] font-['Montserrat'] mb-2 flex items-center justify-center gap-1" },
+                        "THE OUTPUT ", h('span', { className: "text-[8px] opacity-60" }, "ⓘ")
+                    ),
                     h('div', { className: "mb-4 flex justify-center" },
                         h('svg', { className: "w-14 h-14 text-[#F59E0B] animate-folder-float", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24" },
                             h('path', { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: "1.5", d: "M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z" })

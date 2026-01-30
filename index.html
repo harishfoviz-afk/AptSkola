@@ -366,10 +366,12 @@
                 <div class="hidden md:block absolute top-12 left-[16%] right-[16%] h-0.5 bg-slate-700/50 -z-10"></div>
 
                 <!-- 1. Clinical Input -->
-                <div
-                    class="p-2 md:p-6 rounded-2xl bg-white shadow-xl border border-slate-100 transform hover:-translate-y-1 transition-transform duration-300">
-                    <h4 class="text-[#FF6B35] font-bold text-xs uppercase tracking-[2px] font-['Montserrat'] mb-2">THE
-                        INPUT (WHY?)</h4>
+                <div onclick="if(window.showDeepDive) window.showDeepDive('input')"
+                    class="p-2 md:p-6 rounded-2xl bg-white shadow-xl border border-slate-100 transform hover:-translate-y-1 transition-transform duration-300 cursor-pointer">
+                    <h4
+                        class="text-[#FF6B35] font-bold text-[10px] uppercase tracking-[2px] font-['Montserrat'] mb-2 flex items-center justify-center gap-1">
+                        THE INPUT <span class="text-[8px] opacity-60">ⓘ</span>
+                    </h4>
                     <div class="mb-4 flex justify-center">
                         <div class="text-5xl filter drop-shadow-md animate-pulse-slow">🧠</div>
                     </div>
@@ -380,10 +382,12 @@
                 </div>
 
                 <!-- 2. Neural Calibration -->
-                <div
-                    class="p-2 md:p-6 rounded-2xl bg-white shadow-xl border border-slate-100 transform hover:-translate-y-1 transition-transform duration-300">
-                    <h4 class="text-[#FF6B35] font-bold text-xs uppercase tracking-[2px] font-['Montserrat'] mb-2">THE
-                        PROCESS (HOW?)</h4>
+                <div onclick="if(window.showDeepDive) window.showDeepDive('process')"
+                    class="p-2 md:p-6 rounded-2xl bg-white shadow-xl border border-slate-100 transform hover:-translate-y-1 transition-transform duration-300 cursor-pointer">
+                    <h4
+                        class="text-[#FF6B35] font-bold text-[10px] uppercase tracking-[2px] font-['Montserrat'] mb-2 flex items-center justify-center gap-1">
+                        THE PROCESS <span class="text-[8px] opacity-60">ⓘ</span>
+                    </h4>
                     <div class="mb-4 flex justify-center">
                         <svg class="w-14 h-14 text-slate-800 animate-spin-slow" fill="none" stroke="currentColor"
                             stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -399,10 +403,12 @@
                 </div>
 
                 <!-- 3. Actionable Roadmap -->
-                <div
-                    class="p-2 md:p-6 rounded-2xl bg-white shadow-xl border border-slate-100 transform hover:-translate-y-1 transition-transform duration-300">
-                    <h4 class="text-[#FF6B35] font-bold text-xs uppercase tracking-[2px] font-['Montserrat'] mb-2">THE
-                        OUTPUT (WHAT?)</h4>
+                <div onclick="if(window.showDeepDive) window.showDeepDive('output')"
+                    class="p-2 md:p-6 rounded-2xl bg-white shadow-xl border border-slate-100 transform hover:-translate-y-1 transition-transform duration-300 cursor-pointer">
+                    <h4
+                        class="text-[#FF6B35] font-bold text-[10px] uppercase tracking-[2px] font-['Montserrat'] mb-2 flex items-center justify-center gap-1">
+                        THE OUTPUT <span class="text-[8px] opacity-60">ⓘ</span>
+                    </h4>
                     <div class="mb-4 flex justify-center">
                         <svg class="w-14 h-14 text-[#F59E0B] animate-folder-float" fill="none" stroke="currentColor"
                             viewBox="0 0 24 24">
@@ -1477,9 +1483,10 @@
 
     <!-- MOMENTUM TRIGGER MODAL (Navy Premium) -->
     <div id="momentumModal" class="momentum-overlay hidden">
-        <div class="momentum-modal">
-            <h2 class="momentum-title">Securing Your Diagnostic Session</h2>
-            <p class="momentum-desc">
+        <div class="momentum-modal" style="width: 95%; max-width: 450px; padding: 25px; margin: auto;">
+            <h2 class="momentum-title" style="font-size: 1.5rem; line-height: 1.2;">Securing Your Diagnostic Session
+            </h2>
+            <p class="momentum-desc" style="font-size: 0.9rem; margin-top: 15px;">
                 To prevent data loss during the Institutional Alignment Matrix calibration, please confirm your contact
                 details. This creates your secure Smart Parent Pro Dashboard where your 15-year roadmap will be stored.
             </p>
