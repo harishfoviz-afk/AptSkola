@@ -389,7 +389,7 @@ body {
 .option-card {
     padding: 20px 25px;
     background: #F8FAFC;
-    border-radius: 16px;
+    border-radius: 12px;
     cursor: pointer;
     transition: all 0.2s ease;
     font-size: 1.1rem;
@@ -401,24 +401,12 @@ body {
 
 .option-card:hover {
     background: #F1F5F9;
-    transform: translateY(-2px);
 }
 
 .option-card.selected {
-    border-color: var(--sunrise-primary);
+    border-color: var(--navy-premium);
     background: #fff;
-    box-shadow: 0 10px 20px rgba(255, 107, 53, 0.1);
-}
-
-.quiz-card {
-    background: white;
-    border-radius: 24px;
-    padding: 30px;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.05);
-    width: 100%;
-    max-width: 600px;
-    margin: 0 auto;
-    border: 1px solid #F1F5F9;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 /* Other Pages */
