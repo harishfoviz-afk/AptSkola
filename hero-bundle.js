@@ -189,7 +189,7 @@
                     },
                         h('p', { className: "text-2xl md:text-4xl font-bold text-slate-500" },
                             "What is the ",
-                            h('span', { className: "font-black text-white relative" }, "Best"),
+                            h('span', { className: "font-black text-white line-through relative decoration-4 decoration-red-500" }, "BEST"),
                             " Board?"
                         )
                     ),
@@ -210,7 +210,7 @@
                     },
                         h('p', { className: "text-xl md:text-4xl font-bold text-slate-200 whitespace-nowrap" },
                             "What ",
-                            h('span', { className: "font-black text-[#FF6B35] tracking-wide", style: { fontFamily: "'Montserrat', sans-serif" } }, "Suits"),
+                            h('span', { className: "font-black text-[#10B981] tracking-wide", style: { fontFamily: "'Montserrat', sans-serif" } }, "SUITS"),
                             " your child?"
                         )
                     )
@@ -240,7 +240,7 @@
                     h('span', { className: "text-[#FF6B35] font-extrabold" }, " Knowing")
                 ),
                 h('div', { className: "text-center px-4 max-w-5xl mx-auto mt-6" },
-                    /* Subtext Moved */
+                    /* SEARCHING FIRST */
                     /* Subtext Removed */
                 )
             );
@@ -342,7 +342,7 @@
                     },
                         // Radar Sweep Light
                         h('div', { className: "radar-beam" }),
-                        "Initiate Forensic Sync Scan",
+                        "Start My Child's learning Mapping for FREE",
                         h('span', { className: "animate-pulse" }, "→"))
                 ),
             );
@@ -360,20 +360,84 @@
             );
         };
 
-        // 8. Question Embed
+        // 8. Forensic Teaser Card (New Hybrid)
         const renderQuestionEmbed = () => {
-            return h('div', { className: "mt-4 w-full max-w-4xl bg-slate-900/50 p-8 md:p-12 rounded-[40px] backdrop-blur-xl shadow-2xl" },
-                h('div', { className: "text-center" },
-                    h('h2', { className: "text-white text-2xl md:text-4xl font-extrabold mt-4 md:whitespace-nowrap" }, "How does your child process complex new data?")
+            return h('div', { className: "mt-8 w-full max-w-4xl bg-slate-900/80 border border-[#FF6B35] rounded-3xl p-6 md:p-8 backdrop-blur-xl shadow-[0_0_20px_rgba(255,107,53,0.3)] transform transition-all hover:scale-[1.01]" },
+
+                // 1. Icons Split
+                h('div', { className: "flex justify-center gap-8 md:gap-16 mb-6" },
+                    // Fractal Icon (Big Picture)
+                    h('div', { className: "text-center group cursor-pointer" },
+                        h('div', { className: "w-12 h-12 md:w-16 md:h-16 mx-auto mb-2 text-[#FF6B35] shadow-[0_0_15px_#FF6B35] rounded-full flex items-center justify-center bg-slate-800 group-hover:bg-[#FF6B35] group-hover:text-white transition-all duration-300" },
+                            h('svg', { className: "w-6 h-6 md:w-8 md:h-8", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24" },
+                                h('path', { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: "2", d: "M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" })
+                            )
+                        ),
+                        h('p', { className: "text-[10px] md:text-xs text-slate-400 font-bold uppercase tracking-wider group-hover:text-white transition-colors" }, "Big Picture")
+                    ),
+
+                    // Ladder Icon (Fine Print)
+                    h('div', { className: "text-center group cursor-pointer" },
+                        h('div', { className: "w-12 h-12 md:w-16 md:h-16 mx-auto mb-2 text-[#3B82F6] shadow-[0_0_15px_#3B82F6] rounded-full flex items-center justify-center bg-slate-800 group-hover:bg-[#3B82F6] group-hover:text-white transition-all duration-300" },
+                            h('svg', { className: "w-6 h-6 md:w-8 md:h-8", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24" },
+                                h('path', { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: "2", d: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" })
+                            )
+                        ),
+                        h('p', { className: "text-[10px] md:text-xs text-slate-400 font-bold uppercase tracking-wider group-hover:text-white transition-colors" }, "Fine Print")
+                    )
                 ),
-                h('div', { className: "w-full h-px bg-slate-700/50 my-8" }), // Separator
-                h('div', { className: "grid grid-cols-1 md:grid-cols-3 gap-6" },
-                    ["Visual/Charts", "Auditory/Discussion", "Kinesthetic/Build"].map((opt, i) =>
+
+                // 2. Headline & Subtext
+                h('div', { className: "text-center mb-6" },
+                    h('h3', { className: "text-white font-bold text-xl md:text-2xl mb-3 leading-tight" },
+                        "Is your child’s brain wired for ",
+                        h('br', { className: "hidden md:block" }),
+                        " The Big Picture or The Fine Print?"
+                    ),
+                    h('p', { className: "text-slate-300 text-xs md:text-sm leading-relaxed max-w-2xl mx-auto font-medium" },
+                        "Methodologies like IB demand ",
+                        h('span', { className: "text-[#FF6B35]" }, "Pattern-Seeking (The Big Picture)"),
+                        ", while CBSE rewards ",
+                        h('span', { className: "text-[#3B82F6]" }, "Sequential-Logic (The Fine Print)"),
+                        ". Choosing the wrong board creates a 'Cognitive Friction' that no amount of tutoring can fix."
+                    )
+                ),
+
+                // 3. Micro-CTA (Name Input)
+                h('div', { className: "text-center" },
+                    h('div', { className: "inline-flex flex-col md:flex-row items-center justify-center bg-slate-800 border border-slate-600 rounded-2xl md:rounded-full px-6 py-4 shadow-lg hover:border-[#FF6B35] transition-all gap-3 md:gap-0" },
+                        h('span', { className: "text-white font-bold text-sm whitespace-nowrap" }, "Start"),
+
+                        h('div', { className: "relative mx-2 w-full md:w-auto" },
+                            h('input', {
+                                type: "text",
+                                id: "heroChildName2", // Unique ID
+                                placeholder: "Child's Name",
+                                className: "bg-transparent border-dots-pulse text-[#FF6B35] font-bold text-center w-32 md:w-40 py-1 focus:outline-none placeholder-slate-600 transition-colors",
+                                onKeyDown: (e) => {
+                                    if (e.key === 'Enter') {
+                                        const val = e.target.value;
+                                        if (window.startQuizWithName) window.startQuizWithName(val);
+                                        else triggerStart(0);
+                                    }
+                                }
+                            })
+                        ),
+
+                        h('span', { className: "text-white font-bold text-sm whitespace-nowrap" }, "’s learning Mapping for FREE"),
+
                         h('button', {
-                            key: i,
-                            onClick: () => handlePhase0OptionClick(i),
-                            className: "p-6 bg-slate-800/50 border-2 border-slate-700 rounded-2xl text-white font-bold text-xl hover:bg-[#FF6B35] hover:border-[#FF6B35] transition-all transform hover:-translate-y-2"
-                        }, opt)
+                            onClick: () => {
+                                const val = document.getElementById('heroChildName2').value;
+                                if (window.startQuizWithName) window.startQuizWithName(val);
+                                else triggerStart(0);
+                            },
+                            className: "mt-3 md:mt-0 md:ml-4 bg-[#FF6B35] text-white rounded-full p-2 hover:scale-110 active:scale-90 transition-transform shadow-lg"
+                        },
+                            h('svg', { className: "w-5 h-5", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24" },
+                                h('path', { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: "2", d: "M14 5l7 7m0 0l-7 7m7-7H3" })
+                            )
+                        )
                     )
                 )
             );
@@ -514,7 +578,7 @@
                             style: {
                                 background: 'rgba(255, 255, 255, 0.03)',
                                 backdropFilter: 'blur(10px)',
-                                border: '1px solid rgba(255, 255, 255, 0.1)',
+                                border: '1px solid #FFFFFF',
                                 color: '#94A3B8'
                             },
                             onMouseEnter: (e) => {
@@ -523,7 +587,7 @@
                                 e.currentTarget.style.boxShadow = '0 0 15px rgba(255, 107, 53, 0.2)';
                             },
                             onMouseLeave: (e) => {
-                                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                                e.currentTarget.style.borderColor = '#FFFFFF';
                                 e.currentTarget.style.color = '#94A3B8';
                                 e.currentTarget.style.boxShadow = 'none';
                             }

@@ -1352,7 +1352,7 @@ function getIntermediateHeaderHtml() {
     return `
         <div style="background: #0F172A; padding: 20px 24px; display: flex; align-items: center; width: 100%; border-bottom: 1px solid #1E293B;">
             <div onclick="window.location.reload()" style="cursor: pointer; display: flex; flex-direction: column; align-items: flex-start; line-height: 1;">
-                 <h1 class="text-2xl md:text-3xl font-black text-white tracking-tighter" style="margin: 0; font-family: 'Montserrat', sans-serif;">
+                 <h1 class="text-2xl md:text-3xl font-black text-white tracking-tighter" style="margin: 0;">
                     Apt <span class="text-[#FF6B35]">Skola</span>
                 </h1>
                 <span class="text-[0.6rem] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1 ml-1" style="font-family: 'Inter', sans-serif;">
@@ -1626,6 +1626,18 @@ function renderQuestionContent(index) {
                 ${systemLogHtml}
             </div>
         `;
+
+        // NEW: Auto-focus input if present (Requested for Phase 0 Name)
+        if (q.type === 'input') {
+            setTimeout(() => {
+                const inputEl = document.getElementById(`quizInput_${q.id}`);
+                if (inputEl) {
+                    console.log("Auto-focusing input:", inputEl.id);
+                    inputEl.focus();
+                    inputEl.click(); // Mobile trigger
+                }
+            }, 600); // Slight delay for modal animation
+        }
     }
 }
 
@@ -1700,6 +1712,13 @@ function showDetailsPage() {
             if (!customerData.childName) {
                 customerData.childName = prefillName;
             }
+        }
+
+        // NEW: Auto-fill Phone Number (from Momentum Phase)
+        const phoneInput = document.getElementById('phone');
+        if (phoneInput && customerData.phone) {
+            console.log("Auto-filling Phone Number:", customerData.phone);
+            phoneInput.value = customerData.phone;
         }
     }
 }
@@ -1894,7 +1913,7 @@ async function triggerAutomatedEmail() {
 
     // Build the Branded Header and Basic Info
     let htmlSummary = `
-        < div style = "border: 1px solid #E2E8F0; border-radius: 16px; overflow: hidden; font-family: sans-serif; margin: 20px 0;" >
+        <div style="border: 1px solid #E2E8F0; border-radius: 16px; overflow: hidden; font-family: sans-serif; margin: 20px 0;">
             <div style="background-color: #0F172A; color: #ffffff; padding: 25px; text-align: center;">
                 <h2 style="margin: 0; font-size: 22px; letter-spacing: 0.5px;">${data.title}</h2>
                 <p style="margin: 8px 0 0; color: #FF6B35; font-weight: 800; font-size: 16px;">
@@ -1930,18 +1949,18 @@ async function triggerAutomatedEmail() {
         `;
     }
 
-    htmlSummary += `</div></div > `;
+    htmlSummary += `</div></div>`;
 
     // ADDED: Partnership Invitation (Captured from Educator Partner Section)
     htmlSummary += `
-        < div style = "margin-top: 20px; padding: 15px; border: 1px dashed #CBD5E1; border-radius: 8px; background-color: #F8FAFC; text-align: center;" >
+        <div style="margin-top: 20px; padding: 15px; border: 1px dashed #CBD5E1; border-radius: 8px; background-color: #F8FAFC; text-align: center;">
             <h4 style="margin: 0 0 10px 0; color: #0F172A; font-size: 14px;">🤝 Join the Apt Skola Network</h4>
             <p style="margin: 0; color: #475569; font-size: 13px; line-height: 1.5;">
                 Teachers & Tutors: Earn <strong>₹300</strong> for student referrals and 
                 <strong>₹3,000</strong> per session for school-wide engagement. 
             </p>
             <a href="https://aptskola.com/#educatorPartner" style="display: inline-block; margin-top: 10px; color: #FF6B35; font-weight: 700; text-decoration: none; font-size: 13px;">Register as Partner →</a>
-        </div >
+        </div>
         `;
 
     try {
@@ -2122,7 +2141,7 @@ function showInstantSuccessPage() {
             <p style="color: #C2410C; font-size: 0.8rem; margin-top: 5px;">
                 We have sent a summary to your email, but the full 15-year roadmap is only saved locally on this browser. Download the PDF to keep it forever.
             </p>
-        </div >
+        </div>
         `;
         successContainer.insertAdjacentHTML('afterbegin', backupNotice);
     }
@@ -2413,7 +2432,7 @@ function showBridgeMilestone() {
                 ${bridgeHtml}
             </div>
             <button onclick="calculateSyncMatch()" class="custom-cta-button" style="margin-top:20px;">Unlock Full Report & Verification →</button>
-        </div >
+        </div>
         `;
 }
 
@@ -2483,13 +2502,13 @@ function getAlignmentData() {
 			<p style="color: var(--navy-light); font-size: 0.95rem; line-height: 1.6;">
 				<strong>Final Verdict:</strong> Alignment is possible by choosing the board for the "Certificate" but selecting the specific school campus for the "Culture".
 			</p>
-		</div > ` : `
+		</div> ` : `
         <div class="report-card" style="border: 2px solid #22C55E; background: #F0FDF4; margin-top: 20px;">
         <h3 style="color: #166534; font-weight: 800; font-size: 1.2rem; margin-bottom: 10px;">✅ PERFECT ALIGNMENT</h3>
         <p style="color: #166534; font-size: 0.95rem; line-height: 1.6;">
             Your parenting vision and your child’s cognitive DNA are in a rare state of "Scientific Sync." Your choice of <strong>${parentRec}</strong> perfectly supports their natural strength in <strong>${traits[topDNA]}</strong>. This foundation minimizes academic friction and maximizes their potential for high-tier university placements.
         </p>
-    </div > `;
+    </div> `;
 
     return { parentRec, normalizedDNA, bridgeHtml, isConflict, parentMatchScore, topScore };
 }
@@ -2666,7 +2685,7 @@ async function renderReportToBrowser() {
                 <div class="text-slate-300 text-lg font-medium mt-1">${sessionCustomerData.package} Report</div>
                 <div class="text-slate-400 text-xs mt-3 uppercase tracking-widest">ID: ${sessionCustomerData.orderId} | Prepared for: ${sessionCustomerData.childName}</div>
             </div>
-        </div >
+        </div>
 
         <div class="report-card !p-0 overflow-hidden">
             <div class="report-header-bg" style="margin: 0;">THE RECOMMENDED ARCHETYPE</div>
@@ -2783,7 +2802,7 @@ async function renderReportToBrowser() {
                         </div>
                     `).join('')}
                 </div>
-            </div >
+            </div>
 
         <div class="report-card">
             <div class="report-header-bg">15-YEAR FEE FORECASTER (12% Inflation)</div>
@@ -2838,7 +2857,7 @@ async function renderReportToBrowser() {
                         </div>
                     `).join('')}
                 </div>
-            </div >
+            </div>
 
         <div class="report-card">
             <div class="report-header-bg">🎙️ PARENT INTERVIEW MASTERY</div>
@@ -3384,7 +3403,7 @@ function openCollaborationModal(type) {
     const sub = type === 'Partner' ? 'Join our Forensic Network' : 'Earn Rewards for Referrals';
 
     modal.innerHTML = `
-        < div class="payment-modal-content" style = "max-width: 550px; text-align: left; border-top: 5px solid #FF6B35;" >
+        <div class="payment-modal-content" style="max-width: 550px; text-align: left; border-top: 5px solid #FF6B35;">
             <button onclick="document.getElementById('collaborationModal').remove()" style="position:absolute; top:15px; right:15px; background:none; border:none; font-size:1.5rem; cursor:pointer;">&times;</button>
             
             <h3 style="color: #0F172A; font-weight: 800; font-size: 1.5rem; margin-bottom: 5px;">${title}</h3>
@@ -3407,7 +3426,7 @@ function openCollaborationModal(type) {
                 <button type="submit" class="custom-cta-button" style="margin-top: 10px; width: 100%;">Submit Interest →</button>
             </form>
             <p style="text-align: center; font-size: 0.75rem; color: #94A3B8; margin-top: 15px;">Our team will contact you within 24 hours.</p>
-        </div >
+        </div>
         `;
 
     document.body.appendChild(modal);
@@ -3521,6 +3540,51 @@ function showPsychometricHistogram() {
         }
     }, 100);
 }
+
+// --- HERO NAME INPUT LOGIC ---
+window.startQuizWithName = function (name) {
+    if (!name || name.trim() === '') {
+        // Fallback if empty: just start normal
+        window.triggerStart(0);
+        return;
+    }
+
+    const cleanName = name.trim();
+    console.log("Starting Quiz with Name:", cleanName);
+
+    // 1. Save Data
+    customerData.childName = cleanName;
+    answers['p0_q1'] = cleanName;
+
+    // 2. Open Modal (Standard Trigger)
+    const modal = document.getElementById('phase0Modal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        setTimeout(() => modal.classList.add('active'), 10);
+    }
+
+    // 3. Initialize Quiz & RENDER Q1 (Index 0) with Name Pre-filled
+    window.currentPhase = 0;
+
+    // Initialize Shell
+    initializeQuizShell(0, 0); // Sets up base structure
+
+    // Pre-fill and Render Q1
+    setTimeout(() => {
+        // Render Q1 (Index 0) normally
+        renderQuestionContent(0);
+
+        // Wait for render to finish, then pre-fill
+        setTimeout(() => {
+            const q1Input = document.getElementById('quizInput_p0_q1');
+            if (q1Input) {
+                q1Input.value = cleanName;
+                // Optional: Focus it so they can verify/edit
+                q1Input.focus();
+            }
+        }, 50);
+    }, 150);
+};
 
 function showDynamicRiskCard() {
     console.log("Rendering Risk Card...");
