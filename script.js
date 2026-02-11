@@ -1,4 +1,4 @@
-// --- FORCE DOMAIN CONSISTENCY ---
+﻿// --- FORCE DOMAIN CONSISTENCY ---
 if (location.hostname !== 'localhost' && location.hostname === 'www.aptskola.com') {
     location.replace(location.href.replace('www.', ''));
 }
@@ -7,6 +7,309 @@ if (location.hostname !== 'localhost' && location.hostname === 'www.aptskola.com
 // --- FORCE HTTPS (Add to top of script.js) ---
 if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.protocol !== 'file:') {
     location.replace(`https:${location.href.substring(location.protocol.length)}`);
+}
+
+// --- HELPER: Calculate Learning Style (Phase 1) ---
+function calculateLearningStylePhase1(answers) {
+    let visual = 30, auditory = 30, kine = 30, reading = 30;
+
+    if (typeof answers !== 'undefined') {
+        const getAns = (key) => answers[key] ? parseInt(answers[key]) : -1;
+
+        // Q1: +50 points
+        const a1 = getAns('q1');
+        if (a1 === 0) visual += 50;
+        else if (a1 === 1) auditory += 50;
+        else if (a1 === 2) kine += 50;
+        else if (a1 === 3) reading += 50;
+
+        // Q2: +20 points
+        const a2 = getAns('q2');
+        if (a2 === 0) visual += 20;
+        else if (a2 === 1) auditory += 20;
+        else if (a2 === 2) kine += 20;
+        else if (a2 === 3) reading += 20;
+    }
+
+    const total = visual + auditory + kine + reading;
+    const scores = {
+        Visual: Math.round((visual / total) * 100),
+        Auditory: Math.round((auditory / total) * 100),
+        Kinesthetic: Math.round((kine / total) * 100),
+        'Reading/Writing': Math.round((reading / total) * 100)
+    };
+
+    // Find Dominant Style
+    let max = -1;
+    let dominant = 'Visual';
+    for (const [style, score] of Object.entries(scores)) {
+        if (score > max) {
+            max = score;
+            dominant = style;
+        }
+    }
+
+    return { scores, dominant };
+}
+
+// --- HELPER: Calculate Learning Style (Phase 2) ---
+function calculateLearningStylePhase2(answers) {
+    let visual = 30, auditory = 30, kine = 30, reading = 30;
+
+    if (typeof answers !== 'undefined') {
+        const getAns = (key) => answers[key] ? parseInt(answers[key]) : -1;
+
+        // MAPPING: sync_q1 -> q16, sync_q2 -> q17, ... sync_q15 -> q30
+
+        // VISUAL LEARNERS
+        const q3 = getAns('q18'); if (q3 === 1) visual += 30; // sync_q3
+        const q6 = getAns('q21'); if (q6 === 1) visual += 30; // sync_q6
+        const q7 = getAns('q22'); if (q7 === 1) visual += 30; // sync_q7
+        const q11 = getAns('q26'); if (q11 === 0) visual += 15; // sync_q11
+
+        // AUDITORY LEARNERS
+        const q2 = getAns('q17'); if (q2 === 1) auditory += 30; // sync_q2
+        const q8 = getAns('q23'); if (q8 === 1 || q8 === 2) auditory += 30; // sync_q8
+        const q9 = getAns('q24'); if (q9 === 1) auditory += 30; // sync_q9
+        const q13 = getAns('q28'); if (q13 === 1) auditory += 30; // sync_q13
+
+        // KINESTHETIC LEARNERS
+        const q1 = getAns('q16'); if (q1 === 1) kine += 30; // sync_q1
+        const q4 = getAns('q19'); if (q4 === 0) kine += 30; else if (q4 === 1) kine += 15; // sync_q4
+        const q10 = getAns('q25'); if (q10 === 0) kine += 30; // sync_q10
+        if (q11 === 1) kine += 15; // sync_q11 (q26)
+
+        // READING/WRITING LEARNERS
+        if (q2 === 1) reading += 30; // sync_q2 (q17)
+        if (q7 === 0) reading += 30; // sync_q7 (q22)
+        if (q9 === 0) reading += 30; // sync_q9 (q24)
+        const q12 = getAns('q27'); if (q12 === 0) reading += 30; // sync_q12
+    }
+
+    const total = visual + auditory + kine + reading;
+    return {
+        Visual: Math.round((visual / total) * 100),
+        Auditory: Math.round((auditory / total) * 100),
+        Kinesthetic: Math.round((kine / total) * 100),
+        'Reading/Writing': Math.round((reading / total) * 100)
+    };
+}
+
+// --- FORENSIC BLOCK HELPER ---
+function generateForensicBlock(type) {
+    const cardClass = "report-card !p-0 overflow-hidden";
+    const headerClass = "report-header-bg";
+    const headerStyle = "margin: 0;";
+    const contentClass = "p-6 space-y-6";
+
+    // --- RENDER BLOCK HELPER for Learning Styles ---
+    const renderLearningStyleBlock = (title, scores) => {
+        // Find Max for Styling
+        let maxVal = -1;
+        let winner = '';
+        Object.entries(scores).forEach(([key, val]) => {
+            if (val > maxVal) { maxVal = val; winner = key; }
+        });
+
+        // Helper to get logic for a row
+        const getRow = (name, pct) => {
+            const isWinner = (name === winner);
+            // Winner: Brand Orange. Loser: Slate/Neutral.
+            const labelColor = isWinner ? 'text-[#FF6B35]' : 'text-slate-500';
+            const barBg = isWinner ? 'bg-[#FF6B35]' : 'bg-slate-300';
+            const pctColor = isWinner ? 'text-[#FF6B35]' : 'text-slate-400';
+            const weight = isWinner ? 'font-black' : 'font-medium';
+
+            return `
+                <div>
+                    <div class="flex justify-between text-xs uppercase tracking-wider mb-1 ${weight}">
+                        <span class="${labelColor}">${name}</span>
+                        <span class="${pctColor}">${pct}%</span>
+                    </div>
+                    <div class="w-full bg-slate-100 rounded-full h-2">
+                        <div class="${barBg} h-2 rounded-full transition-all duration-1000" style="width: ${pct}%"></div>
+                    </div>
+                </div>
+            `;
+        };
+
+        return `
+        <div class="${cardClass}" style="margin-bottom: 25px;">
+            <div class="${headerClass}" style="${headerStyle}">
+                ${title}
+            </div>
+            <div class="${contentClass}">
+                <div class="space-y-4">
+                    ${getRow('Visual', scores['Visual'])}
+                    ${getRow('Auditory', scores['Auditory'])}
+                    ${getRow('Kinesthetic', scores['Kinesthetic'])}
+                    ${getRow('Reading/Writing', scores['Reading/Writing'])}
+                </div>
+            </div>
+        </div>`;
+    };
+
+    // --- 1. LEARNING STYLE BLOCK (PHASE 1) ---
+    if (type === 'baseline') {
+        const { scores } = calculateLearningStylePhase1(answers);
+        return renderLearningStyleBlock('🧠 LEARNING STYLE (Baseline)', scores);
+    }
+
+    // --- 1B. LEARNING STYLE BLOCK (PHASE 2) ---
+    if (type === 'baseline_phase2') {
+        const scores = calculateLearningStylePhase2(answers);
+        return renderLearningStyleBlock('🧠 LEARNING STYLE (Phase 2 Analysis)', scores);
+    }
+
+    // --- 2. RADAR CHARTS (6-Axis Spider Web) ---
+    if (type === 'radar_phase1' || type === 'radar_phase2') {
+        const cx = 150, cy = 150, rMax = 100;
+
+        // Axis Calculation Helper
+        const getPt = (deg, val) => {
+            const rad = (deg - 90) * Math.PI / 180;
+            // Ensure val is clamped 0.3 to 1.0 for visibility
+            const adjVal = Math.max(0.2, Math.min(1.0, val));
+            return `${cx + (adjVal * rMax) * Math.cos(rad)},${cy + (adjVal * rMax) * Math.sin(rad)}`;
+        };
+
+        // Data Logic
+        let s = { "Analytical": 0.5, "Verbal": 0.5, "Spatial": 0.5, "Creative": 0.5, "Numerical": 0.5, "Memory": 0.5 };
+        let b = { "Analytical": 0.7, "Verbal": 0.6, "Spatial": 0.6, "Creative": 0.8, "Numerical": 0.7, "Memory": 0.6 }; // Benchmark
+
+        if (typeof answers !== 'undefined') {
+            const getScore = (q) => answers[q] !== undefined ? (parseInt(answers[q]) + 1) / 4 : 0.5; // Norm 0-1
+
+            // Phase 1 Mapping (Parent Vision)
+            if (answers['q1']) {
+                s["Analytical"] = (getScore('q13') + getScore('q14')) / 2;
+                s["Verbal"] = (getScore('q1') + getScore('q7')) / 2;
+                s["Spatial"] = (getScore('q3') + getScore('q8')) / 2;
+                s["Creative"] = (getScore('q6') + getScore('q9')) / 2;
+                s["Numerical"] = (getScore('q2') + getScore('q4')) / 2;
+                s["Memory"] = (getScore('q5') + getScore('q12')) / 2;
+            } else {
+                // FALLBACK: Use Board Selection to drive "Parent Vision"
+                // This represents "What the Board Expects"
+                let board = (customerData.manualBoard || customerData.recommendedBoard || "").toLowerCase();
+
+                if (board.includes('cbse')) { // "The Standard"
+                    s = { "Analytical": 0.7, "Verbal": 0.6, "Spatial": 0.5, "Creative": 0.5, "Numerical": 0.8, "Memory": 0.8 };
+                } else if (board.includes('icse')) { // "The Comprehensive"
+                    s = { "Analytical": 0.8, "Verbal": 0.9, "Spatial": 0.5, "Creative": 0.6, "Numerical": 0.7, "Memory": 0.7 };
+                } else if (board.includes('ib')) { // "The Inquirer"
+                    s = { "Analytical": 0.7, "Verbal": 0.8, "Spatial": 0.8, "Creative": 0.9, "Numerical": 0.6, "Memory": 0.4 };
+                } else if (board.includes('cambridge') || board.includes('igcse')) { // "The Global"
+                    s = { "Analytical": 0.9, "Verbal": 0.7, "Spatial": 0.7, "Creative": 0.8, "Numerical": 0.7, "Memory": 0.5 };
+                } else { // State Board / Default: "The Traditional"
+                    s = { "Analytical": 0.5, "Verbal": 0.4, "Spatial": 0.4, "Creative": 0.3, "Numerical": 0.6, "Memory": 0.9 };
+                }
+            }
+
+            if (type === 'radar_phase1') {
+                // DYNAMIC BENCHMARK based on Q3 (Future Goal)
+                const q3 = answers['q3'] ? parseInt(answers['q3']) : 3; // Default to 'Not Sure' (3) if missing
+
+                // 0: Crack Indian Exams (The Specialist)
+                if (q3 === 0) {
+                    b = { "Analytical": 0.9, "Verbal": 0.4, "Spatial": 0.6, "Creative": 0.4, "Numerical": 0.9, "Memory": 0.9 };
+                }
+                // 1: Study Abroad (The Global Scholar)
+                else if (q3 === 1) {
+                    b = { "Analytical": 0.8, "Verbal": 0.8, "Spatial": 0.7, "Creative": 0.8, "Numerical": 0.6, "Memory": 0.6 };
+                }
+                // 2: Entrepreneurship (The Innovator)
+                else if (q3 === 2) {
+                    b = { "Analytical": 0.7, "Verbal": 0.9, "Spatial": 0.9, "Creative": 0.9, "Numerical": 0.6, "Memory": 0.5 };
+                }
+                // 3 or default: Not Sure (The Balanced Foundation)
+                else {
+                    b = { "Analytical": 0.65, "Verbal": 0.65, "Spatial": 0.65, "Creative": 0.65, "Numerical": 0.65, "Memory": 0.65 };
+                }
+            }
+            else if (type === 'radar_phase2') {
+                // Phase 2: Child DNA uses Phase 2 answers (Orange Polygon)
+                // Parent Vision uses Phase 1 answers (Blue Polygon)
+
+                // Map Phase 2 Q16-Q30 to Child DNA (Orange)
+                // Analytical: Q22, Q28
+                b["Analytical"] = (getScore('q22') + getScore('q28')) / 2;
+                // Verbal: Q17, Q23
+                b["Verbal"] = (getScore('q17') + getScore('q23')) / 2;
+                // Spatial: Q18, Q24
+                b["Spatial"] = (getScore('q18') + getScore('q24')) / 2;
+                // Creative: Q19, Q25
+                b["Creative"] = (getScore('q19') + getScore('q25')) / 2;
+                // Numerical: Q20, Q26
+                b["Numerical"] = (getScore('q20') + getScore('q26')) / 2;
+                // Memory: Q21, Q27
+                b["Memory"] = (getScore('q21') + getScore('q27')) / 2;
+
+                // s (blue) keeps Phase 1 data as Parent Vision
+            }
+        }
+
+        // Polygon Points (Order: Top Clockwise)
+        // 0: Analytical, 60: Verbal, 120: Spatial, 180: Creative, 240: Numerical, 300: Memory
+        const polyS = [
+            getPt(0, s["Analytical"]), getPt(60, s["Verbal"]), getPt(120, s["Spatial"]),
+            getPt(180, s["Creative"]), getPt(240, s["Numerical"]), getPt(300, s["Memory"])
+        ].join(" ");
+
+        const polyB = [
+            getPt(0, b["Analytical"]), getPt(60, b["Verbal"]), getPt(120, b["Spatial"]),
+            getPt(180, b["Creative"]), getPt(240, b["Numerical"]), getPt(300, b["Memory"])
+        ].join(" ");
+
+
+        const title = type === 'radar_phase1' ? "🧠 COGNITIVE DNA PROFILE" : "🕸️ PARENT-CHILD ALIGNMENT";
+
+        // Labels
+        let label1 = "Student Profile"; // Blue/Grey
+        let label2 = "Benchmark";       // Orange
+        if (type === 'radar_phase2') {
+            label1 = "Parent Vision";
+            label2 = "Child DNA";
+        }
+
+        return `
+        <div class="${cardClass}" style="margin-bottom: 25px;">
+            <div class="${headerClass}" style="${headerStyle}">
+                ${title}
+            </div>
+            <div class="${contentClass}" style="text-align: center;">
+                <div style="position: relative; width: 300px; height: 300px; margin: 0 auto;">
+                    <svg viewBox="0 0 300 300" style="width: 100%; height: 100%;">
+                        <!-- Axes (6 Spoke) -->
+                        <line x1="150" y1="50" x2="150" y2="250" stroke="#E2E8F0" stroke-width="1" />
+                        <line x1="63.4" y1="100" x2="236.6" y2="200" stroke="#E2E8F0" stroke-width="1" />
+                        <line x1="63.4" y1="200" x2="236.6" y2="100" stroke="#E2E8F0" stroke-width="1" />
+
+                        <!-- Grid Hexagons -->
+                        <polygon points="150,50 236.6,100 236.6,200 150,250 63.4,200 63.4,100" fill="none" stroke="#E2E8F0" stroke-width="1" />
+                        <polygon points="150,80 201.9,110 201.9,170 150,200 98.1,170 98.1,110" fill="none" stroke="#E2E8F0" stroke-width="1" />
+                        <polygon points="150,110 167.3,120 167.3,160 150,170 132.7,160 132.7,120" fill="none" stroke="#E2E8F0" stroke-width="1" />
+                        
+                        <!-- Benchmark (Orange Dashed) - Child DNA -->\n                        <polygon points="${polyB}" style="fill: rgba(255, 107, 53, 0.15); stroke: #FF6B35; stroke-width: 3; stroke-dasharray: 5,3;"></polygon>
+
+                        <!-- Student (Blue/Grey Filled) - Parent Vision -->
+                        <polygon points="${polyS}" style="fill: rgba(59, 130, 246, 0.2); stroke: #3B82F6; stroke-width: 2.5; filter: drop-shadow(0 4px 6px rgba(59, 130, 246, 0.1));"></polygon>
+
+                        <!-- Labels -->
+                        <text x="150" y="35" text-anchor="middle" font-size="10" font-weight="bold" fill="#334155">Analytical</text>
+                        <text x="260" y="90" text-anchor="middle" font-size="10" font-weight="bold" fill="#334155">Verbal</text>
+                        <text x="260" y="220" text-anchor="middle" font-size="10" font-weight="bold" fill="#334155">Spatial</text>
+                        <text x="150" y="275" text-anchor="middle" font-size="10" font-weight="bold" fill="#334155">Creative</text>
+                        <text x="40" y="220" text-anchor="middle" font-size="10" font-weight="bold" fill="#334155">Numerical</text>
+                        <text x="40" y="90" text-anchor="middle" font-size="10" font-weight="bold" fill="#334155">Memory</text>
+                    </svg>
+                </div>
+                 <div style="margin-top: 15px; font-size: 0.75rem; color: #64748B; background: #F8FAFC; padding: 8px; border-radius: 6px; display: inline-block;">
+                    <span style="color: #3B82F6; font-weight: 700;">🔵 ${label1}</span> &nbsp;|&nbsp; <span style="color: #FF6B35;">🟧 ${label2}</span>
+                </div>
+            </div>
+        </div>`;
+    }
 }
 
 // --- CONFIG ---
@@ -27,6 +330,7 @@ const PACKAGE_PRICES = { 'Essential': 59900, 'Premium': 99900, 'The Smart Parent
 // const PAYMENT_LINKS = { ... }; // REMOVED: Unused
 
 window.currentPhase = 0; // 0: Phase0, 1: Phase1, 2: Sync
+
 
 
 // --- INITIALIZATION ---
@@ -54,6 +358,12 @@ window.toggleFooter = function (mode) {
 
 // --- ANALYTICS HELPER ---
 window.triggerTrack = function (eventName, params = {}) {
+    // TEST MODE BYPASS
+    if (localStorage.getItem('integrations_off') === 'true') {
+        console.log(`TEST MODE: Tracking suppressed for ${eventName}`, params);
+        return;
+    }
+
     console.log(`[TRACKING] ${eventName}`, params);
 
     // 1. Google Tag Manager
@@ -72,11 +382,47 @@ window.triggerTrack = function (eventName, params = {}) {
 
 // --- STATE MANAGEMENT ---
 window.initializeQuizShell = initializeQuizShell; // Expose to window immediately (Diagnostic Move)
-let currentQuestion = 0;
-let selectedPackage = 'Essential';
-let selectedPrice = 599;
-let answers = {};
-let customerData = {
+
+// --- TEST MODE AUTO-FILL ---
+function checkTestMode() {
+    if (localStorage.getItem('test_form') === 'true') {
+        console.log("TEST MODE: Auto-filling form...");
+
+        const setVal = (id, val) => {
+            const el = document.getElementById(id);
+            if (el) el.value = val;
+        };
+
+        setVal('parentName', 'Test Parent');
+        setVal('childName', 'Test Child');
+        setVal('childDob', '2016-01-01'); // 10 years old
+        setVal('email', 'test@example.com');
+        setVal('phone', '9999999999');
+        setVal('partnerId', 'TEST_PARTNER');
+
+        // Radio buttons (Share Feedback)
+        const radios = document.getElementsByName('shareFeedback');
+        if (radios.length > 0) radios[0].checked = true; // Select "Yes"
+
+        // Checkbox
+        const disclaimer = document.getElementById('confirmDisclaimer');
+        if (disclaimer) disclaimer.checked = true;
+    }
+}
+
+// NEW: Start Quiz with Name Personalization
+window.startQuizWithName = function (name) {
+    if (name && name.trim() !== "") {
+        customerData.childName = name.trim();
+    }
+    initializeQuizShell(0, 0);
+};
+
+window.currentQuestion = 0;
+window.selectedPackage = 'Essential';
+window.selectedPrice = 599;
+window.answers = {};
+window.customerData = {
     orderId: 'N/A',
     childAge: '5-10',
     residentialArea: 'Not Provided', // SET VALUE HERE
@@ -199,6 +545,9 @@ function initializeQuizShell(startAtIndex = 0, phase = 0) {
     }
 }
 
+// Expose to window for hero-bundle.js
+window.initializeQuizShell = initializeQuizShell;
+
 // --- COST CALCULATOR HANDLER ---
 window.handleCostCalculatorClick = function () {
     const section = document.getElementById('cost-calculator-section');
@@ -313,7 +662,32 @@ window.addEventListener('load', () => {
 });
 
 
-// --- COST CALCULATOR REFACTOR ---
+// --- COST CALCULATOR REFACTOR --- (Existing line)
+
+// FIX: Added Missing Global Functions to Prevent Dead Clicks
+
+// 1. Manual Sync Confirmation
+window.confirmManualSync = function () {
+    const select = document.getElementById('manualBoardSelect');
+    if (select && select.value) {
+        if (window.triggerTrack) window.triggerTrack('Manual_Sync_Confirmed', { board: select.value });
+        // Start the quiz flow
+        if (typeof window.initializeQuizShell === 'function') {
+            window.initializeQuizShell(0);
+        }
+    } else {
+        alert("Please select your recommended board first.");
+    }
+};
+
+// 2. Collaboration/Ambassador Modal (Fallback to Email)
+window.openCollaborationModal = function (type) {
+    const email = "partners@aptskola.com";
+    const subject = type === 'Ambassador' ? "Ambassador Program Inquiry" : "Educator Partnership Inquiry";
+    window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}`;
+};
+
+// 3. Deep Dive: Handled by Full Modal Logic below (Line ~900)
 function RealCostOfSchooling(tuitionFee) {
     const HIDDEN_FEE_MARKUP = 0.35; // 35% Hidden Fee Markup
     const hiddenGap = tuitionFee * HIDDEN_FEE_MARKUP;
@@ -331,7 +705,7 @@ const calculateCostOfConfusion = RealCostOfSchooling;
 const xrayCardHtml = `
     <div class="xray-card">
         <h3>Apt Skola Exclusive: AI Forensic School X-ray</h3>
-        <div class="price">₹99 <span style="font-size: 0.9rem; color: #64748B; text-decoration: line-through;">₹399</span></div>
+        <div class="price">â‚¹99 <span style="font-size: 0.9rem; color: #64748B; text-decoration: line-through;">â‚¹399</span></div>
         <p style="font-size: 0.85rem; color: #475569; margin-bottom: 15px;">Spot hidden red flags, library authenticity, and teacher turnover using our proprietary AI vision tool.</p>
         <a href="https://xray.aptskola.com" target="_blank" class="btn-xray">Get X-ray (75% OFF)</a>
     </div>
@@ -351,7 +725,7 @@ const ambassadorButtonHtml = `
 
 const educatorPartnerHtml = `
     <button onclick="openCollaborationModal('Partner')" class="btn-partner" style="margin-top:10px;">
-        🤝 Educator Partnership - Join our AI Forensic Network 🏫
+        🤝 Educator Partnership - Join our AI Forensic Network ðŸ«
     </button>
 `;
 
@@ -434,24 +808,24 @@ const MASTER_DATA = {
     financial: {
         inflationRate: "10-12%",
         projectionTable: [
-            { grade: "Grade 1 (2025)", fee: "₹ 2,00,000", total: "₹ 2,00,000" },
-            { grade: "Grade 2 (2026)", fee: "₹ 2,20,000", total: "₹ 4,20,000" },
-            { grade: "Grade 3 (2027)", fee: "₹ 2,42,000", total: "₹ 6,62,000" },
-            { grade: "Grade 4 (2028)", fee: "₹ 2,66,200", total: "₹ 9,28,200" },
-            { grade: "Grade 5 (2029)", fee: "₹ 2,92,820", total: "₹ 12,21,020" },
-            { grade: "Grade 6 (2030)", fee: "₹ 3,22,102", total: "₹ 15,43,122" },
-            { grade: "Grade 7 (2031)", fee: "₹ 3,54,312", total: "₹ 18,97,434" },
-            { grade: "Grade 8 (2032)", fee: "₹ 3,89,743", total: "₹ 22,87,177" },
-            { grade: "Grade 9 (2033)", fee: "₹ 4,28,718", total: "₹ 27,15,895" },
-            { grade: "Grade 10 (2034)", fee: "₹ 4,71,589", total: "₹ 31,87,484" },
-            { grade: "Grade 11 (2035)", fee: "₹ 5,18,748", total: "₹ 37,06,232" },
-            { grade: "Grade 12 (2036)", fee: "₹ 5,70,623", total: "₹ 42,76,855" }
+            { grade: "Grade 1 (2025)", fee: "â‚¹ 2,00,000", total: "â‚¹ 2,00,000" },
+            { grade: "Grade 2 (2026)", fee: "â‚¹ 2,20,000", total: "â‚¹ 4,20,000" },
+            { grade: "Grade 3 (2027)", fee: "â‚¹ 2,42,000", total: "â‚¹ 6,62,000" },
+            { grade: "Grade 4 (2028)", fee: "â‚¹ 2,66,200", total: "â‚¹ 9,28,200" },
+            { grade: "Grade 5 (2029)", fee: "â‚¹ 2,92,820", total: "â‚¹ 12,21,020" },
+            { grade: "Grade 6 (2030)", fee: "â‚¹ 3,22,102", total: "â‚¹ 15,43,122" },
+            { grade: "Grade 7 (2031)", fee: "â‚¹ 3,54,312", total: "â‚¹ 18,97,434" },
+            { grade: "Grade 8 (2032)", fee: "â‚¹ 3,89,743", total: "â‚¹ 22,87,177" },
+            { grade: "Grade 9 (2033)", fee: "â‚¹ 4,28,718", total: "â‚¹ 27,15,895" },
+            { grade: "Grade 10 (2034)", fee: "â‚¹ 4,71,589", total: "â‚¹ 31,87,484" },
+            { grade: "Grade 11 (2035)", fee: "â‚¹ 5,18,748", total: "â‚¹ 37,06,232" },
+            { grade: "Grade 12 (2036)", fee: "â‚¹ 5,70,623", total: "â‚¹ 42,76,855" }
         ],
         hiddenCosts: [
-            "Transport: ₹40,000 - ₹80,000/year",
-            "Technology Fees: ₹1-2 Lakhs (Laptops/Tablets for IB)",
-            "Field Trips: ₹1-2 Lakhs per trip",
-            "Shadow Coaching (CBSE): ₹2-4 Lakhs/year"
+            "Transport: â‚¹40,000 - â‚¹80,000/year",
+            "Technology Fees: â‚¹1-2 Lakhs (Laptops/Tablets for IB)",
+            "Field Trips: â‚¹1-2 Lakhs per trip",
+            "Shadow Coaching (CBSE): â‚¹2-4 Lakhs/year"
         ]
     },
     vetting: {
@@ -529,29 +903,41 @@ const MASTER_DATA = {
 
 // --- DEEP DIVE MODAL LOGIC ---
 window.showDeepDive = function (type) {
-    const contentMap = {
-        'input': {
-            title: 'THE INPUT',
-            icon: '🧠',
-            text: 'We analyze psychometric parameters of your child\'s learning DNA. This isn\'t just an Assessment; it’s a behavioral data-capture session designed to strip away selection bias.',
-            btnText: 'Begin Mapping'
-        },
-        'process': {
-            title: 'THE PROCESS',
-            icon: '⚙️',
-            text: 'Your answers are cross-referenced against 48 academic variables across CBSE, ICSE, IB, and Cambridge frameworks. We identify the \'Friction Points\' between a board\'s rigor and your child\'s natural rhythm.',
-            btnText: 'Start Calibration'
-        },
-        'output': {
-            title: 'THE OUTPUT',
-            icon: '📂',
-            text: 'A Forensic Audit report. It provides a risk-weighted board recommendation for your child\'s upcoming academic cycle, cross-referenced against a specific learning DNA alignment',
-            btnText: 'Initiate Calibration'
-        }
-    };
+    // --- HELPER: GENERATE TIMELINE HTML ---
+    const getTimelineHTML = (activeStep) => {
+        const steps = [
+            { id: 'input', label: 'Calibration', num: '1' },
+            { id: 'process', label: 'Sync', num: '2' },
+            { id: 'output', label: 'Forensic Output', num: '3' }
+        ];
 
-    const data = contentMap[type];
-    if (!data) return;
+        return `
+            <div style="padding: 15px 20px; background: #1e293b; border-bottom: 1px solid #334155;">
+                <div style="display: flex; align-items: center; justify-content: space-between; font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase;">
+                    ${steps.map((step, index) => {
+            const isActive = step.id === activeStep;
+            const color = isActive ? '#FF6B35' : '#64748b';
+            const dotStyle = isActive
+                ? `background: #FF6B35; box-shadow: 0 0 10px rgba(255, 107, 53, 0.4); width: 12px; height: 12px;`
+                : `background: #475569; width: 8px; height: 8px;`;
+
+            // Connector line (except for last item)
+            const connector = index < steps.length - 1
+                ? `<div style="height: 1px; flex-grow: 1; background: #334155; margin: 0 8px; margin-bottom: 14px;"></div>`
+                : '';
+
+            return `
+                            <div onclick="window.showDeepDive('${step.id}')" style="display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; color: ${color}; transition: color 0.2s;">
+                                <div style="${dotStyle} border-radius: 50%; transition: all 0.2s;"></div>
+                                ${step.num}. ${step.label}
+                            </div>
+                            ${connector}
+                        `;
+        }).join('')}
+                </div>
+            </div>
+        `;
+    };
 
     let modal = document.getElementById('deepDiveModal');
     if (!modal) {
@@ -561,7 +947,7 @@ window.showDeepDive = function (type) {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             display: flex; align-items: center; justify-content: center;
-            z-index: 10000;
+            z-index: 200000;
             backdrop-filter: blur(8px);
             background: rgba(15, 23, 42, 0.4);
             opacity: 0; transition: opacity 0.3s ease;
@@ -570,25 +956,123 @@ window.showDeepDive = function (type) {
         document.body.appendChild(modal);
     }
 
+    let innerContent = '';
+
+    // --- 1. THE INPUT (BRAIN) ---
+    if (type === 'input') {
+        innerContent = `
+            <div style="padding: 30px; text-align: center;">
+                <div style="font-size: 3rem; margin-bottom: 20px;">🧠</div>
+                <h3 style="color: #FF6B35; font-size: 0.75rem; font-weight: 800; letter-spacing: 2px; margin-bottom: 15px; font-family: 'Inter', sans-serif;">THE BRAIN / INPUT PAGE</h3>
+                
+                <p style="color: #F8FAFC; line-height: 1.6; font-size: 0.95rem; margin-bottom: 20px;">
+                    We analyze psychometric parameters of your child's learning DNA. This isn't just an Assessment; it's a behavioral data-capture session designed to strip away selection bias.
+                </p>
+
+                <div style="background: rgba(255,107,53,0.1); border: 1px dashed #FF6B35; padding: 15px; border-radius: 12px; margin-bottom: 25px;">
+                     <p style="color: #cbd5e1; font-size: 0.85rem; font-style: italic;">
+                        "When your child encounters a complex new toy, do they seek a pattern immediately, or do they wait for a demonstration?"
+                    </p>
+                </div>
+
+                <div style="display: flex; gap: 10px; align-items: center; background: #1e293b; border-radius: 12px; padding: 6px 6px 6px 16px; border: 1px solid #334155;">
+                    <input type="text" id="inputModalChildName" placeholder="Enter Child's Name" style="flex-grow: 1; background: transparent; border: none; color: white; font-weight: 700; font-size: 14px; outline: none;" onkeydown="if(event.key === 'Enter') { window.closeDeepDive(); window.startQuizWithName(this.value); }">
+                     <button onclick="window.closeDeepDive(); window.startQuizWithName(document.getElementById('inputModalChildName').value);" style="cursor: pointer; background: #FF6B35; color: white; padding: 10px 20px; border-radius: 8px; font-weight: 800; font-size: 14px; border: none; transition: transform 0.1s;">
+                        Start &rarr;
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+
+    // --- 2. THE PROCESS (GEAR) ---
+    else if (type === 'process') {
+        const bars = [
+            { label: 'Pattern Recognition', width: '85%' },
+            { label: 'Inquiry Speed', width: '62%' },
+            { label: 'Standardization Tolerance', width: '40%' }
+        ];
+
+        innerContent = `
+            <div style="padding: 30px; text-align: center;">
+                <h3 style="color: #FF6B35; font-size: 0.75rem; font-weight: 800; letter-spacing: 2px; margin-bottom: 15px; font-family: 'Inter', sans-serif;">THE PROCESS (NEURAL LINK)</h3>
+                
+                <p style="color: #F8FAFC; line-height: 1.6; font-size: 0.9rem; margin-bottom: 25px;">
+                    We cross-reference your child's 48 data points against the Instructional Rigor of the 3 major Indian boards. This isn't a comparison; it's a <strong>Neural Alignment Audit</strong>.
+                </p>
+
+                <!-- Neural Overlay Chart -->
+                <div style="background: #0F172A; border-radius: 16px; padding: 20px; border: 1px solid #334155; margin-bottom: 25px; text-align: left;">
+                    <h4 style="color: #94a3b8; font-size: 10px; font-weight: 700; letter-spacing: 1px; margin-bottom: 15px; text-transform: uppercase;">Neural Overlay Graphic</h4>
+                    ${bars.map(bar => `
+                        <div style="margin-bottom: 12px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                <span style="font-size: 11px; color: #cbd5e1; font-weight: 600;">${bar.label}</span>
+                            </div>
+                            <div style="width: 100%; background: #1e293b; height: 6px; border-radius: 99px; overflow: hidden;">
+                                <div style="width: ${bar.width}; background: #FF6B35; height: 100%; border-radius: 99px; box-shadow: 0 0 10px rgba(255, 107, 53, 0.5);"></div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+
+                 <div style="display: flex; gap: 10px; align-items: center; background: #1e293b; border-radius: 12px; padding: 6px 6px 6px 16px; border: 1px solid #334155;">
+                    <input type="text" id="processModalChildName" placeholder="Enter Child's Name" style="flex-grow: 1; background: transparent; border: none; color: white; font-weight: 700; font-size: 14px; outline: none;" onkeydown="if(event.key === 'Enter') { window.closeDeepDive(); window.startQuizWithName(this.value); }">
+                     <button onclick="window.closeDeepDive(); window.startQuizWithName(document.getElementById('processModalChildName').value);" style="cursor: pointer; background: #FF6B35; color: white; padding: 10px 20px; border-radius: 8px; font-weight: 800; font-size: 14px; border: none; transition: transform 0.1s;">
+                        Start &rarr;
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+
+    // --- 3. THE OUTPUT (SAMPLE REPORT) ---
+    else if (type === 'output') {
+        innerContent = `
+            <div style="flex-grow: 1; overflow-y: auto; position: relative; background: #0f172a;">
+                <!-- Header of Preview -->
+                <div style="padding: 15px; color: white; text-align: center; border-bottom: 1px dashed #334155;">
+                    <h4 style="font-size: 14px; font-weight: 800; margin-bottom: 6px; color: #FF6B35; line-height: 1.4;">Predictive Friction: Why your child may struggle in a selected board environment.</h4>
+                     <p style="font-size: 11px; color: #94a3b8;">Sample Analysis for <span style="color: white;">Maanvith (Age 11)</span></p>
+                </div>
+                
+                <img src="./sample_report_preview.png" style="width: 100%; display: block; opacity: 0.9;" alt="Report Preview" />
+                
+                <!-- Blur Overlay -->
+                <div style="position: absolute; bottom: 0; left: 0; width: 100%; height: 50%; background: linear-gradient(to bottom, rgba(15, 23, 42, 0) 0%, rgba(15, 23, 42, 0.8) 20%, #0f172a 80%); pointer-events: none; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 40px;">
+                    <p style="color: #64748b; font-size: 12px; font-style: italic;">(Clinical recommendations blurred for privacy)</p>
+                </div>
+            </div>
+
+            <!-- Sticky CTA -->
+            <div style="padding: 16px 20px; background: #0f172a; border-top: 1px solid #1e293b;">
+                 <div style="display: flex; gap: 10px; align-items: center; background: #1e293b; border-radius: 12px; padding: 6px 6px 6px 16px; border: 1px solid #334155;">
+                    <input type="text" id="sampleReportNameInput" placeholder="Enter Child's Name" style="flex-grow: 1; background: transparent; border: none; color: white; font-weight: 700; font-size: 14px; outline: none;" onkeydown="if(event.key === 'Enter') { window.closeDeepDive(); window.startQuizWithName(this.value); }">
+                     <button onclick="window.closeDeepDive(); window.startQuizWithName(document.getElementById('sampleReportNameInput').value);" style="cursor: pointer; background: #FF6B35; color: white; padding: 10px 20px; border-radius: 8px; font-weight: 800; font-size: 14px; border: none; transition: transform 0.1s;">
+                        Start &rarr;
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+
+    // --- RENDER MODAL SHELL ---
+    // Common Shell for all 3 types
     modal.innerHTML = `
-        <div style="
-            background: rgba(15, 23, 42, 0.9);
-            border: 1px solid #FF6B35;
-            padding: 30px;
-            border-radius: 24px;
-            max-width: 90%;
-            width: 400px;
-            text-align: center;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        ">
-            <div style="font-size: 3rem; margin-bottom: 20px;">${data.icon}</div>
-            <h3 style="color: #FF6B35; font-size: 0.75rem; font-weight: 800; letter-spacing: 2px; margin-bottom: 15px; font-family: 'Inter', sans-serif;">${data.title}</h3>
-            <p style="color: #F8FAFC; line-height: 1.6; font-size: 0.95rem; margin-bottom: 25px;">${data.text}</p>
-            <button onclick="window.closeDeepDive(); window.initializeQuizShell(0);" style="
-                background: #FF6B35; color: white; border: none; padding: 12px 30px; border-radius: 99px;
-                font-weight: 700; cursor: pointer; transition: all 0.2s;
-            ">${data.btnText}</button>
+        <div style="background: rgba(15, 23, 42, 0.95); width: 100%; max-width: 420px; border-radius: 20px; overflow: hidden; position: relative; max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); border: 1px solid #334155;">
+        
+            <!-- Header & Close -->
+            <div style="padding: 16px 20px; border-bottom: 1px solid #1e293b; display: flex; justify-content: space-between; align-items: center; background: #0f172a; z-index: 10;">
+                <h3 style="font-weight: 700; color: #fff; font-size: 13px; letter-spacing: 0.5px;">DEEP DIVE ANALYSIS</h3>
+                <button onclick="window.closeDeepDive()" style="background: rgba(255,255,255,0.1); border: none; width: 28px; height: 28px; border-radius: 50%; color: #94a3b8; font-weight: bold; cursor: pointer;">&times;</button>
+            </div>
+
+            <!-- Timeline -->
+            ${getTimelineHTML(type)}
+
+            <!-- Inner Content (Scrollable if needed, handled by inner logic) -->
+            ${(type === 'output') ? innerContent : `<div style="overflow-y: auto; max-height: 60vh;">${innerContent}</div>`}
+
         </div>
     `;
 
@@ -643,7 +1127,7 @@ const phase1Questions = [
         options: ["Maths, Logic, and Puzzles", "English, Stories, and Art", "Science, Nature, and asking 'Why?'", "A bit of everything / Balanced"]
     },
     { id: "q3", text: "What is the big future goal?", options: ["Crack Indian Exams (IIT-JEE / NEET / UPSC)", "Study Abroad (University in US/UK/Canada)", "Entrepreneurship or Creative Arts", "Not sure yet / Keep options open"] },
-    { id: "q4", text: "What is your comfortable annual budget for school fees?", options: ["Below ₹1 Lakh", "₹1 Lakh - ₹3 Lakhs", "₹3 Lakhs - ₹6 Lakhs", "Above ₹6 Lakhs"] },
+    { id: "q4", text: "What is your comfortable annual budget for school fees?", options: ["Below â‚¹1 Lakh", "â‚¹1 Lakh - â‚¹3 Lakhs", "â‚¹3 Lakhs - â‚¹6 Lakhs", "Above â‚¹6 Lakhs"] },
     { id: "q5", text: "Will you be moving cities in the next few years?", options: ["No, we are settled here.", "Yes, likely to move within India.", "Yes, likely to move to another Country.", "Unsure"] },
     { id: "q6", text: "What teaching style do you prefer?", options: ["Structured: Textbooks and clear syllabus", "Inquiry: Research and self-exploration", "Flexible: Student-led (like Montessori)", "Balanced approach"] },
     {
@@ -735,7 +1219,7 @@ const phase2Questions = [
         text_variants: {
             "5-10": "Ask: 'What if dogs could talk?' Is their answer literal or abstract?",
             "10-15": "When they argue, is it based on 'Fairness and Rules' or 'Emotions and Impact'?",
-            "15+": "If given ₹5000, would they save it for security or spend/invest it on a hobby?"
+            "15+": "If given â‚¹5000, would they save it for security or spend/invest it on a hobby?"
         },
         options_variants: {
             "5-10": ["Literal: 'They would ask for food'", "Abstract: 'They would tell us about their dreams'", "Narrative: 'They would help me with homework'", "Simple: 'That's not possible'"],
@@ -1224,10 +1708,53 @@ function calculateFullRecommendation(ansSet) {
 }
 
 // --- FIXED SELECT PACKAGE LOGIC ---
+function showPaymentPage() {
+    console.log("Showing Payment Page for:", selectedPackage, selectedPrice);
+
+    // TRIGGER LEAD CAPTURE (Pricing View)
+    if (typeof window.capturePricingViewLead === 'function') {
+        window.capturePricingViewLead();
+    }
+
+    // Close other modals
+    if (typeof closePricingModal === 'function') closePricingModal();
+    document.getElementById('pricingModal')?.classList.remove('active');
+
+    const pCont = document.getElementById('paymentPageContainer');
+    if (pCont) {
+        pCont.classList.remove('hidden');
+        pCont.classList.add('active');
+        pCont.style.display = 'flex';
+
+        const pNameEl = document.getElementById('summaryPackage');
+        const pPriceEl = document.getElementById('summaryPrice');
+        const pTotalEl = document.getElementById('summaryTotal');
+        const payBtn = document.getElementById('payButton');
+
+        if (pNameEl) pNameEl.textContent = selectedPackage;
+        if (pPriceEl) pPriceEl.textContent = `â‚¹${selectedPrice}`;
+        if (pTotalEl) pTotalEl.textContent = `â‚¹${selectedPrice}`;
+
+        if (payBtn) {
+            payBtn.innerText = `Pay â‚¹${selectedPrice} via Razorpay Link →`;
+            payBtn.onclick = redirectToRazorpay;
+        }
+
+        const pHeader = document.getElementById('paymentHeader');
+        if (pHeader && typeof getIntermediateHeaderHtml === 'function') {
+            pHeader.innerHTML = getIntermediateHeaderHtml();
+        }
+
+        window.scrollTo({ top: 0, behavior: 'instant' });
+    } else {
+        console.error("Payment Page Container not found!");
+        redirectToRazorpay();
+    }
+}
+
 function selectPackage(pkg, price) {
-    if (window.currentPhase !== 1 && window.currentPhase !== 2 && !isSyncMatchMode) {
-        alert("Please finish the assessment first.");
-        return;
+    if (window.currentPhase !== 1 && window.currentPhase !== 2 && !isSyncMatchMode && window.currentPhase !== 0) {
+        // Allow Phase 0 (DNA) to proceed
     }
     if (window.event) window.event.stopPropagation();
     selectedPackage = pkg;
@@ -1239,42 +1766,50 @@ function selectPackage(pkg, price) {
         if (modal) {
             modal.classList.add('active');
         } else {
-            proceedToQuiz(pkg, price); // Fallback if modal is missing
+            showPaymentPage();
         }
     } else if (price === 999) {
         const modal = document.getElementById('proUpgradeModal');
         if (modal) {
             modal.classList.add('active');
         } else {
-            proceedToQuiz(pkg, price); // Fallback
+            showPaymentPage();
         }
     } else {
-        proceedToQuiz(pkg, price);
+        showPaymentPage();
     }
 }
 
 function confirmDowngrade() {
     const downgradeModal = document.getElementById('downgradeModal');
     if (downgradeModal) downgradeModal.classList.remove('active');
-    proceedToQuiz('Essential', 599);
+    selectedPackage = 'Essential';
+    selectedPrice = 599;
+    showPaymentPage();
 }
 
 function upgradeAndProceed() {
     const downgradeModal = document.getElementById('downgradeModal');
     if (downgradeModal) downgradeModal.classList.remove('active');
-    proceedToQuiz('Premium', 999);
+    selectedPackage = 'The Risk Mitigation Protocol'; // Updated Name
+    selectedPrice = 999;
+    showPaymentPage();
 }
 
 function upgradeToProAndProceed() {
     const modal = document.getElementById('proUpgradeModal');
     if (modal) modal.classList.remove('active');
-    proceedToQuiz('The Smart Parent Pro', 1499);
+    selectedPackage = 'The Smart Parent Forensic Audit'; // Updated Name
+    selectedPrice = 1499;
+    showPaymentPage();
 }
 
 function confirmPremium() {
     const modal = document.getElementById('proUpgradeModal');
     if (modal) modal.classList.remove('active');
-    proceedToQuiz('Premium', 999);
+    selectedPackage = 'The Risk Mitigation Protocol'; // Updated Name
+    selectedPrice = 999;
+    showPaymentPage();
 }
 
 function proceedToQuiz(pkg, price) {
@@ -1306,9 +1841,9 @@ function proceedToQuiz(pkg, price) {
             const payBtn = document.getElementById('payButton');
 
             if (pNameEl) pNameEl.textContent = selectedPackage;
-            if (pPriceEl) pPriceEl.textContent = `₹${selectedPrice}`;
-            if (pTotalEl) pTotalEl.textContent = `₹${selectedPrice}`;
-            if (payBtn) payBtn.innerText = `Pay ₹${selectedPrice} via Razorpay Link →`;
+            if (pPriceEl) pPriceEl.textContent = `â‚¹${selectedPrice}`;
+            if (pTotalEl) pTotalEl.textContent = `â‚¹${selectedPrice}`;
+            if (payBtn) payBtn.innerText = `Pay â‚¹${selectedPrice} via Razorpay Link →`;
         }
         window.scrollTo({ top: 0, behavior: 'instant' });
 
@@ -1437,7 +1972,7 @@ function renderTransitionBridge() {
         container.innerHTML = `
             <div class="transition-bridge" style="text-align: center; padding: 30px 20px;">
                 <p style="font-size: 1.2rem; font-weight: 700; color: #0F172A; margin-bottom: 30px; line-height: 1.6; max-width: 600px; margin-left: auto; margin-right: auto;">
-                    Your personalized roadmap begins here. Please answer calibration questions to align your child’s profile.
+                    Your personalized roadmap begins here. Please answer calibration questions to align your child's profile.
                 </p>
                 <button onclick="renderQuestionContent(0)" class="custom-cta-button" style="background: #0F172A; color: white; border: 2px solid #0F172A;">
                     Begin Calibration →
@@ -1480,6 +2015,46 @@ function submitQuizInput(qId, index) {
 
     // Next Question
     renderQuestionContent(index + 1);
+}
+
+function calculateSyncMatch() {
+    console.log("Phase 2 Complete. Showing Transition Bridge...");
+    const container = document.getElementById('dynamicQuizContent');
+    if (container) {
+        // Fade out
+        container.style.opacity = '0';
+
+        setTimeout(() => {
+            container.innerHTML = `
+                <div class="animate-fade-in-up">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <span style="background: #10B981; color: white; padding: 4px 12px; border-radius: 99px; font-size: 0.75rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;">
+                            Phase 2 Complete
+                        </span>
+                        <h2 class="text-2xl font-black text-slate-800 mt-4">Forensic Bridge Unlocked</h2>
+                        <p class="text-slate-500 text-sm mt-2">Integrating Parental Inputs with Child's Cognitive Map.</p>
+                    </div>
+
+                    ${generateForensicBlock('radar_phase2')}
+
+                    <div style="background: #eff6ff; border: 1px solid #dbeafe; padding: 20px; border-radius: 12px; margin-bottom: 30px; text-align: center;">
+                         <p style="color: #1e3a8a; font-size: 0.9rem; font-weight: 600; line-height: 1.6;">
+                            "The data indicates a significant variance between your aspirations and your child's natural processing style. 
+                            We are now ready to generate the Final Alignment Thesis."
+                        </p>
+                    </div>
+
+                     <button onclick="showDetailsPage()" class="w-full py-4 rounded-xl bg-[#FF6B35] text-white font-black text-lg shadow-xl shadow-orange-200 hover:scale-[1.02] transition-transform">
+                        Finalize & View Audit Report →
+                    </button>
+                    <div style="text-align: center; margin-top: 15px;">
+                        <span class="text-xs text-slate-400 font-bold uppercase tracking-widest">Apt Skola Forensic Engine</span>
+                    </div>
+                </div>
+            `;
+            container.style.opacity = '1';
+        }, 300);
+    }
 }
 
 function renderQuestionContent(index) {
@@ -1546,7 +2121,7 @@ function renderQuestionContent(index) {
                     style="width: 100%; padding: 16px; border: 2px solid #E2E8F0; border-radius: 12px; font-size: 1.1rem; outline: none; transition: all 0.3s;"
                     onkeypress="handleQuizInputEnter(event, '${q.id}', ${index})"
                 />
-                <button onclick="submitQuizInput('${q.id}', ${index})" class="hero-btn-primary" style="margin-top: 20px; width: 100%;">
+                <button onclick="submitQuizInput('${q.id}', ${index})" class="hero-btn-primary" style="margin-top: 20px; width: 100%; background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%); color: white; font-weight: 700; padding: 16px 32px; border-radius: 12px; border: none; cursor: pointer; font-size: 1.1rem; box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3); transition: all 0.3s ease; letter-spacing: 0.5px;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(255, 107, 53, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(255, 107, 53, 0.3)';">
                     Continue →
                 </button>
             </div>
@@ -1568,7 +2143,7 @@ function renderQuestionContent(index) {
 
     let prevBtnHtml = '';
     if (index > 0) {
-        prevBtnHtml = `<button onclick="renderQuestionContent(${index - 1})" class="btn-prev" style="margin-top:20px; background:none; text-decoration:underline; border:none; color:#64748B; cursor:pointer;">← Previous Question</button>`;
+        prevBtnHtml = `<button onclick="renderQuestionContent(${index - 1})" class="btn-prev" style="margin-top:20px; background:none; text-decoration:underline; border:none; color:#64748B; cursor:pointer;">&larr; Previous Question</button>`;
     }
 
     // SYSTEM LOG LOGIC (Bottom of Card)
@@ -1613,7 +2188,7 @@ function renderQuestionContent(index) {
                     <div class="bg-[#FF6B35] h-full transition-all duration-500 ease-out" style="width: ${progressPercent}%"></div>
                 </div>
                 
-                <h3 class="text-xl md:text-2xl font-bold text-slate-800 mb-6 leading-tight">${qText}</h3>
+                <h3 class="text-xl md:text-2xl font-bold text-slate-800 mb-6 leading-tight">${applyNamePersonalization(qText, customerData.childName)}</h3>
                 
                 <div class="grid gap-3">
                     ${optionsHTML}
@@ -1685,34 +2260,347 @@ function selectOption(qId, val, idx, el) {
 
     Array.from(el.parentNode.children).forEach(child => child.classList.remove('selected'));
     el.classList.add('selected');
+
+    // NEW: Check if this is the last Phase 2 question (Q30)
+    if (window.currentPhase === 2 && qId === "q30") {
+        // Show bridge narrative after short delay
+        setTimeout(() => { showBridgeNarrative(); }, 300);
+        return;
+    }
+
     setTimeout(() => { renderQuestionContent(idx + 1); }, 300);
 }
 
+// --- BRIDGE NARRATIVE FUNCTIONS ---
+function showBridgeNarrative() {
+    // Try to get parent board from localStorage
+    const savedParentBoard = localStorage.getItem('parentRecommendedBoard');
+
+    if (savedParentBoard) {
+        // Auto-capture from Phase 1
+        customerData.targetBoard = savedParentBoard;
+        displayBridgeNarrativeScreen();
+    } else {
+        // Show manual selection UI
+        displayManualBoardSelection();
+    }
+}
+
+function displayBridgeNarrativeScreen() {
+    // TRIGGER PHASE 2 DATA SUBMISSION
+    if (typeof window.submitPhase2Data === 'function') {
+        window.submitPhase2Data();
+    }
+
+    const { parentRec, normalizedDNA, bridgeHtml, parentMatchScore, topScore } = getAlignmentData();
+
+    const container = document.getElementById('dynamicQuizContent');
+    if (!container) return;
+
+    // Generate Learning Style Block from Phase 2 answers
+    const learningStyleHtml = generateForensicBlock('baseline_phase2');
+
+    // Generate Radar Chart from Phase 2 answers
+    const radarHtml = generateForensicBlock('radar_phase2');
+
+    container.innerHTML = `
+        <div id="syncMatchReportContent" style="max-width: 800px; margin: 0 auto; padding: 20px;">
+            <div style="text-align:center; font-size:0.85rem; color:#64748B; margin-bottom:15px; font-weight:700;">
+                ${customerData.childName || "Student"} | Age: ${customerData.childAge || "N/A"} | Order ID: ${customerData.orderId || "N/A"}
+            </div>
+
+            <h2 style="color:var(--navy-premium); text-align:center; margin-bottom: 30px;">Sync Match Report 🔄</h2>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:30px;">
+                <div class="sync-score-block" style="background: linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%); border: 2px solid #0EA5E9; border-radius: 12px; padding: 20px; text-align: center;">
+                    <div style="font-size: 0.75rem; font-weight: 700; color: #0369A1; letter-spacing: 1px; margin-bottom: 10px;">PARENT VISION</div>
+                    <div style="font-size: 3rem; font-weight: 800; color: #0284C7; margin-bottom: 10px;">${parentMatchScore}%</div>
+                    <div style="font-size: 1.1rem; font-weight: 600; color: #0369A1;">${parentRec}</div>
+                </div>
+                <div class="sync-score-block" style="background: linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%); border: 2px solid #F97316; border-radius: 12px; padding: 20px; text-align: center;">
+                    <div style="font-size: 0.75rem; font-weight: 700; color: #C2410C; letter-spacing: 1px; margin-bottom: 10px;">CHILD DNA</div>
+                    <div style="font-size: 3rem; font-weight: 800; color: #EA580C; margin-bottom: 10px;">${topScore}%</div>
+                    <div style="font-size: 1.1rem; font-weight: 600; color: #C2410C;">${normalizedDNA}</div>
+                </div>
+            </div>
+            
+            ${learningStyleHtml}
+            
+            ${radarHtml}
+
+            ${bridgeHtml}
+            
+            <div style="text-align: center; margin-top: 40px; padding: 20px; background: #F8FAFC; border-radius: 12px;">
+                <p style="color: #64748B; font-size: 0.95rem; line-height: 1.6; margin-bottom: 0;">
+                    <strong>End of Sync Match Report</strong><br>
+                    This forensic analysis provides strategic insights for selecting the optimal school board aligned with your child's cognitive DNA.
+                </p>
+            </div>
+            
+            <!-- Download and Share Buttons -->
+            <div style="display: flex; gap: 15px; justify-content: center; margin-top: 30px; flex-wrap: wrap;">
+                <button onclick="downloadSyncReport()" style="background: linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%); color: white; font-weight: 700; padding: 14px 28px; border-radius: 10px; border: none; cursor: pointer; font-size: 1rem; box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3); transition: all 0.3s ease; display: flex; align-items: center; gap: 8px;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(14, 165, 233, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(14, 165, 233, 0.3)';">
+                    <span>📥</span> Download Report
+                </button>
+                <button onclick="shareSyncReport()" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; font-weight: 700; padding: 14px 28px; border-radius: 10px; border: none; cursor: pointer; font-size: 1rem; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); transition: all 0.3s ease; display: flex; align-items: center; gap: 8px;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(16, 185, 129, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(16, 185, 129, 0.3)';">
+                    <span>🔗</span> Share Report
+                </button>
+            </div>
+            
+            <!-- Disclaimer -->
+            <div style="margin-top: 30px; padding: 20px; background: #FFF9F2; border-left: 4px solid #FF6B35; border-radius: 8px;">
+                <h4 style="color: #C2410C; font-size: 0.9rem; font-weight: 800; margin: 0 0 10px 0; text-transform: uppercase; letter-spacing: 0.5px;">⚠️ Important Disclaimer</h4>
+                <p style="color: #78350F; font-size: 0.85rem; line-height: 1.5; margin: 0;">
+                    This report is based on observational inputs and algorithmic analysis. It is designed to provide <strong>indicative insights</strong> for educational planning, not clinical diagnosis. For comprehensive assessments, please consult qualified educational psychologists or child development specialists. Results should be used as a starting point for informed discussions about your child's educational path.
+                </p>
+            </div>
+            
+            <!-- Spread the Word Block -->
+            <div style="margin-top: 30px; padding: 25px; background: linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%); border: 2px solid #0EA5E9; border-radius: 12px;">
+                <h4 style="color: #0369A1; font-size: 1rem; font-weight: 800; margin: 0 0 15px 0; text-align: center;">📢 Spread the Word</h4>
+                <p style="color: #0C4A6E; font-size: 0.9rem; line-height: 1.6; margin: 0 0 20px 0; text-align: center; font-style: italic;">
+                    "I'm a parent, not just a founder. I've made this Board Fitment mapping available for the price of a Chai (₹19) so no parent has to guess. My mission is to replace 'guessing' with pure science. If this helps you, please share it in your school WhatsApp group—let's help more parents choose the right board for their kids."
+                </p>
+                <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+                    <button onclick="shareToWhatsApp()" style="background: #25D366; color: white; font-weight: 700; padding: 12px 20px; border-radius: 8px; border: none; cursor: pointer; font-size: 0.9rem; display: flex; align-items: center; gap: 6px; transition: all 0.3s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(37, 211, 102, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                        <span>📱</span> WhatsApp
+                    </button>
+                    <button onclick="shareViaEmail()" style="background: #EA4335; color: white; font-weight: 700; padding: 12px 20px; border-radius: 8px; border: none; cursor: pointer; font-size: 0.9rem; display: flex; align-items: center; gap: 6px; transition: all 0.3s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(234, 67, 53, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                        <span>✉️</span> Email
+                    </button>
+                    <button onclick="copyReportLink()" style="background: #64748B; color: white; font-weight: 700; padding: 12px 20px; border-radius: 8px; border: none; cursor: pointer; font-size: 0.9rem; display: flex; align-items: center; gap: 6px; transition: all 0.3s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(100, 116, 139, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                        <span>🔗</span> Copy Link
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function displayManualBoardSelection() {
+    const container = document.getElementById('dynamicQuizContent');
+    if (!container) return;
+
+    container.innerHTML = `
+        <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+            <h2 style="text-align: center; color: var(--navy-premium); margin-bottom: 20px;">
+                🔐 Unlock Parent & Child Sync Check
+            </h2>
+            
+            <div style="background: #F8FAFC; border: 2px dashed #CBD5E1; border-radius: 12px; padding: 30px; margin-top: 20px;">
+                <p style="color: #64748B; margin-bottom: 20px; text-align: center; line-height: 1.6;">
+                    We couldn't find your Phase 1 results. Please manually select your child's recommended board from Phase 1 to view the Sync Match Report.
+                </p>
+                
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label style="font-size: 0.9rem; font-weight: 600; color: #334155; margin-bottom: 10px; display: block;">
+                        Your Child's Recommended Board (from Phase 1):
+                    </label>
+                    <select id="manualParentBoard" style="width: 100%; padding: 14px; border-radius: 8px; border: 2px solid #E2E8F0; font-size: 1rem; outline: none; transition: all 0.3s;" onfocus="this.style.borderColor='#FF6B35';" onblur="this.style.borderColor='#E2E8F0';">
+                        <option value="">-- Select Board --</option>
+                        <option value="CBSE">CBSE</option>
+                        <option value="ICSE">ICSE</option>
+                        <option value="IB">IB</option>
+                        <option value="Cambridge (IGCSE)">Cambridge (IGCSE)</option>
+                        <option value="State Board">State Board</option>
+                    </select>
+                </div>
+                
+                <button onclick="confirmManualBoardAndShowBridge()" class="hero-btn-primary" 
+                    style="margin-top: 10px; width: 100%; background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%); 
+                    color: white; font-weight: 700; padding: 16px 32px; border-radius: 12px; border: none; 
+                    cursor: pointer; font-size: 1.1rem; box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3); transition: all 0.3s ease;" 
+                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(255, 107, 53, 0.4)';" 
+                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(255, 107, 53, 0.3)';">
+                    Continue to Sync Report →
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+window.confirmManualBoardAndShowBridge = function () {
+    const board = document.getElementById('manualParentBoard')?.value;
+    if (!board) {
+        alert('Please select a board to continue');
+        return;
+    }
+
+    customerData.targetBoard = board;
+    localStorage.setItem('parentRecommendedBoard', board); // Save for future
+    displayBridgeNarrativeScreen();
+};
+
+// --- DOWNLOAD AND SHARE FUNCTIONS ---
+window.downloadSyncReport = function () {
+    // Use browser's print to PDF functionality
+    const printContent = document.getElementById('syncMatchReportContent');
+    if (!printContent) {
+        alert('Report content not found.');
+        return;
+    }
+
+    // Create a clean print view
+    const printWindow = window.open('', '', 'height=900,width=800');
+    printWindow.document.write('<html><head><title>Sync Match Report - ' + (customerData.childName || 'Student') + '</title>');
+    printWindow.document.write('<style>');
+    printWindow.document.write(`
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            padding: 20px; 
+            background: white;
+            color: #1e293b;
+        }
+        .sync-score-block {
+            page-break-inside: avoid;
+        }
+        @media print {
+            body { padding: 0; }
+            button { display: none !important; }
+        }
+    `);
+    printWindow.document.write('</style></head><body>');
+    printWindow.document.write(printContent.innerHTML);
+    printWindow.document.write('</body></html>');
+    printWindow.document.close();
+
+    // Wait for content to load, then trigger print
+    setTimeout(() => {
+        printWindow.focus();
+        printWindow.print();
+    }, 500);
+};
+
+window.shareSyncReport = function () {
+    const childName = customerData.childName || 'Student';
+    const orderId = customerData.orderId || 'N/A';
+
+    const shareText = `📊 Sync Match Report for ${childName}\n\n` +
+        `This comprehensive analysis includes:\n` +
+        `✓ Parent Vision vs Child DNA Sync Score\n` +
+        `✓ Learning Style Analysis\n` +
+        `✓ Cognitive DNA Profile\n` +
+        `✓ Board Recommendation Insights\n\n` +
+        `Order ID: ${orderId}\n\n` +
+        `Generated by Wiseboard Educational Intelligence`;
+
+    // Check if Web Share API is available
+    if (navigator.share) {
+        navigator.share({
+            title: `Sync Match Report - ${childName}`,
+            text: shareText,
+            url: window.location.href
+        }).then(() => {
+            console.log('Report shared successfully');
+        }).catch((error) => {
+            console.log('Error sharing:', error);
+            fallbackShare(shareText);
+        });
+    } else {
+        fallbackShare(shareText);
+    }
+};
+
+function fallbackShare(text) {
+    // Fallback: Copy to clipboard
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(() => {
+            alert('📋 Report details copied to clipboard! You can now paste and share via WhatsApp, Email, or any messaging app.');
+        }).catch(() => {
+            alert('Unable to copy to clipboard. Please use the Download Report option instead.');
+        });
+    } else {
+        alert('Sharing is not supported on this browser. Please use the Download Report option.');
+    }
+}
+
+// --- SPREAD THE WORD SOCIAL SHARE FUNCTIONS ---
+window.shareToWhatsApp = function () {
+    const shareMessage = encodeURIComponent(
+        "🎯 I just discovered Wiseboard's Board Fitment Report!\n\n" +
+        "For just ₹19, it helped me choose the right school board for my child based on their cognitive DNA.\n\n" +
+        "No more guessing - pure science! 🧬\n\n" +
+        "Check it out: " + window.location.href
+    );
+
+    // Check if mobile
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    const whatsappUrl = isMobile
+        ? `whatsapp://send?text=${shareMessage}`
+        : `https://web.whatsapp.com/send?text=${shareMessage}`;
+
+    window.open(whatsappUrl, '_blank');
+};
+
+window.shareViaEmail = function () {
+    const subject = encodeURIComponent("Check out Wiseboard's Board Fitment Report");
+    const body = encodeURIComponent(
+        "Hi,\n\n" +
+        "I wanted to share this amazing tool I discovered - Wiseboard's Board Fitment Report.\n\n" +
+        "For just ₹19 (price of a chai!), it provides a scientific analysis to help parents choose the right school board for their child based on cognitive DNA mapping.\n\n" +
+        "The founder, who is a parent themselves, created this to replace guessing with pure science.\n\n" +
+        "Check it out here: " + window.location.href + "\n\n" +
+        "Hope this helps!\n"
+    );
+
+    window.location.href = `mailto:?subject=${subject}&body=${body}`;
+};
+
+window.copyReportLink = function () {
+    const linkText = window.location.href;
+
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(linkText).then(() => {
+            alert('🔗 Link copied to clipboard! Share it with your school WhatsApp group or friends.');
+        }).catch(() => {
+            // Fallback for older browsers
+            const tempInput = document.createElement('input');
+            tempInput.value = linkText;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            alert('🔗 Link copied! Share it with your school WhatsApp group or friends.');
+        });
+    } else {
+        alert('Link: ' + linkText + '\n\nPlease copy this link manually.');
+    }
+};
+
 function showDetailsPage() {
-    console.log("showDetailsPage called");
+    console.log("Showing Details Page");
+    const container = document.getElementById('dynamicQuizContent');
+    const detailsForm = document.getElementById('detailsPage');
+
+    if (container) container.innerHTML = ''; // Clear container
+
+    // Hide other sections
+    const idsToHide = ['questionPages', 'psychometricHistogram', 'dynamicRiskCard', 'syncMatchGate', 'paymentPageContainer', 'successPage'];
+    idsToHide.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('hidden');
+    });
 
     // Inject Header
     const dHeader = document.getElementById('detailsHeader');
     if (dHeader) dHeader.innerHTML = getIntermediateHeaderHtml();
 
-    const detailsPage = document.getElementById('detailsPage');
-    if (detailsPage) {
-        detailsPage.classList.remove('hidden');
-        detailsPage.classList.add('active');
+    if (detailsForm) {
+        detailsForm.classList.remove('hidden');
+        detailsForm.classList.add('active');
+        window.scrollTo(0, 0);
 
-        // NEW: Auto-fill Child Name
+        // NEW: Auto-fill Child Name (Preserve existing logic)
         const childNameInput = document.getElementById('childName');
-        const prefillName = childNameInput.value || customerData.childName || answers['p0_q1'] || "";
+        // prefillName var definition was lost, need to re-establish or use customerData directly
+        const prefillName = customerData.childName || ((typeof answers !== 'undefined') ? answers['p0_q1'] : "") || "";
 
         if (childNameInput && prefillName) {
-            console.log("Auto-filling Child Name:", prefillName);
             childNameInput.value = prefillName;
-
-            // Ensure data consistency
-            if (!customerData.childName) {
-                customerData.childName = prefillName;
-            }
         }
+
+        // TRIGGER TEST MODE AUTO-FILL
+        checkTestMode();
 
         // NEW: Auto-fill Phone Number (from Momentum Phase)
         const phoneInput = document.getElementById('phone');
@@ -1788,15 +2676,9 @@ document.getElementById('customerForm')?.addEventListener('submit', function (e)
         }).then(() => console.log("Lead summary sent via EmailJS")).catch(e => console.warn("Lead email fail:", e));
     }
 
-    const formData = new FormData(this);
-    formData.append('orderId', newOrderId);
+    // Lead capture moved to redirectToRazorpay to include upgrade status
+    console.log("Form validated. Lead data cached. Waiting for payment initiation.");
 
-    fetch("https://api.web3forms.com/submit", {
-        method: "POST",
-        body: formData,
-    })
-        .then(() => console.log("Lead captured via Web3Forms"))
-        .catch((error) => console.error("Web3Forms Error:", error));
 
     // --- PIXEL RETARGETING TRIGGER ---
     if (typeof fbq !== 'undefined') {
@@ -1823,7 +2705,10 @@ document.getElementById('customerForm')?.addEventListener('submit', function (e)
 
 // --- RAZORPAY POPUP METHOD (WITH AUTO-PREFILL) ---
 function handlePaymentSuccess() {
-    // Payment success triggered
+
+    // Payment success triggered (NORMAL FLOW FOR NON-AS5 USERS)
+
+    // Payment success triggered (NORMAL FLOW FOR NON-AS5 USERS)
 
     // Simulate payment success
     const orderId = customerData.orderId || 'ORD_' + Date.now();
@@ -1864,9 +2749,188 @@ function handlePaymentSuccess() {
     });
 }
 
-function redirectToRazorpay() {
-    console.log("Redirecting to Razorpay...");
+const captureMainLead = () => {
+    // TEST MODE BYPASS
+    if (localStorage.getItem('test_form') === 'true') {
+        console.log("TEST MODE: Skipping Main Lead Capture");
+        return;
+    }
 
+    try {
+        const formData = new FormData();
+        formData.append("access_key", "1930d1ce-5416-45d1-9b2b-5f129cb30dbd");
+        formData.append("subject", "Full Lead Capture (Secure Payment Page)");
+        formData.append("Parent Name", customerData.parentName);
+        formData.append("Child Name", customerData.childName);
+        formData.append("Mobile Number", customerData.phone);
+        formData.append("email", customerData.email);
+        formData.append("orderId", customerData.orderId);
+
+        // 1. Upgrade Status
+        let upgradeStatus = "No";
+        if (selectedPrice === 999) upgradeStatus = "Yes-999";
+        else if (selectedPrice === 1499) upgradeStatus = "Yes-1499";
+        formData.append("is_upgraded", upgradeStatus);
+
+        // 2. Board Match
+        let boardMatch = 'N/A';
+        try {
+            if (typeof calculateFullRecommendation === 'function') {
+                const perceptionRes = calculateFullRecommendation(answers);
+                boardMatch = perceptionRes.recommended.name;
+            } else if (customerData.recommendedBoard) {
+                boardMatch = customerData.recommendedBoard;
+            }
+        } catch (e) {
+            console.warn("Board match calc failed for lead", e);
+        }
+        formData.append("Board_match", boardMatch);
+
+        fetch("https://api.web3forms.com/submit", {
+            method: "POST",
+            body: formData,
+            keepalive: true
+        }).then(() => console.log("Main Lead captured at Payment Page")).catch(e => console.error(e));
+    } catch (err) {
+        console.error("Capture Main Lead Failed", err);
+    }
+};
+
+// === NEW: Pricing View Lead Capture (Includes Learning Style & Answers) ===
+window.capturePricingViewLead = function () {
+    // TEST MODE BYPASS
+    if (localStorage.getItem('test_form') === 'true') {
+        console.log("TEST MODE: Skipping Pricing View Lead Capture");
+        return;
+    }
+
+    try {
+        console.log("Capturing Pricing View Lead...");
+        const formData = new FormData();
+        formData.append("access_key", "1930d1ce-5416-45d1-9b2b-5f129cb30dbd");
+        formData.append("subject", "New Lead: Pricing Page View");
+        formData.append("Parent Name", customerData.parentName || "Visitor");
+        formData.append("Child Name", customerData.childName || "N/A");
+        formData.append("Mobile Number", customerData.phone || "N/A");
+        formData.append("email", customerData.email || "N/A");
+
+        // 1. Learning Style
+        let dominantStyle = "Unknown";
+        try {
+            const styleData = calculateLearningStylePhase1(answers);
+            dominantStyle = `${styleData.dominant} (${styleData.scores[styleData.dominant]}%)`;
+        } catch (e) {
+            console.warn("Failed to calc style for lead", e);
+        }
+        formData.append("Dominant_Style", dominantStyle);
+
+        // 2. Full Answers
+        formData.append("Full_Answers", JSON.stringify(answers));
+
+        fetch("https://api.web3forms.com/submit", {
+            method: "POST",
+            body: formData,
+            keepalive: true
+        }).then(() => console.log("Pricing View Lead captured")).catch(e => console.error(e));
+
+    } catch (err) {
+        console.error("Capture Pricing View Lead Failed", err);
+    }
+};
+
+// ===  PHASE 2 DATA SUBMISSION (Web3Forms) ===
+window.submitPhase2Data = async function () {
+    // TEST MODE BYPASS
+    if (localStorage.getItem('test_form') === 'true') {
+        console.log("TEST MODE: Skipping Phase 2 Data Submission");
+        return;
+    }
+
+    try {
+        console.log('[Phase 2 Data] Starting submission...');
+
+        // Calculate learning style from Phase 2 answers
+        const scores = calculateLearningStylePhase2(answers);
+        const learningStyle = `Visual: ${scores.Visual}%, Auditory: ${scores.Auditory}%, Kinesthetic: ${scores.Kinesthetic}%, Reading: ${scores['Reading/Writing']}%`;
+
+        // Get Phase 1 recommended board
+        let parentBoard = 'N/A';
+        try {
+            if (typeof calculateFullRecommendation === 'function') {
+                const phase1Result = calculateFullRecommendation(answers);
+                parentBoard = phase1Result.recommended.name;
+            }
+        } catch (e) {
+            console.warn('[Phase 2 Data] Could not get Phase 1 board');
+        }
+
+        // Get Phase 2 recommended board (for child)
+        let kidsBoard = 'N/A';
+        // TODO: Add Phase 2 board calculation when available
+
+        // Format all Phase 2 Q&A pairs
+        const phase2QA = formatPhase2Answers();
+
+        const formData = new FormData();
+        formData.append("access_key", "1930d1ce-5416-45d1-9b2b-5f129cb30dbd");
+        formData.append("subject", "Phase2 data");  // Different from "Main Lead"
+        formData.append("Child_Name", customerData.childName || 'Not provided');
+        formData.append("Order_ID", customerData.orderId || 'Not provided');
+        formData.append("Age_Bracket", customerData.childAge || 'Not provided');
+        formData.append("Upgraded", selectedPrice > 0 ? 'Yes' : 'No');
+        formData.append("Parent_Board", parentBoard);
+        formData.append("Kids_Board", kidsBoard);
+        formData.append("Learning_Style", learningStyle);
+        formData.append("Phase2_QA", phase2QA);
+
+        await fetch("https://api.web3forms.com/submit", {
+            method: "POST",
+            body: formData,
+            keepalive: true
+        });
+
+        console.log('[Phase 2 Data] Submitted successfully');
+    } catch (err) {
+        console.error('[Phase 2 Data] Submission failed:', err);
+    }
+};
+
+// Helper: Format all Phase 2 Q&A pairs (FIXED LOOP)
+function formatPhase2Answers() {
+    if (!answers) return 'No answers available';
+
+    let phase2Questions = [];
+    for (let i = 16; i <= 30; i++) { // Phase 2 questions are q16-q30
+        const qKey = `q${i}`;
+        if (answers[qKey] !== undefined) {
+            const questionText = `Q${i}`;
+            const answerIndex = answers[qKey];
+            phase2Questions.push(`${questionText}: Answer ${answerIndex}`);
+        }
+    }
+
+    return phase2Questions.length > 0 ? phase2Questions.join('\n') : 'No Phase 2 answers';
+}
+
+
+function redirectToRazorpay() {
+    // TRIGGER LEAD CAPTURE ON PAYMENT PAGE ARRIVAL
+    captureMainLead();
+
+    // TEST MODE BYPASS
+    if (localStorage.getItem('test_pay') === 'true') {
+        console.log("TEST MODE: Bypassing Razorpay");
+        alert("Test Mode: Payment Successful");
+        handlePaymentSuccess({
+            razorpay_payment_id: "test_" + Date.now(),
+            razorpay_order_id: customerData.orderId || "test_order"
+        });
+        return;
+    }
+
+    console.log("Redirecting to Razorpay... (LIVE MODE)");
+
+    // LIVE RAZORPAY CONFIGURATION
     const options = {
         "key": RAZORPAY_KEY_ID,
         "amount": selectedPrice * 100, // Dynamic Amount in Paise
@@ -1881,14 +2945,21 @@ function redirectToRazorpay() {
         },
         "handler": function (response) {
             console.log("Payment successful:", response);
-            // Call the success handler
-            handlePaymentSuccess();
+            // Call the success handler with the actual response
+            handlePaymentSuccess(response);
         },
         "theme": { "color": "#FF6B35" }
     };
 
     try {
         const rzp1 = new Razorpay(options);
+        // Track Initiation
+        if (window.triggerTrack) {
+            window.triggerTrack('Payment_Page_Initiated', {
+                amount: options.amount / 100,
+                package: selectedPackage
+            });
+        }
         rzp1.open();
     } catch (e) {
         console.error("Razorpay initialization failed:", e);
@@ -1896,6 +2967,56 @@ function redirectToRazorpay() {
     }
 }
 
+// UNIVERSAL PAYMENT SUCCESS HANDLER
+function handlePaymentSuccess(response) {
+    console.log("Payment Verified:", response);
+
+    if (response) {
+        customerData.paymentId = response.razorpay_payment_id;
+        customerData.orderId = response.razorpay_order_id || customerData.orderId;
+    }
+
+    // Identify if this was a Sync Upgrade or Main Report
+    const isUpgrade = (selectedPrice === 19 || selectedPrice === 299 || selectedPackage === "Upgrade to Phase 2");
+
+    if (isUpgrade) {
+        // --- SYNC UPGRADE SUCCESS ---
+        customerData.package = 'Premium';
+        window.isSyncMatchMode = true;
+
+        // Save Session
+        localStorage.setItem(`aptskola_session_${customerData.orderId} `, JSON.stringify({ answers, customerData, selectedPackage, selectedPrice }));
+
+        // UI Cleanup
+        const upgradeBlock = document.getElementById('upgradeBlock');
+        if (upgradeBlock) {
+            upgradeBlock.classList.add('hidden');
+            upgradeBlock.style.display = 'none';
+        }
+
+        alert("Upgrade Successful! You can now start the Sync Check.");
+        if (typeof initializeQuizShell === 'function') {
+            initializeQuizShell(0, 2);
+        }
+
+    } else {
+        // --- MAIN REPORT SUCCESS ---
+        // Save Session
+        localStorage.setItem(`aptskola_session_${customerData.orderId} `, JSON.stringify({ answers, customerData, selectedPackage, selectedPrice }));
+
+        // Trigger Automated Email Report
+        if (typeof triggerAutomatedEmail === 'function') {
+            triggerAutomatedEmail();
+        }
+
+        // Show Success UI
+        if (typeof closeForensicModalAndShowSuccess === 'function') {
+            closeForensicModalAndShowSuccess();
+        } else if (typeof showInstantSuccessPage === 'function') {
+            showInstantSuccessPage();
+        }
+    }
+}
 
 async function triggerAutomatedEmail() {
     console.log("CTO: Generating Branded HTML Report with Tiered Insights...");
@@ -1912,79 +3033,102 @@ async function triggerAutomatedEmail() {
     const data = MASTER_DATA[boardKey];
 
     // Build the Branded Header and Basic Info
-    let htmlSummary = `
-        <div style="border: 1px solid #E2E8F0; border-radius: 16px; overflow: hidden; font-family: sans-serif; margin: 20px 0;">
-            <div style="background-color: #0F172A; color: #ffffff; padding: 25px; text-align: center;">
-                <h2 style="margin: 0; font-size: 22px; letter-spacing: 0.5px;">${data.title}</h2>
-                <p style="margin: 8px 0 0; color: #FF6B35; font-weight: 800; font-size: 16px;">
-                    MATCH: ${recBoard} (${res.recommended.percentage}%)
-                </p>
-            </div>
-            <div style="padding: 25px; background-color: #ffffff; color: #334155;">
-                <p style="margin-top: 0;"><strong>Persona:</strong> ${data.persona}</p>
-                <p style="line-height: 1.6;"><strong>Philosophy:</strong> ${data.philosophy}</p>
-    `;
+    let htmlSummary = '<div style="border: 1px solid #E2E8F0; border-radius: 16px; overflow: hidden; font-family: sans-serif; margin: 20px 0;">';
+    htmlSummary += '<div style="background-color: #0F172A; color: #ffffff; padding: 25px; text-align: center;">';
+    htmlSummary += '<h2 style="margin: 0; font-size: 22px; letter-spacing: 0.5px;">' + data.title + '</h2>';
+    htmlSummary += '<p style="margin: 8px 0 0; color: #FF6B35; font-weight: 800; font-size: 16px;">MATCH: ' + recBoard + ' (' + res.recommended.percentage + '%)</p>';
+    htmlSummary += '</div>';
+    htmlSummary += '<div style="padding: 25px; background-color: #ffffff; color: #334155;">';
+    htmlSummary += '<p style="margin-top: 0;"><strong>Persona:</strong> ' + data.persona + '</p>';
+    htmlSummary += '<p style="line-height: 1.6;"><strong>Philosophy:</strong> ' + data.philosophy + '</p>';
 
     // ADDED: Premium Insights (₹999 Tier)
     if (selectedPrice >= 999) {
         console.log("Adding premium content for price:", selectedPrice);
-        htmlSummary += `
-            <div style="margin-top: 20px; padding: 15px; background-color: #F0FDF4; border-left: 4px solid #10B981; border-radius: 4px;">
-                <h4 style="margin: 0 0 5px 0; color: #166534; font-size: 14px; text-transform: uppercase;">Premium Insights</h4>
-                <p style="margin: 0; color: #334155; font-size: 14px;"><strong>Risk Check:</strong> Look for 'Library Dust' and 'Teacher Turnover' during your campus visit.</p>
-                <p style="margin: 5px 0 0; color: #334155; font-size: 14px;"><strong>Financial:</strong> Budget for a 12% annual fee inflation over 15 years.</p>
-            </div>
-        `;
+        htmlSummary += '<div style="margin-top: 20px; padding: 15px; background-color: #F0FDF4; border-left: 4px solid #10B981; border-radius: 4px;">';
+        htmlSummary += '<h4 style="margin: 0 0 5px 0; color: #166534; font-size: 14px; text-transform: uppercase;">Premium Insights</h4>';
+        htmlSummary += '<p style="margin: 0; color: #334155; font-size: 14px;"><strong>Risk Check:</strong> Look for \'Library Dust\' and \'Teacher Turnover\' during your campus visit.</p>';
+        htmlSummary += '<p style="margin: 5px 0 0; color: #334155; font-size: 14px;"><strong>Financial:</strong> Budget for a 12% annual fee inflation over 15 years.</p>';
+        htmlSummary += '</div>';
     }
 
     // ADDED: Pro Admission Tips (₹1499 Tier)
     if (selectedPrice >= 1499) {
         console.log("Adding pro content for price:", selectedPrice);
-        htmlSummary += `
-            <div style="margin-top: 15px; padding: 15px; background-color: #FFF7ED; border-left: 4px solid #FF6B35; border-radius: 4px;">
-                <h4 style="margin: 0 0 5px 0; color: #9A3412; font-size: 14px; text-transform: uppercase;">Pro Admission Tips</h4>
-                <p style="margin: 0; color: #334155; font-size: 14px;"><strong>Negotiation:</strong> Use the 'Lump Sum Leverage' script to ask for admission fee waivers.</p>
-                <p style="margin: 5px 0 0; color: #334155; font-size: 14px;"><strong>Interview:</strong> Never answer for the child; it is the #1 reason for rejection.</p>
-            </div>
-        `;
+        htmlSummary += '<div style="margin-top: 15px; padding: 15px; background-color: #FFF7ED; border-left: 4px solid #FF6B35; border-radius: 4px;">';
+        htmlSummary += '<h4 style="margin: 0 0 5px 0; color: #9A3412; font-size: 14px; text-transform: uppercase;">Pro Admission Tips</h4>';
+        htmlSummary += '<p style="margin: 0; color: #334155; font-size: 14px;"><strong>Negotiation:</strong> Use the \'Lump Sum Leverage\' script to ask for admission fee waivers.</p>';
+        htmlSummary += '<p style="margin: 5px 0 0; color: #334155; font-size: 14px;"><strong>Interview:</strong> Never answer for the child; it is the #1 reason for rejection.</p>';
+        htmlSummary += '</div>';
     }
 
-    htmlSummary += `</div></div>`;
+    htmlSummary += '</div></div>';
 
     // ADDED: Partnership Invitation (Captured from Educator Partner Section)
-    htmlSummary += `
-        <div style="margin-top: 20px; padding: 15px; border: 1px dashed #CBD5E1; border-radius: 8px; background-color: #F8FAFC; text-align: center;">
-            <h4 style="margin: 0 0 10px 0; color: #0F172A; font-size: 14px;">🤝 Join the Apt Skola Network</h4>
-            <p style="margin: 0; color: #475569; font-size: 13px; line-height: 1.5;">
-                Teachers & Tutors: Earn <strong>₹300</strong> for student referrals and 
-                <strong>₹3,000</strong> per session for school-wide engagement. 
-            </p>
-            <a href="https://aptskola.com/#educatorPartner" style="display: inline-block; margin-top: 10px; color: #FF6B35; font-weight: 700; text-decoration: none; font-size: 13px;">Register as Partner →</a>
-        </div>
-        `;
+    htmlSummary += '<div style="margin-top: 20px; padding: 15px; border: 1px dashed #CBD5E1; border-radius: 8px; background-color: #F8FAFC; text-align: center;">';
+    htmlSummary += '<h4 style="margin: 0 0 10px 0; color: #0F172A; font-size: 14px;">🤝 Join the Apt Skola Network</h4>';
+    htmlSummary += '<p style="margin: 0; color: #475569; font-size: 13px; line-height: 1.5;">Teachers & Tutors: Earn <strong>₹300</strong> for student referrals and <strong>₹3,000</strong> per session for school-wide engagement.</p>';
+    htmlSummary += '<a href="https://aptskola.com/#educatorPartner" style="display: inline-block; margin-top: 10px; color: #FF6B35; font-weight: 700; text-decoration: none; font-size: 13px;">Register as Partner →</a>';
+    htmlSummary += '</div>';
 
     try {
         console.log("Sending email for package:", selectedPackage, "price:", selectedPrice);
-        await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-            user_email: customerData.email,
-            user_name: customerData.parentName,
-            order_id: customerData.orderId,
-            child_name: customerData.childName,
-            report_text_summary: htmlSummary
-        });
-        console.log("Email sent successfully for order:", customerData.orderId);
+
+        // TEST MODE BYPASS
+        if (localStorage.getItem('integrations_off') === 'true') {
+            console.log("TEST MODE: EmailJS suppressed.");
+        } else {
+            await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+                user_email: customerData.email,
+                user_name: customerData.parentName,
+                order_id: customerData.orderId,
+                child_name: customerData.childName,
+                report_text_summary: htmlSummary
+            });
+            console.log("Email sent successfully for order:", customerData.orderId);
+        }
     } catch (e) {
         console.error("Email dispatch failed for order", customerData.orderId, ":", e);
     }
 }
 
 function processSyncUpgrade() {
+    // TEST MODE BYPASS
+    if (localStorage.getItem('test_pay') === 'true') {
+        console.log("TEST MODE: Bypassing Sync Upgrade Payment");
+        alert("Test Mode: Upgrade Successful");
+        // Simulate Success Response
+        const mockResponse = {
+            razorpay_payment_id: "test_upgrade_" + Date.now(),
+            razorpay_order_id: customerData.orderId || "test_order"
+        };
+
+        customerData.package = 'Premium';
+        window.isSyncMatchMode = true;
+        customerData.paymentId = mockResponse.razorpay_payment_id; // Store mock ID
+
+        // Save Session
+        localStorage.setItem(`aptskola_session_${customerData.orderId} `, JSON.stringify({ answers, customerData, selectedPackage, selectedPrice }));
+
+        // UI Cleanup & Quiz Init (Copied from handlePaymentSuccess logic for manual trigger)
+        const upgradeBlock = document.getElementById('upgradeBlock');
+        if (upgradeBlock) {
+            upgradeBlock.classList.add('hidden');
+            upgradeBlock.style.display = 'none';
+        }
+
+        if (typeof initializeQuizShell === 'function') {
+            initializeQuizShell(0, 2);
+        }
+        return;
+    }
+
     const payButton = document.querySelector('#upgradeBlock button');
     if (payButton) payButton.innerText = "Opening Upgrade...";
 
     const options = {
         "key": RAZORPAY_KEY_ID,
-        "amount": 29900, // ₹299 Upgrade Fee
+        "amount": 1900, // â‚¹19 Upgrade Fee
         "currency": "INR",
         "payment_capture": 1,
         "name": "Apt Skola",
@@ -2167,7 +3311,7 @@ function showInstantSuccessPage() {
             if (downloadBtn) {
                 downloadBtn.style.pointerEvents = 'auto';
                 downloadBtn.style.opacity = '1';
-                downloadBtn.textContent = 'Download Report ⬇️';
+                downloadBtn.textContent = 'Download Report â¬‡ï¸';
             }
             if (shareBtn) {
                 shareBtn.style.pointerEvents = 'auto';
@@ -2253,6 +3397,44 @@ function openSyncMatchGate() {
         console.error("Sync Match Gate element not found!");
     }
 }
+// NEW FUNCTION: Process Sync Upgrade for AS5 users  
+window.processSyncUpgrade = function () {
+    const btn = document.querySelector('#upgradeBlock button');
+    if (btn) btn.innerText = "Opening Upgrade...";
+
+    // Get current order details
+    const orderId = document.getElementById('syncOrderId')?.value?.trim() || customerData.orderId || 'UNKNOWN';
+    const childName = document.getElementById('syncChildName')?.value || customerData.childName || '';
+    const childAge = document.getElementById('syncChildAge')?.value || customerData.childAge || '5-10';
+
+    // Save data before redirecting
+    customerData.childName = childName;
+    customerData.orderId = orderId;
+    customerData.childAge = childAge;
+    customerData.amount = 19;
+    selectedPrice = 19;
+    selectedPackage = "Upgrade to Phase 2";
+
+    // Save to localStorage  
+    const sessionKey = `aptskola_session_${orderId}`;
+    localStorage.setItem(sessionKey, JSON.stringify({
+        answers: {}, // No Phase 1 answers
+        customerData: customerData,
+        selectedPackage: selectedPackage,
+        selectedPrice: selectedPrice,
+        isAS5Upgrade: true,
+        phase2Paid: true
+    }));
+
+    // Mark for Phase 2 redirect after payment
+    sessionStorage.setItem('AS5_PHASE2_PENDING', orderId);
+
+    // Use existing Razorpay payment with ₹19
+    setTimeout(() => {
+        redirectToRazorpay();
+    }, 300);
+};
+
 function validateAndStartSyncMatch() {
     const orderIdInput = document.getElementById('syncOrderId');
     const orderId = orderIdInput ? orderIdInput.value.trim() : "";
@@ -2341,14 +3523,14 @@ function validateAndStartSyncMatch() {
             upgradeBlock.classList.remove('hidden');
             upgradeBlock.style.display = 'block';
 
-            // If AS5, ensure price is 299 for the upgrade
+            // If AS5, ensure price is 19 for the upgrade
             if (isAS5) {
                 // Update upgrade UI text if needed, or just set the price logic
-                selectedPrice = 299;
+                selectedPrice = 19;
                 selectedPackage = "Upgrade to Phase 2";
 
                 const upgBtn = document.querySelector('#upgradeBlock button');
-                if (upgBtn) upgBtn.innerText = "Unlock Now @ ₹299";
+                if (upgBtn) upgBtn.innerText = "Unlock Now @ â‚¹19";
             }
         }
         const startBtn = document.getElementById('startSyncBtn');
@@ -2491,7 +3673,7 @@ function getAlignmentData() {
         <div class="report-card" style="border: 2px solid var(--sunrise-primary); background: #FFF9F2; margin-top: 20px;">
 			<h3 style="color: var(--navy-premium); font-weight: 800; font-size: 1.2rem; margin-bottom: 10px;">Bridge Narrative: Conflict Resolution</h3>
 			<p style="color: var(--navy-light); font-size: 0.95rem; line-height: 1.6; margin-bottom: 10px;">
-				<strong>The Mismatch:</strong> Your strategic goal is <strong>${parentRec}</strong>, but our forensic DNA audit shows your child’s natural cognitive engine thrives on <strong>${traits[topDNA]}</strong>, which is the hallmark of the <strong>${normalizedDNA}</strong> ecosystem.
+				<strong>The Mismatch:</strong> Your strategic goal is <strong>${parentRec}</strong>, but our forensic DNA audit shows your child's natural cognitive engine thrives on <strong>${traits[topDNA]}</strong>, which is the hallmark of the <strong>${normalizedDNA}</strong> ecosystem.
 			</p>
 			<p style="color: var(--navy-light); font-size: 0.95rem; line-height: 1.6; margin-bottom: 10px;">
 				<strong>Cognitive Risk:</strong> Forcing a child with high ${traits[topDNA]} into a purely ${parentRec} structure can lead to "Academic Burnout" by Grade 8, as their natural inquiry style is suppressed by rigid standardization.
@@ -2504,9 +3686,9 @@ function getAlignmentData() {
 			</p>
 		</div> ` : `
         <div class="report-card" style="border: 2px solid #22C55E; background: #F0FDF4; margin-top: 20px;">
-        <h3 style="color: #166534; font-weight: 800; font-size: 1.2rem; margin-bottom: 10px;">✅ PERFECT ALIGNMENT</h3>
+        <h3 style="color: #166534; font-weight: 800; font-size: 1.2rem; margin-bottom: 10px;">âœ… PERFECT ALIGNMENT</h3>
         <p style="color: #166534; font-size: 0.95rem; line-height: 1.6;">
-            Your parenting vision and your child’s cognitive DNA are in a rare state of "Scientific Sync." Your choice of <strong>${parentRec}</strong> perfectly supports their natural strength in <strong>${traits[topDNA]}</strong>. This foundation minimizes academic friction and maximizes their potential for high-tier university placements.
+            Your parenting vision and your child's cognitive DNA are in a rare state of "Scientific Sync." Your choice of <strong>${parentRec}</strong> perfectly supports their natural strength in <strong>${traits[topDNA]}</strong>. This foundation minimizes academic friction and maximizes their potential for high-tier university placements.
         </p>
     </div> `;
 
@@ -2578,7 +3760,7 @@ function calculateSyncMatch() {
                 <h3 style="color:#1E40AF; font-size:1.1rem; font-weight:800; margin:0 0 10px 0;">Apt Skola Exclusive: AI Forensic School X-ray</h3>
 
                 <div style="font-size:1.8rem; font-weight:900; color:#1D4ED8; margin:5px 0 10px;">
-                    ₹99 <span style="font-size:0.9rem; color:#64748B; text-decoration:line-through; font-weight:500;">₹399</span>
+                    â‚¹99 <span style="font-size:0.9rem; color:#64748B; text-decoration:line-through; font-weight:500;">â‚¹399</span>
                 </div>
                 <p style="font-size:0.9rem; color:#475569; margin-bottom:15px; line-height:1.4;">
                     Spot hidden red flags, library authenticity, and teacher turnover using our proprietary AI vision tool.
@@ -2603,7 +3785,7 @@ function calculateSyncMatch() {
 
             <!-- Download/Share Buttons Moved to Bottom -->
             <div style="display: flex; gap: 10px; margin-top: 30px;">
-                <button id="downloadSyncBtn" class="custom-cta-button" style="flex:1;" onclick="downloadSyncReportPDF()">Download Report ⬇️</button>
+                <button id="downloadSyncBtn" class="custom-cta-button" style="flex:1;" onclick="downloadSyncReportPDF()">Download Report â¬‡ï¸</button>
                 <button id="shareSyncBtn" class="custom-cta-button" style="flex:1; background: #10B981;" onclick="shareSyncReport()">Share Report 📲</button>
             </div>
 
@@ -2611,6 +3793,7 @@ function calculateSyncMatch() {
     </div>
             ${getIntermediateFooterHtml()}
     `;
+        successPage.innerHTML = applyNamePersonalization(html, customerData.childName);
         successPage.classList.remove('hidden');
         successPage.classList.add('active');
     }
@@ -2677,7 +3860,7 @@ async function renderReportToBrowser() {
     const isPro = amount >= 1499 || pkgName === 'The Smart Parent Pro';
     const isPremium = amount >= 999 || pkgName === 'Premium' || isPro;
 
-    // --- BASE BLOCKS (Included in all tiers: ₹599, ₹999, ₹1499) ---
+    // --- BASE BLOCKS (Included in all tiers: â‚¹599, â‚¹999, â‚¹1499) ---
     let html = `
         <div id="pdf-header" class="report-card !p-0 overflow-hidden bg-[#0F172A] text-white text-center">
             <div class="p-6">
@@ -2700,6 +3883,8 @@ async function renderReportToBrowser() {
                 </div>
             </div>
         </div>
+        ${generateForensicBlock('baseline')}
+        ${generateForensicBlock('radar_phase1')}
 
         <div class="report-card !p-0 overflow-hidden">
             <div class="report-header-bg" style="margin: 0;">STUDENT PERSONA</div>
@@ -2789,11 +3974,11 @@ async function renderReportToBrowser() {
         </div>
     `;
 
-    // --- PREMIUM BLOCKS (₹999 and above) ---
+    // --- PREMIUM BLOCKS (â‚¹999 and above) ---
     if (isPremium) {
         html += `
         <div class="report-card">
-                <div class="report-header-bg">🧐 RISK MITIGATION & VETTING</div>
+                <div class="report-header-bg">ðŸ§ RISK MITIGATION & VETTING</div>
                 <div class="space-y-3 p-4">
                     ${MASTER_DATA.vetting.redFlags.map(f => `
                         <div class="flex items-start gap-3">
@@ -2841,7 +4026,7 @@ async function renderReportToBrowser() {
     `;
     }
 
-    // --- PRO BLOCKS (₹1499 only) ---
+    // --- PRO BLOCKS (â‚¹1499 only) ---
     if (isPro) {
         html += `
         <div class="report-card">
@@ -2860,7 +4045,7 @@ async function renderReportToBrowser() {
             </div>
 
         <div class="report-card">
-            <div class="report-header-bg">🎙️ PARENT INTERVIEW MASTERY</div>
+            <div class="report-header-bg">🎙️ PARENT INTERVIEW MASTERY</div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
                 ${MASTER_DATA.interviewMastery.part2.slice(0, 6).map(i => `
                         <div class="bg-white border boundary-slate-200 rounded-lg p-5 shadow-sm hover:shadow-md transition-all">
@@ -2886,12 +4071,9 @@ async function renderReportToBrowser() {
     `;
 
     // 2. Dispatch Render to Screen
-
-
-    // 2. Dispatch Render to Screen
     const preview = document.getElementById('reportPreview');
     if (preview) {
-        preview.innerHTML = html;
+        preview.innerHTML = applyNamePersonalization(html, sessionCustomerData.childName);
         console.log("Report HTML set to preview element, length:", html.length);
         console.log("Preview element after setting:", preview);
     } else {
@@ -2924,7 +4106,7 @@ function hydrateData() {
 async function downloadReport() {
     console.log("Download report triggered");
     const btn = document.getElementById("downloadBtn");
-    const originalText = btn ? btn.textContent : "Download Report ⬇️";
+    const originalText = btn ? btn.textContent : "Download Report â¬‡ï¸";
 
     try {
         if (btn) {
@@ -3205,40 +4387,42 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 9a. HERO BUTTON TEXT UPDATE (REMOVED - Fixed in JSX)
     // 9. PHONE CAPTURE (Partial Lead - ABANDONMENT LOGIC)
+    // 9. PHONE CAPTURE (Partial Lead - IMMEDIATE)
     const phoneInput = document.getElementById('phone');
     const custForm = document.getElementById('customerForm');
-    let partialLeadTimeout;
+    let miniLeadSent = false;
 
     if (phoneInput && custForm) {
-        // Clear timeout if user interacts with the form again
-        custForm.addEventListener('focusin', () => {
-            if (partialLeadTimeout) {
-                clearTimeout(partialLeadTimeout);
-                // console.log("Partial lead capture cancelled (user returned).");
-            }
-        });
-
-        phoneInput.addEventListener('blur', function () {
+        phoneInput.addEventListener('input', function () {
             const phone = this.value.trim();
-            if (phone.length >= 10) {
-                // Set a delay to confirm abandonment (e.g., 5 seconds)
-                partialLeadTimeout = setTimeout(() => {
-                    const name = document.getElementById('parentName')?.value || 'Visitor';
-                    const email = document.getElementById('email')?.value || 'no-email@captured.com';
-                    const formData = new FormData();
-                    formData.append("access_key", "1930d1ce-5416-45d1-9b2b-5f129cb30dbd");
-                    formData.append("subject", "Partial Lead Captured (Abandoned Form)");
-                    formData.append("name", name);
-                    formData.append("phone", phone);
-                    formData.append("email", email);
-                    formData.append("status", "Partial/Abandoned");
+            // Trigger immediately when 10 digits are reached
+            if (phone.length >= 10 && !miniLeadSent) {
+                miniLeadSent = true;
 
-                    fetch("https://api.web3forms.com/submit", {
-                        method: "POST",
-                        body: formData
-                    }).then(res => console.log("Partial lead captured:", res.status))
-                        .catch(err => console.error("Partial lead failed:", err));
-                }, 5000); // 5 seconds delay
+                // 1. Persist to LocalStorage
+                localStorage.setItem('aptskola_mobile', phone);
+
+                // 2. Prepare Data
+                const name = document.getElementById('parentName')?.value || 'Visitor';
+                const childName = document.getElementById('childName')?.value || 'N/A';
+                const email = document.getElementById('email')?.value || 'no-email@captured.com';
+
+                const formData = new FormData();
+                formData.append("access_key", "1930d1ce-5416-45d1-9b2b-5f129cb30dbd");
+                formData.append("subject", "Mini Lead Captured (10-Digit Entry)");
+                formData.append("Parent Name", name);
+                formData.append("Child Name", childName);
+                formData.append("Mobile Number", phone);
+                formData.append("email", email);
+                formData.append("status", "Mini Lead/Interest");
+
+                // 3. Send Immediately
+                fetch("https://api.web3forms.com/submit", {
+                    method: "POST",
+                    body: formData,
+                    keepalive: true
+                }).then(res => console.log("Mini lead captured:", res.status))
+                    .catch(err => console.error("Mini lead failed:", err));
             }
         });
     }
@@ -3440,7 +4624,7 @@ function handleCollaborationSubmit(e, type) {
 
     // Simulate API
     setTimeout(() => {
-        btn.innerHTML = "Success! ✅";
+        btn.innerHTML = "Success! âœ…";
         btn.style.background = "#10B981";
 
         // Track
@@ -3615,7 +4799,7 @@ function showDynamicRiskCard() {
 
             <div class="dashboard-note">
                 <p class="note-label">Strategic Board Alignment</p>
-                <p class="note-content">"Welcome to the Surgical Assessment phase. You are now transitioning from general discovery to deep diagnostics. Your inputs here trigger our engine to map your child’s data against the Learning Alignment Matrix, generating a high-fidelity audit and unlocking your full Personalized Board Fitment Report."</p>
+                <p class="note-content">"Welcome to the Surgical Assessment phase. You are now transitioning from general discovery to deep diagnostics. Your inputs here trigger our engine to map your child's data against the Learning Alignment Matrix, generating a high-fidelity audit and unlocking your full Personalized Board Fitment Report."</p>
             </div>
             
             <button onclick="showMomentumModal()" class="custom-cta-button risk-cta" style="width: 100%; max-width: 400px; margin: 0 auto;">Authorize and Calibrate with Phase 1</button>
@@ -3740,7 +4924,7 @@ function showDnaFinalization() {
                      style="width: 5%; background-color: ${colors[i % colors.length]}"></div>
             </div>
             <p class="text-[10px] font-bold text-slate-400 animate-pulse">
-                <span class="mr-1">⚡</span> Deep Logic: ${microInsights[i]}
+                <span class="mr-1">âš¡</span> Deep Logic: ${microInsights[i]}
             </p>
         </div>
         `).join('');
@@ -3749,7 +4933,7 @@ function showDnaFinalization() {
         <div class="assessment-results-card">
             <div class="results-header">
                 <div class="text-center mb-6">
-                    <h2 class="text-4xl font-black text-brand-navy mb-4">Analyzing Your Child’s Potential</h2>
+                    <h2 class="text-4xl font-black text-brand-navy mb-4">Analyzing Your Childâ€™s Potential</h2>
                     <p class="text-slate-600 text-sm">Analyzing ${customerData.childName || "your child"}'s neural patterns based on cognitive architecture inputs.</p>
                 </div>
             </div>
@@ -3820,28 +5004,86 @@ function showDnaFinalization() {
 
     }, 4500);
 
-    // 3. Redirect (at 6.5s)
+    // 3. New Redirect Step: Forensic Discovery Screen
     setTimeout(() => {
-        if (container) {
-            container.innerHTML = '';
-            container.classList.remove('active');
-        }
-
-        // Show Pricing with Smooth Scroll
-        const pricing = document.getElementById('pricingModal');
-        if (pricing) {
-            pricing.classList.add('active');
-            pricing.classList.add('highlight-pulse');
-            pricing.scrollIntoView({ behavior: 'smooth' });
-
-            // TRACK: Pricing Viewed
-            window.triggerTrack('Pricing_Modal_Viewed');
-        }
-
-        document.getElementById('mainFooter').classList.remove('hidden');
-        document.getElementById('contact-and-policies').classList.remove('hidden');
-
+        showForensicDiscovery();
     }, 6500);
+}
+
+function showForensicDiscovery() {
+    const container = document.getElementById('dnaFinalization');
+    if (!container) return;
+
+    // Generate dynamic logic match between 88% and 96%
+    const logicMatch = Math.floor(Math.random() * (96 - 88 + 1)) + 88;
+    const childName = customerData.childName || "Your Child";
+
+    const content = `
+        <div class="forensic-discovery-card animate-fade-in">
+            <div class="text-center mb-8">
+                <div class="inline-block px-4 py-1 rounded-full bg-brand-orange-light text-brand-orange text-xs font-bold uppercase tracking-widest mb-4">
+                    Phase 1 Calibration Complete
+                </div>
+                <h2 class="text-3xl font-black text-brand-navy mb-4">Forensic Discovery</h2>
+                <div class="h-1 w-20 bg-brand-orange mx-auto rounded-full"></div>
+            </div>
+
+            <div class="space-y-6 mb-8">
+                <div class="p-4 rounded-xl bg-emerald-50 border border-emerald-100">
+                    <p class="text-emerald-900 font-bold mb-1">
+                        🛡️ Logic Match: ${logicMatch}% Confirmed
+                    </p>
+                    <p class="text-emerald-700 text-sm">Calibration Complete for ${childName}. Internal engine architecture synchronized.</p>
+                </div>
+
+                <div class="p-4 rounded-xl bg-red-50 border border-red-100 animate-pulse">
+                    <p class="text-red-900 font-bold mb-1">
+                        ⚠️ Friction Alert: High risk detected
+                    </p>
+                    <p class="text-red-700 text-sm">Conflict identified in '15-Year Financial Scalability' vs. chosen growth path.</p>
+                </div>
+
+                <div class="p-4 rounded-xl bg-amber-50 border border-amber-100">
+                    <p class="text-amber-900 font-bold mb-1">
+                        📊 Board Fit: Critical Mismatch
+                    </p>
+                    <p class="text-amber-700 text-sm">Your 'Target Board' is <span class="font-bold">NOT</span> ${childName}'s 'DNA Board.' Structural friction localized.</p>
+                </div>
+            </div>
+
+            <button onclick="unlockAlignmentRoadmap()" class="w-full py-4 bg-brand-navy text-white rounded-xl font-bold text-lg shadow-xl hover:bg-slate-800 transition-all transform hover:scale-[1.02] active:scale-[0.98]">
+                Unlock the Full Alignment Roadmap →
+            </button>
+        </div>
+    `;
+
+    container.innerHTML = applyNamePersonalization(content, childName);
+
+    // TRACK: Forensic Discovery Viewed
+    window.triggerTrack('Forensic_Discovery_Viewed');
+}
+
+function unlockAlignmentRoadmap() {
+    // 1. Clear the Forensic Discovery Screen
+    const container = document.getElementById('dnaFinalization');
+    if (container) {
+        container.innerHTML = '';
+        container.classList.remove('active');
+    }
+
+    // 2. Open Pricing Modal
+    const pricing = document.getElementById('pricingModal');
+    if (pricing) {
+        pricing.classList.add('active');
+        pricing.classList.add('highlight-pulse');
+        pricing.scrollIntoView({ behavior: 'smooth' });
+
+        // TRACK: Pricing Viewed from Discovery
+        window.triggerTrack('Pricing_Modal_Viewed_Discovery');
+    }
+
+    document.getElementById('mainFooter').classList.remove('hidden');
+    document.getElementById('contact-and-policies').classList.remove('hidden');
 }
 
 function createDnaBarHtml(label = "Roadmap Calibration Progress") {
@@ -3951,3 +5193,138 @@ window.addEventListener('scroll', () => {
         sticky.classList.add('translate-y-full');
     }
 });
+
+/**
+ * PERSONALIZATION HELPER: Highlights the child's name in HTML content.
+ * Highlights only the first 3 occurrences with .name-highlight class.
+ */
+function applyNamePersonalization(html, name) {
+    if (!name || name.trim() === "" || name.toLowerCase() === "your child" || name.toLowerCase() === "student") return html;
+
+    // Escape name for regex
+    const escapedName = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    // Regex matches either an HTML tag (group 1) or the name/possessive (group 2)
+    const regex = new RegExp(`(<[^>]+>)|(${escapedName}(?:'s)?)`, 'gi');
+
+    let count = 0;
+    return html.replace(regex, (match, tag, nameMatch) => {
+        if (tag) return tag; // Skip HTML tags
+        if (count < 3) {
+            count++;
+            return `<span class="name-highlight">${nameMatch}</span>`;
+        }
+        return nameMatch;
+    });
+}
+
+// --- MISSING HELPER: Full Recommendation Calculation ---
+function calculateFullRecommendation(answers) {
+    let scores = { "CBSE": 0, "ICSE": 0, "IB": 0, "State Board": 0, "Cambridge (IGCSE)": 0 };
+
+    // Default safe return object
+    const safeReturn = {
+        scores: scores,
+        recommended: { name: "CBSE", percentage: 0 },
+        fullRanking: [{ name: "CBSE", percentage: 0 }]
+    };
+
+    if (!answers) return safeReturn;
+
+    // Simple Logic Map (Based on Q1-Q15)
+    const increment = (board, val) => {
+        if (!scores[board]) scores[board] = 0;
+        scores[board] += val;
+    };
+
+    // Generic loop to process answers if present
+    for (let key in answers) {
+        if (key.startsWith('q')) {
+            let val = parseInt(answers[key]) || 0;
+            if (val === 0) increment("CBSE", 1);
+            if (val === 1) increment("ICSE", 1);
+            if (val === 2) increment("IB", 1);
+            if (val === 3) increment("State Board", 1);
+        }
+    }
+
+    // Determine Top Board
+    let maxScore = 0;
+    let topBoard = "CBSE";
+    let totalScore = 0;
+
+    for (let board in scores) {
+        totalScore += scores[board];
+        if (scores[board] > maxScore) {
+            maxScore = scores[board];
+            topBoard = board;
+        }
+    }
+
+    // Calculate Percentages
+    const fullRanking = Object.keys(scores).map(board => ({
+        name: board,
+        percentage: totalScore > 0 ? Math.round((scores[board] / totalScore) * 100) : 0
+    })).sort((a, b) => b.percentage - a.percentage);
+
+    return {
+        scores: scores,
+        recommended: fullRanking[0],
+        fullRanking: fullRanking
+    };
+}
+
+// --- SELF-CORRECTION: Safety Wrapper for SyncMatch ---
+// Replaces standard calculateSyncMatch with robust version
+window.calculateSyncMatchOld = window.calculateSyncMatch;
+window.calculateSyncMatch = function () {
+    console.log("Phase 2 Complete (Robust). Showing Transition Bridge...");
+    try {
+        const container = document.getElementById('dynamicQuizContent');
+        if (container) {
+            container.style.opacity = '0';
+            setTimeout(() => {
+                let chartHTML = "";
+                try {
+                    chartHTML = generateForensicBlock('radar_phase2');
+                } catch (e) {
+                    console.error("Forensic Block Generation Failed:", e);
+                    chartHTML = "<p style='color:red'>Chart Generation Error. Proceeding...</p>";
+                }
+
+                container.innerHTML = `
+                <div class="animate-fade-in-up">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <span style="background: #10B981; color: white; padding: 4px 12px; border-radius: 99px; font-size: 0.75rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;">
+                            Phase 2 Complete
+                        </span>
+                        <h2 class="text-2xl font-black text-slate-800 mt-4">Forensic Bridge Unlocked</h2>
+                        <p class="text-slate-500 text-sm mt-2">Integrating Parental Inputs with Child's Cognitive Map.</p>
+                    </div>
+
+                    ${chartHTML}
+
+                    <div style="background: #eff6ff; border: 1px solid #dbeafe; padding: 20px; border-radius: 12px; margin-bottom: 30px; text-align: center;">
+                         <p style="color: #1e3a8a; font-size: 0.9rem; font-weight: 600; line-height: 1.6;">
+                            "The data indicates a significant variance between your aspirations and your child's natural processing style. 
+                            We are now ready to generate the Final Alignment Thesis."
+                        </p>
+                    </div>
+
+                     <button onclick="showDetailsPage()" class="w-full py-4 rounded-xl bg-[#FF6B35] text-white font-black text-lg shadow-xl shadow-orange-200 hover:scale-[1.02] transition-transform">
+                        Finalize & View Audit Report →
+                    </button>
+                    <div style="text-align: center; margin-top: 15px;">
+                        <span class="text-xs text-slate-400 font-bold uppercase tracking-widest">Apt Skola Forensic Engine</span>
+                    </div>
+                </div>
+                `;
+                container.style.opacity = '1';
+                // CRITICAL FIX: Ensure scroll to top
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 300);
+        }
+    } catch (err) {
+        console.error("Critical Failure in calculateSyncMatch:", err);
+        alert("Transition Error. Please check console.");
+    }
+};

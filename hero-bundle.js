@@ -24,6 +24,7 @@
             'CBSE': {
                 name: 'CBSE',
                 tagline: 'The "National Standard"',
+                cognitiveAlignment: 72,
                 methodology: 'Focused on academic depth, standardized testing, and memory retention. Designed for the Indian competitive landscape (JEE/NEET).',
                 forensicReality: 'High volume of content. Strong in Math and Science, but often lower on critical inquiry and soft-skill development.',
                 risks: [
@@ -35,6 +36,7 @@
             'IB': {
                 name: 'IB - International Baccalaureate',
                 tagline: 'The "Global DNA"',
+                cognitiveAlignment: 88,
                 methodology: 'Inquiry-based learning. It doesn\'t teach "What" to think, but "How" to think. Focus on research and holistic development.',
                 forensicReality: 'Extremely high university acceptance abroad. Very demanding for both students and parents (it\'s a lifestyle, not just a board).',
                 risks: [
@@ -46,6 +48,7 @@
             'IGCSE': {
                 name: 'Cambridge - IGCSE',
                 tagline: 'The "Concept Specialist"',
+                cognitiveAlignment: 81,
                 methodology: 'Practical application of concepts. It focuses on understanding and solving real-world problems. Very flexible subject choices.',
                 forensicReality: 'Excellent balance for students who want a global standard without the extreme "Inquiry" pressure of IB.',
                 risks: [
@@ -57,6 +60,7 @@
             'ICSE': {
                 name: 'ICSE',
                 tagline: 'The "Literary Rigor"',
+                cognitiveAlignment: 76,
                 methodology: 'Vast syllabus with a heavy focus on English language, literature, and detailed social sciences.',
                 forensicReality: 'Produces excellent communicators and analytical thinkers. More "diverse" subjects than CBSE.',
                 risks: [
@@ -317,34 +321,56 @@
             return h('div', { className: "w-[calc(100%+2rem)] -mx-4 bg-slate-900 border-y border-slate-800 py-4 px-4 md:px-12 flex flex-col md:flex-row items-center justify-between gap-4 mt-8 mb-8" },
                 h('p', { className: "text-white text-sm md:text-base font-medium text-center md:text-left" },
                     h('span', { className: "text-[#FF6B35] font-bold" }, "2,400+ Families"),
-                    " across India’s Top Tier Cities have synced their child’s future."
+                    " across India's Top Tier Cities have synced their child's future."
                 ),
-                h('div', { className: "flex items-center gap-6 text-slate-500 font-bold text-sm tracking-widest uppercase" },
-                    h('span', {}, "CBSE"),
-                    h('span', {}, "ICSE"),
-                    h('span', {}, "IB"),
-                    h('span', {}, "IGCSE")
+                h('div', { className: "flex items-center gap-6 text-white font-bold text-sm tracking-widest uppercase" },
+                    h('span', { onClick: () => setSelectedBoard('CBSE'), className: "cursor-pointer hover:text-[#FF6B35] transition-colors underline" }, "CBSE"),
+                    h('span', { onClick: () => setSelectedBoard('ICSE'), className: "cursor-pointer hover:text-[#FF6B35] transition-colors underline" }, "ICSE"),
+                    h('span', { onClick: () => setSelectedBoard('IB'), className: "cursor-pointer hover:text-[#FF6B35] transition-colors underline" }, "IB"),
+                    h('span', { onClick: () => setSelectedBoard('IGCSE'), className: "cursor-pointer hover:text-[#FF6B35] transition-colors underline" }, "IGCSE")
                 )
             );
         };
 
-        // 6. CTA Button (Split Action)
+        // 6. CTA Button (Personalized Teaser)
         const renderCTA = () => {
             return h('div', { className: "relative mt-4 z-[40] flex flex-col gap-4 items-center w-full max-w-2xl px-4" },
-                // Primary Button
                 h('div', { className: "relative group w-full md:w-auto" },
+                    h('div', { className: "inline-flex flex-col md:flex-row items-center justify-center bg-[#FF6B35] border-2 border-orange-600 rounded-full px-6 py-4 shadow-xl hover:shadow-2xl transition-all gap-3 md:gap-0 w-full" },
+                        h('span', { className: "text-white font-black text-lg whitespace-nowrap" }, "Begin"),
 
-                    // h('div', { className: "absolute -inset-1 bg-gradient-to-r from-[#FF6B35] to-yellow-500 rounded-full blur opacity-40 group-hover:opacity-75 transition duration-1000" }),
-                    h('button', {
-                        onClick: () => triggerStart(0),
-                        className: "unstoppable-cta neural-pulse w-full relative bg-[#FF6B35] text-white px-8 py-5 rounded-full font-black text-xl md:text-2xl shadow-none haptic-shadow overflow-hidden transition-all duration-300 ease-out border-b-[4px] border-orange-800 flex items-center justify-center gap-2",
-                        style: { pointerEvents: 'auto' }
-                    },
-                        // Radar Sweep Light
-                        h('div', { className: "radar-beam" }),
-                        "Start My Child's learning Mapping for FREE",
-                        h('span', { className: "animate-pulse" }, "→"))
-                ),
+                        h('div', { className: "relative mx-2 w-full md:w-auto" },
+                            h('input', {
+                                type: "text",
+                                id: "heroChildNameMain",
+                                placeholder: "Child's Name",
+                                className: "bg-transparent border-dots-pulse-white text-white font-black text-center w-32 md:w-40 py-1 focus:outline-none placeholder-white/60 transition-colors",
+                                onKeyDown: (e) => {
+                                    if (e.key === 'Enter') {
+                                        const val = e.target.value;
+                                        if (window.startQuizWithName) window.startQuizWithName(val);
+                                        else triggerStart(0);
+                                    }
+                                }
+                            })
+                        ),
+
+                        h('span', { className: "text-white font-black text-lg whitespace-nowrap" }, "'s Learning DNA Calibration"),
+
+                        h('button', {
+                            onClick: () => {
+                                const val = document.getElementById('heroChildNameMain').value;
+                                if (window.startQuizWithName) window.startQuizWithName(val);
+                                else triggerStart(0);
+                            },
+                            className: "mt-3 md:mt-0 md:ml-4 bg-white text-[#FF6B35] rounded-full p-3 hover:scale-110 active:scale-90 transition-transform shadow-lg"
+                        },
+                            h('svg', { className: "w-6 h-6", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24" },
+                                h('path', { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: "2", d: "M14 5l7 7m0 0l-7 7m7-7H3" })
+                            )
+                        )
+                    )
+                )
             );
         };
 
@@ -514,6 +540,15 @@
 
                         // Content Grid
                         h('div', { className: "space-y-6 text-left" },
+                            // Cognitive Alignment Badge
+                            h('div', { className: "bg-[#FF6B35]/20 border border-[#FF6B35] rounded-xl p-4 text-center" },
+                                h('p', { className: "text-white font-black text-lg" },
+
+                                    h('span', { className: "text-[#FF6B35]" }, BOARD_DATA[selectedBoard].cognitiveAlignment + "% Cognitive Alignment"),
+                                    " required."
+                                ),
+                                h('p', { className: "text-emerald-400 font-bold text-sm mt-2 animate-pulse" }, "⚡ Check your child's fitment below")
+                            ),
                             // Methodology
                             h('div', {},
                                 h('h4', { className: "text-slate-300 font-bold uppercase text-xs mb-1" }, "The Methodology"),
@@ -545,7 +580,14 @@
                         ),
 
                         // Footer Buttons - REPLACED WITH ONE BUTTON
-                        h('div', { className: "mt-8 pt-6 border-t border-slate-700 w-full" },
+                        h('div', { className: "mt-8 pt-6 border-t border-slate-700 w-full flex flex-col gap-3" },
+                            h('button', {
+                                onClick: () => window.showDeepDive && window.showDeepDive('output'),
+                                className: "w-full py-3 px-6 rounded-xl border-2 border-[#FF6B35] text-[#FF6B35] font-bold text-sm md:text-lg hover:bg-[#FF6B35] hover:text-white transition-all flex items-center justify-center gap-2"
+                            },
+                                h('span', { className: "text-xl" }, "📄"),
+                                " View Sample Report"
+                            ),
                             h('button', {
                                 onClick: () => { setSelectedBoard(null); triggerStart(0); },
                                 className: "w-full py-4 px-6 rounded-xl bg-[#FF6B35] text-white font-black text-sm md:text-lg hover:bg-orange-600 transition-all shadow-[0_0_20px_rgba(255,107,53,0.4)] flex items-center justify-center gap-2"
@@ -561,7 +603,40 @@
 
         // 12. Render Board Grid (Refactored)
         const renderBoardGrid = () => {
-            return h('div', { className: "mb-4 mt-4 text-center w-full max-w-lg mx-auto px-4" },
+            return h('div', { className: "mb-4 mt-4 text-center w-full max-w-lg mx-auto px-4 relative" },
+                // ADMISSION SPECIAL STICKER
+                h('div', {
+                    className: "absolute -right-6 -top-10 md:-right-16 md:-top-12 z-20 transform rotate-12 hover:rotate-0 transition-transform duration-300 cursor-pointer group",
+                    onClick: () => triggerStart(0)
+                },
+                    h('div', { className: "relative w-24 h-24 md:w-28 md:h-28 bg-[#0F172A] rounded-full border-2 border-[#F59E0B] shadow-[0_0_15px_rgba(245,158,11,0.4)] flex items-center justify-center overflow-hidden" },
+                        // Rotating Text Ring
+                        h('div', { className: "absolute inset-0 animate-spin-slow-linear w-full h-full" },
+                            h('svg', { viewBox: "0 0 100 100", className: "w-full h-full" },
+                                h('defs', {},
+                                    h('path', { id: "circlePath", d: "M 50, 50 m -35, 0 a 35,35 0 1,1 70,0 a 35,35 0 1,1 -70,0" })
+                                ),
+                                h('text', { fill: "#F59E0B", fontSize: "8.5", fontWeight: "bold", letterSpacing: "1.2" },
+                                    h('textPath', { href: "#circlePath" },
+                                        "• ADMISSION SPECIAL • PURE SCIENCE"
+                                    )
+                                )
+                            )
+                        ),
+                        // Inner Content
+                        h('div', { className: "relative z-10 flex flex-col items-center justify-center leading-none mt-1" },
+                            h('span', { className: "text-[10px] md:text-xs text-slate-400 line-through decoration-red-500 decoration-2 font-bold opacity-80" }, "₹499"),
+                            h('span', { className: "text-xl md:text-2xl font-black text-white drop-shadow-md" }, "₹19")
+                        )
+                    )
+                ),
+
+                // Status Indicator Tag
+                h('div', { className: "inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/30 mb-4" },
+                    h('div', { className: "w-2 h-2 rounded-full bg-emerald-500 animate-pulse" }),
+                    h('span', { className: "text-emerald-400 font-bold text-[10px] uppercase tracking-widest" }, "Real-Time Board Volatility Index: Active")
+                ),
+
                 // Section Label
                 h('p', {
                     className: "text-white font-bold mb-3 uppercase text-center",
@@ -598,7 +673,7 @@
         };
 
         return h(Fragment, {},
-            h('section', { className: "relative pt-14 pb-12 px-4 overflow-hidden bg-[#0F172A] min-h-[95vh] flex flex-col items-center" },
+            h('section', { className: "relative pt-14 pb-12 px-4 overflow-hidden bg-[#0F172A] min-h-[95dvh] flex flex-col items-center" },
                 renderTopLeftLogo(),
                 renderTopRightSocialProof(),
                 renderNarrativeHeader(),
@@ -623,7 +698,7 @@
                             className: "group px-6 py-3 rounded-xl font-bold text-slate-100 border border-slate-500 bg-slate-800/60 hover:border-[#FF6B35] hover:text-white hover:bg-slate-800/80 transition-all text-sm flex items-center gap-2 shadow-lg backdrop-blur-sm"
                         },
                             h('span', { className: "text-lg transition-all" }, "🧮"),
-                            " Calculate 'School Switch'"
+                            " School Switch Cost"
                         ),
                         // 2. Sync Check
                         h('button', {
@@ -656,11 +731,14 @@
     window.Hero = Hero; // Expose to window
 
     // Initialize
-    window.addEventListener('load', () => {
+    document.addEventListener('DOMContentLoaded', () => {
         const container = document.getElementById('react-hero-root');
         if (container) {
-            const root = ReactDOM.createRoot(container);
-            root.render(h(Hero));
+            // OPTIMIZATION: Use hydrateRoot for LCP preservation
+            // If hydration matches static HTML, this eliminates the white flash
+            const root = ReactDOM.hydrateRoot(container, h(Hero));
+            // root.render is not needed with hydrateRoot, it returns the root for updates if needed
+            // But for initial hydration: ReactDOM.hydrateRoot(domNode, reactNode)
         }
     });
 
