@@ -240,7 +240,23 @@ function validateGrade1Eligibility(birthDateString) {
 function initializeQuizShell(startAtIndex = 0, phase = 0) {
     console.log("Initializing Quiz Shell at index:", startAtIndex);
 
-    // 1. Hide ALL Landing Elements (Strict Mode)
+    // 1. Show Question Pages Overlay
+    const questionPages = document.getElementById('questionPages');
+    if (questionPages) {
+        questionPages.innerHTML = `
+            <div id="questionPageApp" class="question-page active" style="background-color: #F8FAFC; min-height: 100vh;">
+                ${getIntermediateHeaderHtml()}
+                <div class="question-content-wrapper">
+                    <div id="dynamicQuizContent" class="question-container" style="max-width: 800px; margin: 0 auto; padding: 2rem 1rem;"></div>
+                </div>
+                ${getIntermediateFooterHtml()}
+            </div>
+        `;
+        questionPages.classList.add('active');
+        questionPages.style.display = 'block';
+    }
+
+    // 2. Hide Landing Elements
     const elementsToHide = [
         'landingPage',
         'react-hero-root',
@@ -254,10 +270,7 @@ function initializeQuizShell(startAtIndex = 0, phase = 0) {
         'ecosystem',
         'contact-policies',
         'mainFooter',
-        'landingFooter',
-        'questionPages',
-        'detailsPage',
-        'paymentPageContainer'
+        'landingFooter'
     ];
 
     elementsToHide.forEach(id => {
@@ -267,48 +280,8 @@ function initializeQuizShell(startAtIndex = 0, phase = 0) {
 
     window.toggleFooter('minimal');
 
-    // Show Global Sticky Header
-    const globalHeader = document.getElementById('global-sticky-header');
-    if (globalHeader) globalHeader.classList.remove('hidden');
-
-    // 2. Prepare Quiz Container (With Persistent Branding)
-    let modal = document.getElementById('momentumModal');
-    if (!modal) {
-        modal = document.createElement('div');
-        modal.id = 'momentumModal';
-        modal.className = 'momentum-modal active';
-        document.body.appendChild(modal);
-    }
-
-    // INJECT BRANDING HEADER & FOOTER (Hardcoded Styles for Visibility)
-    // NO LOCAL HEADER INJECTED - USING GLOBAL STICKY HEADER
-    modal.innerHTML = `
-        <div class="momentum-content" style="width: 100%; display: flex; flex-direction: column; align-items: center; padding-top: 80px;">
-            <!-- Quiz Content Wrapper (Centered) -->
-            <div id="dynamicQuizContent" style="width: 100%; max-width: 800px; padding: 2rem 1rem; flex-grow: 1;"></div>
-        </div>
-    `;
-
-    modal.classList.remove('hidden');
-    modal.classList.add('active');
-    modal.style.zIndex = '99999'; // FORCE TOP LAYER
-    modal.style.display = 'block'; // Ensure visibility
-
-    // FORCE FULL SCREEN STYLES (Override CSS Class Defaults)
-    // FORCE FULL SCREEN STYLES (Override CSS Class Defaults)
-    modal.style.setProperty('max-width', '100%', 'important');
-    modal.style.setProperty('height', '100%', 'important');
-    modal.style.setProperty('top', '0', 'important');
-    modal.style.setProperty('bottom', 'auto', 'important');
-    modal.style.setProperty('border-radius', '0', 'important');
-    modal.style.setProperty('transform', 'none', 'important');
-    modal.style.setProperty('padding', '0', 'important');
-    modal.style.setProperty('background-color', '#F8FAFC', 'important'); // Light background
-    modal.style.setProperty('overflow-y', 'auto', 'important');
-
-    // 3. Scroll to Top (CRITICAL FIX)
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 50);
+    // 3. Scroll to Top
+    window.scrollTo({ top: 0, behavior: 'instant' });
 
     // 4. Set State & Render
     window.currentPhase = phase;
@@ -1784,6 +1757,13 @@ function renderQuestionContent(index) {
     const totalQ = questions.length;
 
     if (index >= totalQ) {
+        // HIDE THE OVERLAY when phase transition starts
+        const qPages = document.getElementById('questionPages');
+        if (qPages) {
+            qPages.classList.remove('active');
+            qPages.style.display = 'none';
+        }
+
         if (window.currentPhase === 0) {
             showPsychometricHistogram();
         } else if (window.currentPhase === 1) {
@@ -2377,7 +2357,7 @@ document.getElementById('customerForm')?.addEventListener('submit', function (e)
     };
 
     // Step 2: Silent Persistence
-    localStorage.setItem(`aptskola_session_${newOrderId} `, JSON.stringify({
+    localStorage.setItem(`aptskola_session_${newOrderId}`, JSON.stringify({
         answers: answers,
         customerData: customerData,
         selectedPackage: selectedPackage,
@@ -2730,7 +2710,7 @@ function handlePaymentSuccess(response) {
         window.isSyncMatchMode = true;
 
         // Save Session
-        localStorage.setItem(`aptskola_session_${customerData.orderId} `, JSON.stringify({ answers, customerData, selectedPackage, selectedPrice }));
+        localStorage.setItem(`aptskola_session_${customerData.orderId}`, JSON.stringify({ answers, customerData, selectedPackage, selectedPrice }));
 
         // UI Cleanup
         const upgradeBlock = document.getElementById('upgradeBlock');
@@ -2747,7 +2727,7 @@ function handlePaymentSuccess(response) {
     } else {
         // --- MAIN REPORT SUCCESS ---
         // Save Session
-        localStorage.setItem(`aptskola_session_${customerData.orderId} `, JSON.stringify({ answers, customerData, selectedPackage, selectedPrice }));
+        localStorage.setItem(`aptskola_session_${customerData.orderId}`, JSON.stringify({ answers, customerData, selectedPackage, selectedPrice }));
 
         // Trigger Automated Email Report
         if (typeof triggerAutomatedEmail === 'function') {
@@ -2868,7 +2848,7 @@ function processSyncUpgrade() {
             isSyncMatchMode = true;
 
             // Save elevated state
-            localStorage.setItem(`aptskola_session_${customerData.orderId} `, JSON.stringify({ answers, customerData }));
+            localStorage.setItem(`aptskola_session_${customerData.orderId}`, JSON.stringify({ answers, customerData }));
 
             const upgradeBlock = document.getElementById('upgradeBlock');
             const startBtn = document.getElementById('startSyncBtn');
@@ -2950,7 +2930,7 @@ function handleManualBoardConfirmation() {
     }
 
     // Persist again
-    localStorage.setItem(`aptskola_session_${customerData.orderId} `, JSON.stringify({ answers, customerData, selectedPackage, selectedPrice }));
+    localStorage.setItem(`aptskola_session_${customerData.orderId}`, JSON.stringify({ answers, customerData, selectedPackage, selectedPrice }));
 
     // Start
     initializeQuizShell(0, 2);
@@ -3183,7 +3163,7 @@ function validateAndStartSyncMatch() {
     customerData.childAge = syncChildAge; // Ensure Age is captured BEFORE session load
 
     // Check if order exists
-    const sessionKey = `aptskola_session_${orderId} `;
+    const sessionKey = `aptskola_session_${orderId}`;
     const sessionData = localStorage.getItem(sessionKey);
 
     // FIX: Allow AS5 users to upgrade even if session is missing (Cross-Device logic)
@@ -3525,7 +3505,7 @@ function calculateSyncMatch() {
 
 function endFullSession() {
     if (customerData.orderId && customerData.orderId !== 'N/A') {
-        localStorage.removeItem(`aptskola_session_${customerData.orderId} `);
+        localStorage.removeItem(`aptskola_session_${customerData.orderId}`);
     }
     goToLandingPage();
 }
@@ -3538,7 +3518,8 @@ async function renderReportToBrowser() {
 
     const lastOrderId = localStorage.getItem('aptskola_last_order_id');
     console.log("Last order ID:", lastOrderId);
-    const sessionData = JSON.parse(localStorage.getItem(`aptskola_session_${lastOrderId} `));
+    // REMOVED TRAILING SPACE from key for safety
+    const sessionData = JSON.parse(localStorage.getItem(`aptskola_session_${lastOrderId}`));
     if (sessionData) {
         sessionAnswers = sessionData.answers;
         sessionCustomerData = sessionData.customerData;
@@ -3547,7 +3528,7 @@ async function renderReportToBrowser() {
         answers = sessionAnswers;
         customerData = sessionCustomerData;
     } else {
-        console.log("No session data in localStorage, using current global data");
+        console.warn("No session data in localStorage for ID:", lastOrderId, "Using current global data");
         sessionAnswers = answers;
         sessionCustomerData = customerData;
     }
@@ -3564,20 +3545,28 @@ async function renderReportToBrowser() {
 
     const res = calculateFullRecommendation(sessionAnswers);
     console.log("Recommendation result:", res);
-    console.log("Recommended object:", res.recommended);
+    if (!res || !res.recommended) {
+        throw new Error("Analysis engine failed to generate a recommendation. Please contact support.");
+    }
+
     const recBoard = res.recommended.name;
     console.log("Recommended board:", recBoard);
-    const boardKey = recBoard.toLowerCase().includes('cbse') ? 'cbse' :
-        (recBoard.toLowerCase().includes('icse') ? 'icse' :
-            (recBoard.toLowerCase().includes('ib') ? 'ib' :
-                (recBoard.toLowerCase().includes('cambridge') ? 'Cambridge (IGCSE)' : 'State Board')));
 
-    console.log("Board key:", boardKey);
-    console.log("MASTER_DATA keys:", Object.keys(MASTER_DATA));
+    // Normalize board key for MASTER_DATA lookup
+    let boardKey = 'cbse'; // Default
+    const lowerRec = recBoard.toLowerCase();
+    if (lowerRec.includes('cbse')) boardKey = 'cbse';
+    else if (lowerRec.includes('icse')) boardKey = 'icse';
+    else if (lowerRec.includes('ib')) boardKey = 'ib';
+    else if (lowerRec.includes('cambridge') || lowerRec.includes('igcse')) boardKey = 'Cambridge (IGCSE)';
+    else if (lowerRec.includes('state')) boardKey = 'State Board';
+
+    console.log("Normalized board key for lookup:", boardKey);
     const data = MASTER_DATA[boardKey];
-    console.log("Board data found:", !!data);
+
     if (!data) {
-        throw new Error(`Board data not found for key: ${boardKey} `);
+        console.error("Board data missing for key:", boardKey, "Available keys:", Object.keys(MASTER_DATA));
+        throw new Error(`Technical Error: Data architecture mismatch for ${boardKey}.`);
     }
     const amount = (sessionData && sessionData.selectedPrice) ? sessionData.selectedPrice : (sessionCustomerData.amount || 599);
     const pkgName = (sessionData && sessionData.selectedPackage) ? sessionData.selectedPackage : (sessionCustomerData.package || '');
@@ -4197,7 +4186,7 @@ function recoverSession() {
     const orderId = recoveryInput ? recoveryInput.value.trim() : '';
     if (!orderId) { alert("Please enter your Order ID."); return; }
 
-    const savedSession = localStorage.getItem(`aptskola_session_${orderId} `);
+    const savedSession = localStorage.getItem(`aptskola_session_${orderId}`);
     if (savedSession) {
         const data = JSON.parse(savedSession);
         answers = data.answers;
@@ -4362,13 +4351,18 @@ function handleCollaborationSubmit(e, type) {
 
 function showPsychometricHistogram() {
     console.log("Rendering Preliminary Fitment Analysis...");
-    const app = document.getElementById('questionPageApp');
-    if (app) app.classList.remove('active');
+
+    // 1. Force hide questionPages strictly
+    const qPages = document.getElementById('questionPages');
+    if (qPages) {
+        qPages.classList.remove('active');
+        qPages.style.display = 'none';
+    }
 
     const container = document.getElementById('psychometricHistogram');
     if (!container) return;
 
-    container.style.display = ''; // Clear any inline none
+    container.style.display = 'flex'; // Use flex for centering if CSS allows
     container.innerHTML = `
         <div class="assessment-results-card">
             <div class="results-header">
@@ -4947,60 +4941,9 @@ function applyNamePersonalization(html, name) {
 }
 
 // --- MISSING HELPER: Full Recommendation Calculation ---
-function calculateFullRecommendation(answers) {
-    let scores = { "CBSE": 0, "ICSE": 0, "IB": 0, "State Board": 0, "Cambridge (IGCSE)": 0 };
-
-    // Default safe return object
-    const safeReturn = {
-        scores: scores,
-        recommended: { name: "CBSE", percentage: 0 },
-        fullRanking: [{ name: "CBSE", percentage: 0 }]
-    };
-
-    if (!answers) return safeReturn;
-
-    // Simple Logic Map (Based on Q1-Q15)
-    const increment = (board, val) => {
-        if (!scores[board]) scores[board] = 0;
-        scores[board] += val;
-    };
-
-    // Generic loop to process answers if present
-    for (let key in answers) {
-        if (key.startsWith('q')) {
-            let val = parseInt(answers[key]) || 0;
-            if (val === 0) increment("CBSE", 1);
-            if (val === 1) increment("ICSE", 1);
-            if (val === 2) increment("IB", 1);
-            if (val === 3) increment("State Board", 1);
-        }
-    }
-
-    // Determine Top Board
-    let maxScore = 0;
-    let topBoard = "CBSE";
-    let totalScore = 0;
-
-    for (let board in scores) {
-        totalScore += scores[board];
-        if (scores[board] > maxScore) {
-            maxScore = scores[board];
-            topBoard = board;
-        }
-    }
-
-    // Calculate Percentages
-    const fullRanking = Object.keys(scores).map(board => ({
-        name: board,
-        percentage: totalScore > 0 ? Math.round((scores[board] / totalScore) * 100) : 0
-    })).sort((a, b) => b.percentage - a.percentage);
-
-    return {
-        scores: scores,
-        recommended: fullRanking[0],
-        fullRanking: fullRanking
-    };
-}
+/* 
+REMOVED DUPLICATE: calculateFullRecommendation consolidated to Version 1 (line 1455)
+*/
 
 // --- SELF-CORRECTION: Safety Wrapper for SyncMatch ---
 // Replaces standard calculateSyncMatch with robust version
