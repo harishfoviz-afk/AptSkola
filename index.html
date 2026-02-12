@@ -19,7 +19,7 @@
     <!-- Font Loading: Inter (UI) + Montserrat (Headlines) -->
     <!-- display=swap ensures numbers appear even if font is slow (FOUT is better than invisible text) -->
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Montserrat:wght@700;800;900&display=block"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Montserrat:wght@700;800;900&display=swap"
         rel="stylesheet">
 
     <!-- Microsoft Clarity -->
@@ -1122,8 +1122,17 @@
     <script defer src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script defer type="text/javascript"
         src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-    <!-- Font moved to head -->
-    <script defer src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Optimization: Preload Critical Fonts -->
+    <link rel="preload"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Montserrat:wght@700;800;900&display=swap"
+        as="style">
+
+    <!-- CSS Quick Fix: Reverted to CDN for Visual Fidelity -->
+    <!-- <link rel="preload" href="tailwind-output.css" as="style"> -->
+    <!-- <link rel="stylesheet" href="tailwind-output.css"> -->
+
+    <!-- Tailwind CDN Restored (Required for dynamic arbitrary values) -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -1182,6 +1191,8 @@
 
         #dynamicQuizContent {
             animation: slideIn 0.4s ease-out;
+            min-height: 400px;
+            /* Prevent Logic Jump Layout Shift */
         }
 
         /* Main Styles Inline */
@@ -3152,7 +3163,7 @@
     </div>
     <div id="react-hero-root" style="opacity: 1; min-height: 95vh; width: 100%; display: block;" class="loaded">
         <!-- STATIC APP SHELL (INSTANT LOAD) -->
-        <section class="relative pt-14 pb-12 px-4 overflow-hidden bg-[#0F172A] min-h-[95vh] flex flex-col items-center">
+        <section class="relative pt-8 pb-4 px-4 overflow-hidden bg-[#0F172A] min-h-[95vh] flex flex-col items-center">
             <!-- 1. Top Right Navigation -->
             <!-- 1.5 Top Right Social Proof (New) -->
             <div class="absolute top-6 right-6 z-[100] flex items-center gap-2">
@@ -3179,8 +3190,10 @@
 
             <!-- Narrative Header (Synced with React) -->
             <!-- Narrative Header (Synced with React) -->
-            <div class="mt-8 w-full flex flex-col items-center justify-center z-40 min-h-[80px]">
-                <div class="flex flex-col md:flex-row items-center gap-4 md:gap-8">
+            <div class="mt-4 w-full flex flex-col items-center justify-center z-40 min-h-[60px] relative">
+
+
+                <div class="flex flex-col md:flex-row items-center gap-4">
                     <!-- Part 1: "Best" Question -->
                     <div class="text-center md:text-right">
                         <p class="text-2xl md:text-4xl font-bold text-slate-500">
@@ -3189,15 +3202,44 @@
                             Board?
                         </p>
                     </div>
-                    <!-- Part 2: "Vs" Bounce -->
+                    <!-- Part 2: "Vs" Bounce (with Sticker Attached) -->
                     <div class="relative cursor-pointer" onclick="safeInitializeQuiz(0);">
-                        <div
-                            class="w-12 h-12 md:w-16 md:h-16 bg-[#FF6B35] rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(255,107,53,0.6)] animate-bounce hover:scale-110 transition-transform">
+
+
+                        <div class="w-12 h-12 md:w-16 md:h-16 bg-[#FF6B35] rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(255,107,53,0.6)] animate-bounce hover:scale-110 transition-transform"
+                            fetchpriority="high">
                             <span class="text-white font-black text-lg md:text-xl italic">Vs</span>
+                        </div>
+
+                        <!-- MOBILE STICKER (Attached to Vs) -->
+                        <div class="absolute -right-24 -top-4 z-50 transform rotate-12 block md:hidden"
+                            onclick="safeInitializeQuiz(0); event.stopPropagation();">
+                            <div
+                                class="relative w-20 h-20 bg-[#0F172A] rounded-full border-2 border-[#F59E0B] shadow-[0_0_15px_rgba(245,158,11,0.4)] flex items-center justify-center overflow-hidden scale-90">
+                                <!-- Rotating Text Ring -->
+                                <div class="absolute inset-0 animate-spin-slow-linear w-full h-full">
+                                    <svg viewBox="0 0 100 100" class="w-full h-full">
+                                        <defs>
+                                            <path id="circlePath"
+                                                d="M 50, 50 m -35, 0 a 35,35 0 1,1 70,0 a 35,35 0 1,1 -70,0" />
+                                        </defs>
+                                        <text fill="#F59E0B" font-size="9" font-weight="bold" letter-spacing="1.2">
+                                            <textPath href="#circlePath">• LIMITED ADMISSION SEASON SPECIAL •</textPath>
+                                        </text>
+                                    </svg>
+                                </div>
+                                <!-- Inner Content -->
+                                <div class="relative z-10 flex flex-col items-center justify-center leading-none mt-1">
+                                    <span class="text-xl font-black text-white drop-shadow-md">₹19</span>
+                                    <span
+                                        class="text-[10px] text-slate-400 line-through decoration-red-500 decoration-2 font-bold opacity-80 mt-0.5">₹499</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <!-- Part 3: "Suits" Answer -->
-                    <div class="text-center md:text-left">
+                    <div class="text-center md:text-left relative group">
+
                         <p class="text-xl md:text-4xl font-bold text-slate-200 whitespace-nowrap">
                             What <span class="font-black text-[#10B981] tracking-wide"
                                 style="font-family: 'Montserrat', sans-serif;">SUITS</span> your
@@ -3212,19 +3254,52 @@
                 <!-- 3. Headline (Animation + Refined Text) -->
                 <!-- 3. Headline (STOP/Worrying + Subtext) -->
                 <div
-                    class="flex flex-col items-center justify-center gap-2 min-h-[60px] text-center px-4 max-w-5xl mx-auto mt-1">
-                    <!-- New Headline (Replaces STOP/Worrying) -->
-                    <div
-                        style="margin-bottom: 0.25rem; font-size: clamp(18px, 5vw, 28px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; width: 100%;">
-                        <span class="text-slate-400">From Enquiring </span>
-                        <span class="arrow-pulse text-[#FF6B35] font-black text-2xl md:text-3xl relative top-[2px]"
-                            style="display: inline-block;">→</span>
-                        <span class="text-[#FF6B35] font-extrabold"> Knowing</span>
+                    class="flex flex-col items-center justify-center gap-1 min-h-[40px] text-center px-4 max-w-5xl mx-auto mt-1">
+                    <div class="relative inline-block">
+
+
+                        <!-- New Headline (Replaces STOP/Worrying) -->
+                        <div
+                            style="margin-bottom: 0.25rem; font-size: clamp(18px, 5vw, 28px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center;">
+
+                            <!-- GOLD CIRCLE SEAL STICKER -->
+                            <div class="absolute -right-4 -top-12 md:-left-32 md:-top-8 z-50 transform rotate-12 md:-rotate-12 hover:rotate-0 transition-transform duration-300 cursor-pointer group hidden md:block"
+                                onclick="safeInitializeQuiz(0);">
+                                <div
+                                    class="relative w-20 h-20 md:w-24 md:h-24 bg-[#0F172A] rounded-full border-2 border-[#F59E0B] shadow-[0_0_15px_rgba(245,158,11,0.4)] flex items-center justify-center overflow-hidden scale-90 md:scale-100">
+                                    <!-- Rotating Text Ring -->
+                                    <div class="absolute inset-0 animate-spin-slow-linear w-full h-full">
+                                        <svg viewBox="0 0 100 100" class="w-full h-full">
+                                            <defs>
+                                                <path id="circlePath"
+                                                    d="M 50, 50 m -35, 0 a 35,35 0 1,1 70,0 a 35,35 0 1,1 -70,0" />
+                                            </defs>
+                                            <text fill="#F59E0B" font-size="9" font-weight="bold" letter-spacing="1.2">
+                                                <textPath href="#circlePath">• LIMITED ADMISSION SEASON SPECIAL •
+                                                </textPath>
+                                            </text>
+                                        </svg>
+                                    </div>
+                                    <!-- Inner Content -->
+                                    <div
+                                        class="relative z-10 flex flex-col items-center justify-center leading-none mt-1">
+                                        <span
+                                            class="text-xl md:text-2xl font-black text-white drop-shadow-md">₹19</span>
+                                        <span
+                                            class="text-[10px] md:text-xs text-slate-400 line-through decoration-red-500 decoration-2 font-bold opacity-80 mt-0.5">₹499</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="text-slate-400">From Enquiring </span>
+                            <span class="arrow-pulse text-[#FF6B35] font-black text-2xl md:text-3xl relative top-[2px]"
+                                style="display: inline-block;">→</span>
+                            <span class="text-[#FF6B35] font-extrabold"> Knowing</span>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Board Selection Grid (Synced with React) -->
-                <div class="mb-4 mt-4 text-center w-full max-w-lg mx-auto px-4">
+                <div class="mb-2 mt-2 text-center w-full max-w-lg mx-auto px-4">
                     <!-- Status Indicator Tag (Synced) -->
                     <div
                         class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/30 mb-4">
@@ -3325,17 +3400,18 @@
                 <div class="relative mt-4 z-[40] flex flex-col gap-4 items-center w-full max-w-2xl px-4">
                     <div class="relative group w-full md:w-auto">
                         <div
-                            class="inline-flex flex-col md:flex-row items-center justify-center bg-[#FF6B35] border-2 border-orange-600 rounded-full px-6 py-4 shadow-xl hover:shadow-2xl transition-all gap-3 md:gap-0 w-full">
-                            <span class="text-white font-black text-lg whitespace-nowrap">Begin</span>
+                            class="inline-flex flex-col md:flex-row items-center justify-center bg-[#FF6B35] border-2 border-orange-600 rounded-3xl md:rounded-full px-6 py-4 shadow-xl hover:shadow-2xl transition-all gap-3 md:gap-0 w-full">
+                            <span class="text-white font-black text-lg whitespace-nowrap">Start</span>
 
-                            <div class="relative mx-2 w-full md:w-auto">
+                            <div class="relative mx-2 w-full md:w-auto flex justify-center">
                                 <input type="text" id="heroChildNameMain" placeholder="Child's Name"
                                     class="bg-transparent border-dots-pulse-white text-white font-black text-center w-32 md:w-40 py-1 focus:outline-none placeholder-white/60 transition-colors"
                                     onkeydown="if(event.key==='Enter'){ safeStartQuizWithName(this.value); }" />
                             </div>
 
-                            <span class="text-white font-black text-lg whitespace-nowrap">'s Learning DNA
-                                Calibration</span>
+                            <span class="text-white font-black text-lg whitespace-nowrap text-center mt-2 md:mt-0">’s
+                                learning
+                                Mapping</span>
 
                             <button onclick="safeStartQuizWithName(document.getElementById('heroChildNameMain').value);"
                                 class="mt-3 md:mt-0 md:ml-4 bg-white text-[#FF6B35] rounded-full p-3 hover:scale-110 active:scale-90 transition-transform shadow-lg">
@@ -3424,7 +3500,7 @@
                             class="inline-flex flex-col md:flex-row items-center justify-center bg-slate-800 border border-slate-600 rounded-2xl md:rounded-full px-6 py-4 shadow-lg hover:border-[#FF6B35] transition-all gap-3 md:gap-0">
                             <span class="text-white font-bold text-sm whitespace-nowrap">Start</span>
 
-                            <div class="relative mx-2 w-full md:w-auto">
+                            <div class="relative mx-2 w-full md:w-auto flex justify-center">
                                 <input type="text" id="heroChildName2" placeholder="Child's Name"
                                     class="bg-transparent border-dots-pulse text-[#FF6B35] font-bold text-center w-32 md:w-40 py-1 focus:outline-none placeholder-slate-600 transition-colors"
                                     onkeydown="if(event.key==='Enter'){ const val=this.value; safeStartQuizWithName(val); }" />
@@ -3433,8 +3509,7 @@
                                 </div>
                             </div>
 
-                            <span class="text-white font-bold text-sm whitespace-nowrap">’s learning Mapping for
-                                FREE</span>
+                            <span class="text-white font-bold text-sm whitespace-nowrap">’s learning Mapping</span>
 
                             <button onclick="safeStartQuizWithName(document.getElementById('heroChildName2').value);"
                                 class="mt-3 md:mt-0 md:ml-4 bg-[#FF6B35] text-white rounded-full p-2 hover:scale-110 active:scale-90 transition-transform shadow-lg">
@@ -3467,7 +3542,7 @@
 
                 <!-- New Button Location (After Phase 0) -->
                 <div
-                    class="flex flex-col md:flex-row gap-4 justify-center items-center mt-8 w-full max-w-4xl px-4 animate-fade-in-up">
+                    class="flex flex-col md:flex-row gap-4 justify-center items-center mt-4 w-full max-w-4xl px-4 animate-fade-in-up">
                     <!-- 1. Calculator -->
                     <button onclick="safeExecute(() => handleCostCalculatorClick())"
                         class="group px-6 py-3 rounded-xl font-bold text-slate-100 border border-slate-500 bg-slate-800/60 hover:border-[#FF6B35] hover:text-white hover:bg-slate-800/80 transition-all text-sm flex items-center gap-2 shadow-lg backdrop-blur-sm">
@@ -4507,9 +4582,14 @@
 
 
 
-    <script defer src="script.js"></script>
+    <!-- PDF Generation Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-    <script defer src="hero-bundle.js"></script>
+    <script defer src="script.js?v=2"></script>
+    <script defer src="js/report-engine.js?v=2"></script>
+
+    <script defer src="hero-bundle.js?v=2"></script>
 
     <!-- MOMENTUM TRIGGER MODAL (Navy Premium) -->
     <div id="momentumModal" class="momentum-overlay hidden">

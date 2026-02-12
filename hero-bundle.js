@@ -34,7 +34,7 @@
                 stat: '42% of CBSE parents report "High Academic Stress" by Grade 6.'
             },
             'IB': {
-                name: 'IB - International Baccalaureate',
+                name: 'IB',
                 tagline: 'The "Global DNA"',
                 cognitiveAlignment: 88,
                 methodology: 'Inquiry-based learning. It doesn\'t teach "What" to think, but "How" to think. Focus on research and holistic development.',
@@ -129,6 +129,14 @@
             }
         };
 
+        // EXPOSE TRIGGER START GLOBALLY
+        useEffect(() => {
+            window.triggerStart = triggerStart;
+            return () => {
+                // Optional: delete window.triggerStart; 
+            };
+        }, []);
+
         // Momentum Feature 1: Phase 0 Preview Logic
         const handlePhase0OptionClick = (optionIndex) => {
             window.answers = window.answers || {};
@@ -181,11 +189,9 @@
             );
         };
 
-        // Narrative Intro Header (Persistent Horizontal)
-        // Narrative Intro Header (Persistent Horizontal)
         const renderNarrativeHeader = () => {
-            return h('div', { className: "mt-8 w-full flex flex-col items-center justify-center z-40 min-h-[80px]" },
-                h('div', { className: "flex flex-col md:flex-row items-center gap-4 md:gap-8" },
+            return h('div', { className: "mt-8 w-full flex flex-col items-center justify-center z-40 min-h-[80px] relative" },
+                h('div', { className: "flex flex-col md:flex-row items-center gap-12 md:gap-8" },
 
                     // Part 1: "Best" Question (Static)
                     h('div', {
@@ -198,17 +204,44 @@
                         )
                     ),
 
-                    // Part 2: "Vs" Bounce (Static Container, Animated Inner)
+                    // Part 2: "Vs" Bounce (with Sticker Attached)
                     h('div', {
                         className: "relative cursor-pointer",
                         onClick: () => triggerStart(0)
                     },
+
+
                         h('div', { className: "w-12 h-12 md:w-16 md:h-16 bg-[#FF6B35] rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(255,107,53,0.6)] animate-bounce hover:scale-110 transition-transform" },
                             h('span', { className: "text-white font-black text-lg md:text-xl italic" }, "Vs")
+                        ),
+
+                        // MOBILE STICKER (Attached to Vs)
+                        h('div', {
+                            className: "absolute -right-24 -top-4 z-50 transform rotate-12 block md:hidden",
+                            onClick: (e) => { e.stopPropagation(); triggerStart(0); }
+                        },
+                            h('div', { className: "relative w-20 h-20 bg-[#0F172A] rounded-full border-2 border-[#F59E0B] shadow-[0_0_15px_rgba(245,158,11,0.4)] flex items-center justify-center overflow-hidden scale-90" },
+                                // Rotating Text Ring
+                                h('div', { className: "absolute inset-0 animate-spin-slow-linear w-full h-full" },
+                                    h('svg', { viewBox: "0 0 100 100", className: "w-full h-full" },
+                                        h('defs', {},
+                                            h('path', { id: "circlePath", d: "M 50, 50 m -35, 0 a 35,35 0 1,1 70,0 a 35,35 0 1,1 -70,0" })
+                                        ),
+                                        h('text', { fill: "#F59E0B", fontSize: "9", fontWeight: "bold", letterSpacing: "1.2" },
+                                            h('textPath', { href: "#circlePath" }, "• LIMITED ADMISSION SEASON SPECIAL •")
+                                        )
+                                    )
+                                ),
+                                // Inner Content
+                                h('div', { className: "relative z-10 flex flex-col items-center justify-center leading-none mt-1" },
+                                    h('span', { className: "text-xl font-black text-white drop-shadow-md" }, "₹19"),
+                                    h('span', { className: "text-[10px] text-slate-400 line-through decoration-red-500 decoration-2 font-bold opacity-80 mt-0.5" }, "₹499")
+                                )
+                            )
                         )
                     ),
 
-
+                    // Part 3: "Suits" Question
                     h('div', {
                         className: "text-center md:text-left"
                     },
@@ -234,7 +267,32 @@
             const currentSlide = slides[index];
             return h('div', { className: "flex flex-col items-center justify-center gap-2 min-h-[60px] text-center px-4 max-w-5xl mx-auto mt-1" },
                 // New Headline (Replaces STOP/Worrying)
-                h('div', { style: { marginBottom: '0.25rem', fontSize: 'clamp(18px, 5vw, 28px)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: 'center', width: '100%' } },
+                h('div', { style: { position: 'relative', display: 'inline-block', marginBottom: '0.25rem', fontSize: 'clamp(18px, 5vw, 28px)', whiteSpace: 'nowrap', overflow: 'visible', textOverflow: 'clip', textAlign: 'center' } },
+
+                    // DESKTOP STICKER (Attached to Headline, Hidden on Mobile)
+                    h('div', {
+                        className: "absolute -right-4 -top-12 md:-left-32 md:-top-8 z-50 transform rotate-12 md:-rotate-12 hover:rotate-0 transition-transform duration-300 cursor-pointer group hidden md:block",
+                        onClick: () => triggerStart(0)
+                    },
+                        h('div', { className: "relative w-20 h-20 md:w-24 md:h-24 bg-[#0F172A] rounded-full border-2 border-[#F59E0B] shadow-[0_0_15px_rgba(245,158,11,0.4)] flex items-center justify-center overflow-hidden scale-90 md:scale-100" },
+                            // Rotating Text Ring
+                            h('div', { className: "absolute inset-0 animate-spin-slow-linear w-full h-full" },
+                                h('svg', { viewBox: "0 0 100 100", className: "w-full h-full" },
+                                    h('defs', {},
+                                        h('path', { id: "circlePath", d: "M 50, 50 m -35, 0 a 35,35 0 1,1 70,0 a 35,35 0 1,1 -70,0" })
+                                    ),
+                                    h('text', { fill: "#F59E0B", fontSize: "9", fontWeight: "bold", letterSpacing: "1.2" },
+                                        h('textPath', { href: "#circlePath" }, "• LIMITED ADMISSION SEASON SPECIAL •")
+                                    )
+                                )
+                            ),
+                            // Inner Content
+                            h('div', { className: "relative z-10 flex flex-col items-center justify-center leading-none mt-1" },
+                                h('span', { className: "text-xl md:text-2xl font-black text-white drop-shadow-md" }, "₹19"),
+                                h('span', { className: "text-[10px] md:text-xs text-slate-400 line-through decoration-red-500 decoration-2 font-bold opacity-80 mt-0.5" }, "₹499")
+                            )
+                        )
+                    ),
                     h('span', { className: "text-slate-400" }, "From Enquiring "),
                     // Animated Arrow (Replaces "to")
                     h('span', {
@@ -336,10 +394,10 @@
         const renderCTA = () => {
             return h('div', { className: "relative mt-4 z-[40] flex flex-col gap-4 items-center w-full max-w-2xl px-4" },
                 h('div', { className: "relative group w-full md:w-auto" },
-                    h('div', { className: "inline-flex flex-col md:flex-row items-center justify-center bg-[#FF6B35] border-2 border-orange-600 rounded-full px-6 py-4 shadow-xl hover:shadow-2xl transition-all gap-3 md:gap-0 w-full" },
-                        h('span', { className: "text-white font-black text-lg whitespace-nowrap" }, "Begin"),
+                    h('div', { className: "inline-flex flex-col md:flex-row items-center justify-center bg-[#FF6B35] border-2 border-orange-600 rounded-3xl md:rounded-full px-4 py-3 md:px-6 md:py-4 shadow-xl hover:shadow-2xl transition-all gap-1 md:gap-0 w-full" },
+                        h('span', { className: "text-white font-black text-lg whitespace-nowrap" }, "Start"),
 
-                        h('div', { className: "relative mx-2 w-full md:w-auto" },
+                        h('div', { className: "relative mx-2 w-full md:w-auto flex justify-center" },
                             h('input', {
                                 type: "text",
                                 id: "heroChildNameMain",
@@ -355,7 +413,7 @@
                             })
                         ),
 
-                        h('span', { className: "text-white font-black text-lg whitespace-nowrap" }, "'s Learning DNA Calibration"),
+                        h('span', { className: "text-white font-black text-lg whitespace-nowrap text-center mt-2 md:mt-0" }, "’s learning Mapping"),
 
                         h('button', {
                             onClick: () => {
@@ -450,7 +508,7 @@
                             })
                         ),
 
-                        h('span', { className: "text-white font-bold text-sm whitespace-nowrap" }, "’s learning Mapping for FREE"),
+                        h('span', { className: "text-white font-bold text-sm whitespace-nowrap" }, "’s learning Mapping"),
 
                         h('button', {
                             onClick: () => {
@@ -588,12 +646,38 @@
                                 h('span', { className: "text-xl" }, "📄"),
                                 " View Sample Report"
                             ),
-                            h('button', {
-                                onClick: () => { setSelectedBoard(null); triggerStart(0); },
-                                className: "w-full py-4 px-6 rounded-xl bg-[#FF6B35] text-white font-black text-sm md:text-lg hover:bg-orange-600 transition-all shadow-[0_0_20px_rgba(255,107,53,0.4)] flex items-center justify-center gap-2"
-                            },
-                                "See how my child's Learning Style fits into the " + BOARD_DATA[selectedBoard].name,
-                                h('span', { className: "animate-pulse" }, "→")
+                            h('div', { className: "w-full flex flex-col md:flex-row items-center justify-center bg-[#FF6B35] rounded-xl p-3 shadow-[0_0_20px_rgba(255,107,53,0.4)] gap-2 md:gap-3 transition-all hover:shadow-[0_0_30px_rgba(255,107,53,0.6)]" },
+                                h('span', { className: "text-white font-bold text-sm md:text-lg whitespace-nowrap" }, "See how"),
+                                h('input', {
+                                    type: "text",
+                                    id: "heroChildNameModal",
+                                    placeholder: "Child's Name",
+                                    className: "bg-transparent border-b-2 border-white/50 focus:border-white text-white font-bold text-center w-32 md:w-auto py-1 focus:outline-none placeholder-white/70 transition-colors text-lg",
+                                    onKeyDown: (e) => {
+                                        if (e.key === 'Enter') {
+                                            const val = e.target.value;
+                                            setSelectedBoard(null);
+                                            if (window.startQuizWithName) window.startQuizWithName(val);
+                                            else triggerStart(0);
+                                        }
+                                    },
+                                    onClick: (e) => e.stopPropagation()
+                                }),
+                                h('span', { className: "text-white font-bold text-sm md:text-lg whitespace-nowrap" }, 'fits into ' + BOARD_DATA[selectedBoard].name),
+                                h('button', {
+                                    onClick: (e) => {
+                                        e.stopPropagation();
+                                        const val = document.getElementById('heroChildNameModal').value;
+                                        setSelectedBoard(null);
+                                        if (window.startQuizWithName) window.startQuizWithName(val);
+                                        else triggerStart(0);
+                                    },
+                                    className: "bg-white text-[#FF6B35] rounded-full p-2 hover:scale-110 active:scale-90 transition-transform shadow-lg ml-0 md:ml-1"
+                                },
+                                    h('svg', { className: "w-6 h-6", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24" },
+                                        h('path', { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: "2", d: "M14 5l7 7m0 0l-7 7m7-7H3" })
+                                    )
+                                )
                             )
                         )
                     )
@@ -604,32 +688,8 @@
         // 12. Render Board Grid (Refactored)
         const renderBoardGrid = () => {
             return h('div', { className: "mb-4 mt-4 text-center w-full max-w-lg mx-auto px-4 relative" },
-                // ADMISSION SPECIAL STICKER
-                h('div', {
-                    className: "absolute -right-6 -top-10 md:-right-16 md:-top-12 z-20 transform rotate-12 hover:rotate-0 transition-transform duration-300 cursor-pointer group",
-                    onClick: () => triggerStart(0)
-                },
-                    h('div', { className: "relative w-24 h-24 md:w-28 md:h-28 bg-[#0F172A] rounded-full border-2 border-[#F59E0B] shadow-[0_0_15px_rgba(245,158,11,0.4)] flex items-center justify-center overflow-hidden" },
-                        // Rotating Text Ring
-                        h('div', { className: "absolute inset-0 animate-spin-slow-linear w-full h-full" },
-                            h('svg', { viewBox: "0 0 100 100", className: "w-full h-full" },
-                                h('defs', {},
-                                    h('path', { id: "circlePath", d: "M 50, 50 m -35, 0 a 35,35 0 1,1 70,0 a 35,35 0 1,1 -70,0" })
-                                ),
-                                h('text', { fill: "#F59E0B", fontSize: "8.5", fontWeight: "bold", letterSpacing: "1.2" },
-                                    h('textPath', { href: "#circlePath" },
-                                        "• ADMISSION SPECIAL • PURE SCIENCE"
-                                    )
-                                )
-                            )
-                        ),
-                        // Inner Content
-                        h('div', { className: "relative z-10 flex flex-col items-center justify-center leading-none mt-1" },
-                            h('span', { className: "text-[10px] md:text-xs text-slate-400 line-through decoration-red-500 decoration-2 font-bold opacity-80" }, "₹499"),
-                            h('span', { className: "text-xl md:text-2xl font-black text-white drop-shadow-md" }, "₹19")
-                        )
-                    )
-                ),
+                // ADMISSION SPECIAL STICKER (MOVED TO HEADER)
+                // REMOVED FROM HERE
 
                 // Status Indicator Tag
                 h('div', { className: "inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/30 mb-4" },
@@ -673,7 +733,7 @@
         };
 
         return h(Fragment, {},
-            h('section', { className: "relative pt-14 pb-12 px-4 overflow-hidden bg-[#0F172A] min-h-[95dvh] flex flex-col items-center" },
+            h('section', { className: "relative pt-14 pb-12 px-4 bg-[#0F172A] min-h-[95dvh] flex flex-col items-center" },
                 renderTopLeftLogo(),
                 renderTopRightSocialProof(),
                 renderNarrativeHeader(),
@@ -734,11 +794,9 @@
     document.addEventListener('DOMContentLoaded', () => {
         const container = document.getElementById('react-hero-root');
         if (container) {
-            // OPTIMIZATION: Use hydrateRoot for LCP preservation
-            // If hydration matches static HTML, this eliminates the white flash
-            const root = ReactDOM.hydrateRoot(container, h(Hero));
-            // root.render is not needed with hydrateRoot, it returns the root for updates if needed
-            // But for initial hydration: ReactDOM.hydrateRoot(domNode, reactNode)
+            // FIX: Use createRoot to avoid hydration mismatches (#418, #423)
+            const root = ReactDOM.createRoot(container);
+            root.render(h(Hero));
         }
     });
 
