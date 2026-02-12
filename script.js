@@ -4600,6 +4600,13 @@ function showDnaFinalization() {
     const app = document.getElementById('questionPageApp');
     if (app) app.classList.remove('active');
 
+    // FIX: Ensure Misalignment Alert (Risk Card) is hidden
+    const riskCard = document.getElementById('dynamicRiskCard');
+    if (riskCard) {
+        riskCard.style.display = 'none';
+        riskCard.classList.remove('active');
+    }
+
     // Create container if not exists
     let container = document.getElementById('dnaFinalization');
     if (!container) {
@@ -4694,7 +4701,7 @@ function showDnaFinalization() {
         cycles++;
     }, 400);
 
-    // 2. Completion & Success Message (at 4.5s)
+    // 2. Completion & Success Message (at 3.0s)
     setTimeout(() => {
         clearInterval(interval);
 
@@ -4720,12 +4727,12 @@ function showDnaFinalization() {
             statusBlock.innerHTML += `<div class="mt-2 text-xs text-slate-400">Redirecting to unlocked insights...</div>`;
         }
 
-    }, 4500);
+    }, 3000);
 
     // 3. New Redirect Step: Forensic Discovery Screen
     setTimeout(() => {
         showForensicDiscovery();
-    }, 6500);
+    }, 3000);
 }
 
 function showForensicDiscovery() {
@@ -5087,10 +5094,7 @@ window.safeInitializeQuiz = function (index) {
     }
 };
 
-window.showDeepDive = function (section) {
-    // Fallback or implementation of Deep Dive modal
-    alert("Full Deep Dive Report features are available in the Pro Plan.");
-};
+
 
 // Ensure calculateNewConfusion runs on load if elements exist
 document.addEventListener('DOMContentLoaded', () => {

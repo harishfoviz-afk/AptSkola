@@ -191,7 +191,7 @@
 
         const renderNarrativeHeader = () => {
             return h('div', { className: "mt-8 w-full flex flex-col items-center justify-center z-40 min-h-[80px] relative" },
-                h('div', { className: "flex flex-col md:flex-row items-center gap-12 md:gap-8" },
+                h('div', { className: "flex flex-col md:flex-row items-center gap-2 md:gap-8" },
 
                     // Part 1: "Best" Question (Static)
                     h('div', {
@@ -217,7 +217,7 @@
 
                         // MOBILE STICKER (Attached to Vs)
                         h('div', {
-                            className: "absolute -right-24 -top-4 z-50 transform rotate-12 block md:hidden",
+                            className: "absolute -right-48 -top-4 z-50 transform rotate-12 block md:hidden",
                             onClick: (e) => { e.stopPropagation(); triggerStart(0); }
                         },
                             h('div', { className: "relative w-20 h-20 bg-[#0F172A] rounded-full border-2 border-[#F59E0B] shadow-[0_0_15px_rgba(245,158,11,0.4)] flex items-center justify-center overflow-hidden scale-90" },
@@ -301,7 +301,7 @@
                     }, "→"),
                     h('span', { className: "text-[#FF6B35] font-extrabold" }, " Knowing")
                 ),
-                h('div', { className: "text-center px-4 max-w-5xl mx-auto mt-6" },
+                h('div', { className: "text-center px-4 max-w-5xl mx-auto mt-2" },
                     /* SEARCHING FIRST */
                     /* Subtext Removed */
                 )
@@ -320,56 +320,59 @@
 
         // 4.5 Feature Block
         const renderFeatures = () => {
-            return h('div', { className: "grid grid-cols-3 gap-2 md:gap-8 text-center relative max-w-6xl mx-auto mt-0 md:mt-4 mb-4 px-2" },
+            return h('div', { className: "w-full max-w-6xl mx-auto mt-2 px-4" },
+                h('h3', { className: "text-white text-center font-bold text-xs uppercase tracking-[3px] mb-6 opacity-80" }, "How it works"),
+                h('div', { className: "grid grid-cols-3 gap-3 md:gap-6 text-center relative" },
 
-                // 1. Clinical Input
-                h('div', {
-                    className: "p-2 md:p-6 rounded-2xl bg-white shadow-xl border border-slate-100 transform hover:-translate-y-1 transition-transform duration-300 cursor-pointer",
-                    onClick: () => window.showDeepDive && window.showDeepDive('input')
-                },
-                    h('h4', { className: "text-[#FF6B35] font-bold text-[10px] uppercase tracking-[2px] font-['Montserrat'] mb-2 flex items-center justify-center gap-1" },
-                        "THE INPUT"
+                    // 1. Clinical Input
+                    h('div', {
+                        className: "p-3 md:p-6 rounded-2xl bg-white shadow-xl border border-slate-100 transform hover:-translate-y-1 transition-transform duration-300 cursor-pointer flex flex-col items-center justify-center min-h-[140px] md:min-h-[180px]",
+                        onClick: () => window.showDeepDive && window.showDeepDive('input')
+                    },
+                        h('h4', { className: "text-[#FF6B35] font-bold text-[9px] md:text-[10px] uppercase tracking-[1.5px] font-['Montserrat'] mb-2 md:mb-3" },
+                            "THE INPUT"
+                        ),
+                        h('div', { className: "mb-2 md:mb-4 flex justify-center" },
+                            h('div', { className: "text-3xl md:text-5xl filter drop-shadow-md animate-pulse-slow" }, "🧠")
+                        ),
+                        h('h3', { className: "text-[10px] md:text-lg font-black text-slate-900 mb-1 leading-tight" }, "Clinical Input"),
+                        h('p', { className: "hidden md:block text-slate-500 text-[10px] md:text-xs leading-relaxed px-2" }, "15 psychometric parameters to map your child's naturally dominant learning DNA.")
                     ),
-                    h('div', { className: "mb-4 flex justify-center" },
-                        h('div', { className: "text-5xl filter drop-shadow-md animate-pulse-slow" }, "🧠")
-                    ),
-                    h('h3', { className: "text-xs md:text-xl font-black text-slate-900 mb-1 md:mb-2" }, "Clinical Input"),
-                    h('p', { className: "hidden md:block text-slate-600 text-xs md:text-sm leading-relaxed" }, "15 psychometric parameters to map your child's naturally dominant learning DNA.")
-                ),
 
-                // 2. Neural Calibration
-                h('div', {
-                    className: "p-2 md:p-6 rounded-2xl bg-white shadow-xl border border-slate-100 transform hover:-translate-y-1 transition-transform duration-300 cursor-pointer",
-                    onClick: () => window.showDeepDive && window.showDeepDive('process')
-                },
-                    h('h4', { className: "text-[#FF6B35] font-bold text-[10px] uppercase tracking-[2px] font-['Montserrat'] mb-2 flex items-center justify-center gap-1" },
-                        "PROCESS"
+                    // 2. Neural Calibration
+                    h('div', {
+                        className: "p-3 md:p-6 rounded-2xl bg-white shadow-xl border border-slate-100 transform hover:-translate-y-1 transition-transform duration-300 cursor-pointer flex flex-col items-center justify-center min-h-[140px] md:min-h-[180px]",
+                        onClick: () => window.showDeepDive && window.showDeepDive('process')
+                    },
+                        h('h4', { className: "text-[#FF6B35] font-bold text-[9px] md:text-[10px] uppercase tracking-[1.5px] font-['Montserrat'] mb-2 md:mb-3" },
+                            "PROCESS"
+                        ),
+                        h('div', { className: "mb-2 md:mb-4 flex justify-center" },
+                            h('svg', { className: "w-8 h-8 md:w-12 md:h-12 text-slate-800 animate-spin-slow", fill: "none", stroke: "currentColor", strokeWidth: "2", viewBox: "0 0 24 24" },
+                                h('circle', { cx: "12", cy: "12", r: "3" }),
+                                h('path', { d: "M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" })
+                            )
+                        ),
+                        h('h3', { className: "text-[10px] md:text-lg font-black text-slate-900 mb-1 leading-tight" }, "Neural Link"),
+                        h('p', { className: "hidden md:block text-slate-500 text-[10px] md:text-xs leading-relaxed px-2" }, "Forensic analysis of your child's traits vs. rigid NEP, CBSE, ICSE, and IB frameworks.")
                     ),
-                    h('div', { className: "mb-4 flex justify-center" },
-                        h('svg', { className: "w-14 h-14 text-slate-800 animate-spin-slow", fill: "none", stroke: "currentColor", strokeWidth: "2", viewBox: "0 0 24 24" },
-                            h('circle', { cx: "12", cy: "12", r: "3" }),
-                            h('path', { d: "M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" })
-                        )
-                    ),
-                    h('h3', { className: "text-xs md:text-xl font-black text-slate-900 mb-1 md:mb-2" }, "Neural Link"),
-                    h('p', { className: "hidden md:block text-slate-600 text-xs md:text-sm leading-relaxed" }, "Forensic analysis of your child's traits vs. rigid NEP, CBSE, ICSE, and IB frameworks.")
-                ),
 
-                // 3. Actionable Roadmap
-                h('div', {
-                    className: "p-2 md:p-6 rounded-2xl bg-white shadow-xl border border-slate-100 transform hover:-translate-y-1 transition-transform duration-300 cursor-pointer",
-                    onClick: () => window.showDeepDive && window.showDeepDive('output')
-                },
-                    h('h4', { className: "text-[#FF6B35] font-bold text-[10px] uppercase tracking-[2px] font-['Montserrat'] mb-2 flex items-center justify-center gap-1" },
-                        "THE OUTPUT"
-                    ),
-                    h('div', { className: "mb-4 flex justify-center" },
-                        h('svg', { className: "w-14 h-14 text-[#F59E0B] animate-folder-float", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24" },
-                            h('path', { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: "1.5", d: "M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z" })
-                        )
-                    ),
-                    h('h3', { className: "text-xs md:text-xl font-black text-slate-900 mb-1 md:mb-2" }, "Roadmap"),
-                    h('p', { className: "hidden md:block text-slate-600 text-xs md:text-sm leading-relaxed" }, "A Forensic Audit & Alignment Report delivered instantly to your inbox.")
+                    // 3. Actionable Roadmap
+                    h('div', {
+                        className: "p-3 md:p-6 rounded-2xl bg-white shadow-xl border border-slate-100 transform hover:-translate-y-1 transition-transform duration-300 cursor-pointer flex flex-col items-center justify-center min-h-[140px] md:min-h-[180px]",
+                        onClick: () => window.showDeepDive && window.showDeepDive('output')
+                    },
+                        h('h4', { className: "text-[#FF6B35] font-bold text-[9px] md:text-[10px] uppercase tracking-[1.5px] font-['Montserrat'] mb-2 md:mb-3" },
+                            "THE OUTPUT"
+                        ),
+                        h('div', { className: "mb-2 md:mb-4 flex justify-center" },
+                            h('svg', { className: "w-8 h-8 md:w-12 md:h-12 text-[#F59E0B] animate-folder-float", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24" },
+                                h('path', { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: "1.5", d: "M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z" })
+                            )
+                        ),
+                        h('h3', { className: "text-[10px] md:text-lg font-black text-slate-900 mb-1 leading-tight" }, "Roadmap"),
+                        h('p', { className: "hidden md:block text-slate-500 text-[10px] md:text-xs leading-relaxed px-2" }, "A Forensic Audit & Alignment Report delivered instantly to your inbox.")
+                    )
                 )
             );
         };
@@ -687,15 +690,11 @@
 
         // 12. Render Board Grid (Refactored)
         const renderBoardGrid = () => {
-            return h('div', { className: "mb-4 mt-4 text-center w-full max-w-lg mx-auto px-4 relative" },
+            return h('div', { className: "mb-4 mt-1 text-center w-full max-w-lg mx-auto px-4 relative" },
                 // ADMISSION SPECIAL STICKER (MOVED TO HEADER)
                 // REMOVED FROM HERE
 
-                // Status Indicator Tag
-                h('div', { className: "inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/30 mb-4" },
-                    h('div', { className: "w-2 h-2 rounded-full bg-emerald-500 animate-pulse" }),
-                    h('span', { className: "text-emerald-400 font-bold text-[10px] uppercase tracking-widest" }, "Real-Time Board Volatility Index: Active")
-                ),
+
 
                 // Section Label
                 h('p', {
