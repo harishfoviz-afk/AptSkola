@@ -73,6 +73,7 @@
 
         const [index, setIndex] = useState(0);
         const [selectedBoard, setSelectedBoard] = useState(null); // New State for Modal
+        const [showTooltip, setShowTooltip] = useState(false); // New State for Tooltip
         const currentYear = new Date().getFullYear();
         const targetYear = new Date() < new Date(`${currentYear}-03-31`) ? currentYear : currentYear + 1;
         const [buttonText, setButtonText] = useState(`Start ${targetYear} Grade 1 Admission Decoder Scan`);
@@ -164,9 +165,12 @@
         // 1. Top Left Logo (New)
         const renderTopLeftLogo = () => {
             return h('div', { className: "absolute top-6 left-6 z-[100]" },
-                h('div', {
-                    className: "flex flex-col items-start leading-none opacity-90 hover:opacity-100 transition-opacity cursor-pointer",
-                    onClick: () => window.location.reload()
+                h('button', {
+                    type: 'button',
+                    className: "flex flex-col items-start leading-none opacity-90 hover:opacity-100 transition-opacity cursor-pointer appearance-none bg-transparent border-none text-left p-0",
+                    style: { touchAction: 'manipulation' },
+                    onClick: () => window.location.reload(),
+                    onTouchStart: (e) => { e.preventDefault(); window.location.reload(); }
                 },
                     h('h1', { className: "text-2xl md:text-3xl font-black text-white tracking-tighter" },
                         "Apt ", h('span', { className: "text-[#FF6B35]" }, "Skola")
@@ -205,9 +209,12 @@
                     ),
 
                     // Part 2: "Vs" Bounce (with Sticker Attached)
-                    h('div', {
-                        className: "relative cursor-pointer",
-                        onClick: () => triggerStart(0)
+                    h('button', {
+                        type: 'button',
+                        className: "relative cursor-pointer appearance-none bg-transparent border-none p-0",
+                        style: { touchAction: 'manipulation' },
+                        onClick: () => triggerStart(0),
+                        onTouchStart: (e) => { e.preventDefault(); triggerStart(0); }
                     },
 
 
@@ -216,11 +223,14 @@
                         ),
 
                         // MOBILE STICKER (Attached to Vs)
-                        h('div', {
-                            className: "absolute -right-48 -top-4 z-50 transform rotate-12 block md:hidden",
-                            onClick: (e) => { e.stopPropagation(); triggerStart(0); }
+                        h('button', {
+                            type: 'button',
+                            className: "absolute -right-48 -top-4 z-50 transform rotate-12 block md:hidden cursor-pointer active:scale-95 transition-transform appearance-none bg-transparent border-none p-0",
+                            style: { touchAction: 'manipulation' },
+                            onClick: (e) => { e.stopPropagation(); triggerStart(0); },
+                            onTouchStart: (e) => { e.stopPropagation(); e.preventDefault(); triggerStart(0); }
                         },
-                            h('div', { className: "relative w-20 h-20 bg-[#0F172A] rounded-full border-2 border-[#F59E0B] shadow-[0_0_15px_rgba(245,158,11,0.4)] flex items-center justify-center overflow-hidden scale-90" },
+                            h('div', { className: "relative w-20 h-20 bg-[#0F172A] rounded-full border-2 border-[#F59E0B] shadow-[0_0_15px_rgba(245,158,11,0.4)] flex items-center justify-center overflow-hidden scale-90 animate-pulse-slow" },
                                 // Rotating Text Ring
                                 h('div', { className: "absolute inset-0 animate-spin-slow-linear w-full h-full" },
                                     h('svg', { viewBox: "0 0 100 100", className: "w-full h-full" },
@@ -270,11 +280,14 @@
                 h('div', { style: { position: 'relative', display: 'inline-block', marginBottom: '0.25rem', fontSize: 'clamp(18px, 5vw, 28px)', whiteSpace: 'nowrap', overflow: 'visible', textOverflow: 'clip', textAlign: 'center' } },
 
                     // DESKTOP STICKER (Attached to Headline, Hidden on Mobile)
-                    h('div', {
-                        className: "absolute -right-4 -top-12 md:-left-32 md:-top-8 z-50 transform rotate-12 md:-rotate-12 hover:rotate-0 transition-transform duration-300 cursor-pointer group hidden md:block",
-                        onClick: () => triggerStart(0)
+                    h('button', {
+                        type: 'button',
+                        className: "absolute -right-4 -top-12 md:-left-32 md:-top-8 z-50 transform rotate-12 md:-rotate-12 hover:rotate-0 transition-transform duration-300 cursor-pointer group hidden md:block active:scale-95 appearance-none bg-transparent border-none p-0",
+                        style: { touchAction: 'manipulation' },
+                        onClick: () => triggerStart(0),
+                        onTouchStart: (e) => { e.preventDefault(); triggerStart(0); }
                     },
-                        h('div', { className: "relative w-20 h-20 md:w-24 md:h-24 bg-[#0F172A] rounded-full border-2 border-[#F59E0B] shadow-[0_0_15px_rgba(245,158,11,0.4)] flex items-center justify-center overflow-hidden scale-90 md:scale-100" },
+                        h('div', { className: "relative w-20 h-20 md:w-24 md:h-24 bg-[#0F172A] rounded-full border-2 border-[#F59E0B] shadow-[0_0_15px_rgba(245,158,11,0.4)] flex items-center justify-center overflow-hidden scale-90 md:scale-100 animate-pulse-slow" },
                             // Rotating Text Ring
                             h('div', { className: "absolute inset-0 animate-spin-slow-linear w-full h-full" },
                                 h('svg', { viewBox: "0 0 100 100", className: "w-full h-full" },
@@ -327,7 +340,11 @@
                     // 1. Clinical Input
                     h('div', {
                         className: "p-3 md:p-6 rounded-2xl bg-white shadow-xl border border-slate-100 transform hover:-translate-y-1 transition-transform duration-300 cursor-pointer flex flex-col items-center justify-center min-h-[140px] md:min-h-[180px]",
-                        onClick: () => window.showDeepDive && window.showDeepDive('input')
+                        role: "button",
+                        tabIndex: 0,
+                        style: { touchAction: 'manipulation' },
+                        onClick: () => window.launchDeepDive && window.launchDeepDive('input'),
+                        onTouchStart: (e) => { e.preventDefault(); window.launchDeepDive && window.launchDeepDive('input'); }
                     },
                         h('h4', { className: "text-[#FF6B35] font-bold text-[9px] md:text-[10px] uppercase tracking-[1.5px] font-['Montserrat'] mb-2 md:mb-3" },
                             "THE INPUT"
@@ -342,7 +359,11 @@
                     // 2. Neural Calibration
                     h('div', {
                         className: "p-3 md:p-6 rounded-2xl bg-white shadow-xl border border-slate-100 transform hover:-translate-y-1 transition-transform duration-300 cursor-pointer flex flex-col items-center justify-center min-h-[140px] md:min-h-[180px]",
-                        onClick: () => window.showDeepDive && window.showDeepDive('process')
+                        role: "button",
+                        tabIndex: 0,
+                        style: { touchAction: 'manipulation' },
+                        onClick: () => window.launchDeepDive && window.launchDeepDive('process'),
+                        onTouchStart: (e) => { e.preventDefault(); window.launchDeepDive && window.launchDeepDive('process'); }
                     },
                         h('h4', { className: "text-[#FF6B35] font-bold text-[9px] md:text-[10px] uppercase tracking-[1.5px] font-['Montserrat'] mb-2 md:mb-3" },
                             "PROCESS"
@@ -360,7 +381,11 @@
                     // 3. Actionable Roadmap
                     h('div', {
                         className: "p-3 md:p-6 rounded-2xl bg-white shadow-xl border border-slate-100 transform hover:-translate-y-1 transition-transform duration-300 cursor-pointer flex flex-col items-center justify-center min-h-[140px] md:min-h-[180px]",
-                        onClick: () => window.showDeepDive && window.showDeepDive('output')
+                        role: "button",
+                        tabIndex: 0,
+                        style: { touchAction: 'manipulation' },
+                        onClick: () => window.launchDeepDive && window.launchDeepDive('output'),
+                        onTouchStart: (e) => { e.preventDefault(); window.launchDeepDive && window.launchDeepDive('output'); }
                     },
                         h('h4', { className: "text-[#FF6B35] font-bold text-[9px] md:text-[10px] uppercase tracking-[1.5px] font-['Montserrat'] mb-2 md:mb-3" },
                             "THE OUTPUT"
@@ -385,10 +410,10 @@
                     " across India's Top Tier Cities have synced their child's future."
                 ),
                 h('div', { className: "flex items-center gap-6 text-white font-bold text-sm tracking-widest uppercase" },
-                    h('span', { onClick: () => setSelectedBoard('CBSE'), className: "cursor-pointer hover:text-[#FF6B35] transition-colors underline" }, "CBSE"),
-                    h('span', { onClick: () => setSelectedBoard('ICSE'), className: "cursor-pointer hover:text-[#FF6B35] transition-colors underline" }, "ICSE"),
-                    h('span', { onClick: () => setSelectedBoard('IB'), className: "cursor-pointer hover:text-[#FF6B35] transition-colors underline" }, "IB"),
-                    h('span', { onClick: () => setSelectedBoard('IGCSE'), className: "cursor-pointer hover:text-[#FF6B35] transition-colors underline" }, "IGCSE")
+                    h('button', { type: 'button', onClick: () => setSelectedBoard('CBSE'), className: "cursor-pointer hover:text-[#FF6B35] transition-colors underline appearance-none bg-transparent border-none p-0 inline", style: { touchAction: 'manipulation' }, onTouchStart: (e) => { e.preventDefault(); setSelectedBoard('CBSE'); } }, "CBSE"),
+                    h('button', { type: 'button', onClick: () => setSelectedBoard('ICSE'), className: "cursor-pointer hover:text-[#FF6B35] transition-colors underline appearance-none bg-transparent border-none p-0 inline", style: { touchAction: 'manipulation' }, onTouchStart: (e) => { e.preventDefault(); setSelectedBoard('ICSE'); } }, "ICSE"),
+                    h('button', { type: 'button', onClick: () => setSelectedBoard('IB'), className: "cursor-pointer hover:text-[#FF6B35] transition-colors underline appearance-none bg-transparent border-none p-0 inline", style: { touchAction: 'manipulation' }, onTouchStart: (e) => { e.preventDefault(); setSelectedBoard('IB'); } }, "IB"),
+                    h('button', { type: 'button', onClick: () => setSelectedBoard('IGCSE'), className: "cursor-pointer hover:text-[#FF6B35] transition-colors underline appearance-none bg-transparent border-none p-0 inline", style: { touchAction: 'manipulation' }, onTouchStart: (e) => { e.preventDefault(); setSelectedBoard('IGCSE'); } }, "IGCSE")
                 )
             );
         };
@@ -454,7 +479,13 @@
                 // 1. Icons Split
                 h('div', { className: "flex justify-center gap-8 md:gap-16 mb-6" },
                     // Fractal Icon (Big Picture)
-                    h('div', { className: "text-center group cursor-pointer" },
+                    h('button', {
+                        type: 'button',
+                        className: "text-center group cursor-pointer appearance-none bg-transparent border-none p-0",
+                        style: { touchAction: 'manipulation' },
+                        onClick: () => { /* No action defined in original, but keeping structure safe */ },
+                        onTouchStart: (e) => { /* No action */ }
+                    },
                         h('div', { className: "w-12 h-12 md:w-16 md:h-16 mx-auto mb-2 text-[#FF6B35] shadow-[0_0_15px_#FF6B35] rounded-full flex items-center justify-center bg-slate-800 group-hover:bg-[#FF6B35] group-hover:text-white transition-all duration-300" },
                             h('svg', { className: "w-6 h-6 md:w-8 md:h-8", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24" },
                                 h('path', { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: "2", d: "M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" })
@@ -464,7 +495,13 @@
                     ),
 
                     // Ladder Icon (Fine Print)
-                    h('div', { className: "text-center group cursor-pointer" },
+                    h('button', {
+                        type: 'button',
+                        className: "text-center group cursor-pointer appearance-none bg-transparent border-none p-0",
+                        style: { touchAction: 'manipulation' },
+                        onClick: () => { /* No action defined in original, but keeping structure safe */ },
+                        onTouchStart: (e) => { /* No action */ }
+                    },
                         h('div', { className: "w-12 h-12 md:w-16 md:h-16 mx-auto mb-2 text-[#3B82F6] shadow-[0_0_15px_#3B82F6] rounded-full flex items-center justify-center bg-slate-800 group-hover:bg-[#3B82F6] group-hover:text-white transition-all duration-300" },
                             h('svg', { className: "w-6 h-6 md:w-8 md:h-8", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24" },
                                 h('path', { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: "2", d: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" })
@@ -602,11 +639,33 @@
                         // Content Grid
                         h('div', { className: "space-y-6 text-left" },
                             // Cognitive Alignment Badge
-                            h('div', { className: "bg-[#FF6B35]/20 border border-[#FF6B35] rounded-xl p-4 text-center" },
+                            h('div', { className: "bg-[#FF6B35]/20 border border-[#FF6B35] rounded-xl p-4 text-center relative" },
                                 h('p', { className: "text-white font-black text-lg" },
 
-                                    h('span', { className: "text-[#FF6B35]" }, BOARD_DATA[selectedBoard].cognitiveAlignment + "% Cognitive Alignment"),
+                                    h('button', {
+                                        type: 'button',
+                                        className: "text-[#FF6B35] cursor-pointer hover:underline decoration-dotted underline-offset-4 appearance-none bg-transparent border-none p-0 text-left active:scale-95 transition-transform",
+                                        style: { touchAction: 'manipulation' },
+                                        onClick: (e) => { e.stopPropagation(); setShowTooltip(!showTooltip); },
+                                        onTouchStart: (e) => { e.stopPropagation(); e.preventDefault(); setShowTooltip(!showTooltip); }
+                                    },
+                                        BOARD_DATA[selectedBoard].cognitiveAlignment + "% Cognitive Alignment",
+                                        h('span', { className: "ml-2 text-xs align-top border border-[#FF6B35] rounded-full px-1" }, "?")
+                                    ),
                                     " required."
+                                ),
+                                h(AnimatePresence, {},
+                                    showTooltip && h(motion.div, {
+                                        initial: { opacity: 0, y: 10 },
+                                        animate: { opacity: 1, y: 0 },
+                                        exit: { opacity: 0, y: 10 },
+                                        className: "absolute top-full left-1/2 transform -translate-x-1/2 mt-2 w-64 p-3 bg-slate-800 border border-slate-600 rounded-lg shadow-xl z-50"
+                                    },
+                                        h('p', { className: "text-xs text-slate-200 leading-relaxed text-left" },
+                                            "Forensic analysis of your child's traits vs. rigid NEP, CBSE, ICSE, and IB frameworks."
+                                        ),
+                                        h('div', { className: "absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-slate-800 border-t border-l border-slate-600 rotate-45" })
+                                    )
                                 ),
                                 h('p', { className: "text-emerald-400 font-bold text-sm mt-2 animate-pulse" }, "⚡ Check your child's fitment below")
                             ),
@@ -643,7 +702,7 @@
                         // Footer Buttons - REPLACED WITH ONE BUTTON
                         h('div', { className: "mt-8 pt-6 border-t border-slate-700 w-full flex flex-col gap-3" },
                             h('button', {
-                                onClick: () => window.showDeepDive && window.showDeepDive('output'),
+                                onClick: () => window.launchDeepDive && window.launchDeepDive('output'),
                                 className: "w-full py-3 px-6 rounded-xl border-2 border-[#FF6B35] text-[#FF6B35] font-bold text-sm md:text-lg hover:bg-[#FF6B35] hover:text-white transition-all flex items-center justify-center gap-2"
                             },
                                 h('span', { className: "text-xl" }, "📄"),

@@ -21,29 +21,53 @@
             };
         }
 
-        const getAns = (key) => answers && answers[key] ? parseInt(answers[key]) : 1; // Default to 1 (neutral) if missing to avoid 0s
+        const getAns = (key) => answers && answers[key] !== undefined ? parseInt(answers[key]) : -1;
 
-        // Visual Schema
-        scores['Visual'] = getAns('q1') + getAns('q2') + getAns('q3');
+        // Q1: How does child learn best? (Primary Driver)
+        const a1 = getAns('q1');
+        if (a1 === 0) scores['Visual'] += 40;
+        else if (a1 === 1) scores['Auditory'] += 40;
+        else if (a1 === 2) scores['Kinesthetic'] += 40;
+        else if (a1 === 3) { scores['Visual'] += 10; scores['Auditory'] += 10; scores['Kinesthetic'] += 10; scores['Reading/Writing'] += 10; }
 
-        // Auditory Schema
-        scores['Auditory'] = getAns('q4') + getAns('q5') + getAns('q6');
+        // Q2: Subject Enjoyment
+        const a2 = getAns('q2');
+        if (a2 === 0) { scores['Visual'] += 20; scores['Reading/Writing'] += 10; } // Math/Logic
+        else if (a2 === 1) { scores['Auditory'] += 20; scores['Reading/Writing'] += 10; } // English/Stories
+        else if (a2 === 2) { scores['Kinesthetic'] += 20; scores['Visual'] += 10; } // Science/Nature
+        else if (a2 === 3) { scores['Visual'] += 5; scores['Auditory'] += 5; scores['Kinesthetic'] += 5; scores['Reading/Writing'] += 5; }
 
-        // Kinesthetic Schema
-        scores['Kinesthetic'] = getAns('q7') + getAns('q8') + getAns('q9');
+        // Q6: Teaching Style
+        const a6 = getAns('q6');
+        if (a6 === 0) scores['Reading/Writing'] += 25; // Structured/Textbooks
+        else if (a6 === 1) scores['Visual'] += 25; // Inquiry/Research
+        else if (a6 === 2) scores['Kinesthetic'] += 25; // Flexible/Montessori
+        else if (a6 === 3) { scores['Visual'] += 5; scores['Auditory'] += 5; scores['Kinesthetic'] += 5; scores['Reading/Writing'] += 5; }
 
-        // Read/Write Schema
-        scores['Reading/Writing'] = getAns('q10') + getAns('q11') + getAns('q12');
+        // Q7: Study Load / Information Processing
+        const a7 = getAns('q7');
+        if (a7 === 0) scores['Reading/Writing'] += 20; // High Volume/Memorize
+        else if (a7 === 1) { scores['Visual'] += 10; scores['Auditory'] += 10; } // Concept Focus
+        else if (a7 === 2) scores['Kinesthetic'] += 20; // Practical/Doing
 
         // Calculate Total
-        const total = Object.values(scores).reduce((a, b) => a + b, 0) || 1;
+        let total = Object.values(scores).reduce((a, b) => a + b, 0);
+        if (total === 0) {
+            // Fallback if no relevant questions answered
+            scores = { 'Visual': 25, 'Auditory': 25, 'Kinesthetic': 25, 'Reading/Writing': 25 };
+            total = 100;
+        }
 
         // Convert to Percentage
         Object.keys(scores).forEach(k => {
             scores[k] = Math.round((scores[k] / total) * 100);
         });
 
-        // Ensure sum is 100 (handle rounding errors) - simplified for now
+        // Ensure sum is 100 (simple adjustment)
+        const newTotal = Object.values(scores).reduce((a, b) => a + b, 0);
+        if (newTotal !== 100) {
+            scores['Visual'] += (100 - newTotal);
+        }
 
         return { scores, primary: Object.keys(scores).reduce((a, b) => scores[a] > scores[b] ? a : b) };
     };
