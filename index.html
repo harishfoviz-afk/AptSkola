@@ -42,6 +42,9 @@
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Montserrat:wght@700;800;900&display=swap"
         rel="stylesheet">
 
+    <!-- INIT GUARD (Critical for iOS & Interaction Queuing) -->
+    <script src="init-guard.js"></script>
+
     <!-- Microsoft Clarity -->
     <style>
         @keyframes pulse-slow {
@@ -1137,8 +1140,6 @@
         })();
     </script>
 
-    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script defer src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script defer type="text/javascript"
         src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
@@ -4327,8 +4328,6 @@
 
 
     <!-- PDF Generation Libraries -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <script defer src="core-app.js?v=4"></script>
     <script defer src="report-engine.js?v=3"></script>

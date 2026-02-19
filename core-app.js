@@ -3518,7 +3518,54 @@ function endFullSession() {
     goToLandingPage();
 }
 
+// --- LAZY LOADER FOR REPORT LIBRARIES ---
+let reportLibsLoaded = false;
+let reportLibsLoadingPromise = null;
+
+async function loadReportLibs() {
+    if (reportLibsLoaded) return;
+    if (reportLibsLoadingPromise) return reportLibsLoadingPromise;
+
+    console.log("Lazy loading report libraries...");
+
+    // Show a small toast or indicator if needed, or just let the button state handle it.
+
+    reportLibsLoadingPromise = new Promise((resolve, reject) => {
+        const libs = [
+            "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"
+        ];
+
+        let loaded = 0;
+        libs.forEach(src => {
+            const script = document.createElement('script');
+            script.src = src;
+            script.async = true;
+            script.onload = () => {
+                loaded++;
+                if (loaded === libs.length) {
+                    reportLibsLoaded = true;
+                    console.log("Report libraries loaded.");
+                    resolve();
+                }
+            };
+            script.onerror = () => reject(new Error(`Failed to load ${src}`));
+            document.body.appendChild(script);
+        });
+    });
+
+    return reportLibsLoadingPromise;
+}
+
 async function renderReportToBrowser() {
+    // Lazy Load Libs first (as they might be needed for generateForensicBlock if it relies on them, though mostly strictly for PDF)
+    // Actually renderReportToBrowser generates HTML, so it technically doesn't need jspdf yet, 
+    // BUT downloadReport calls this, and then immediately uses jspdf. 
+    // To be safe and ensure consistent state, we can load them here or just let downloadReport handle it.
+    // However, the original code had them loaded. 
+    // Let's NOT force load here to keep "View Report" fast if it's just HTML.
+    // BUT the prompt asked for lazy loading for "html2canvas and jspdf".
+
     console.log("Starting renderReportToBrowser");
     // 1. Try to re-hydrate data from LocalStorage, but fall back to current data
     let sessionAnswers = answers;
@@ -3831,10 +3878,16 @@ async function downloadReport() {
 
     try {
         if (btn) {
-            btn.textContent = "Generating PDF...";
+            btn.textContent = "Loading Libs...";
             btn.disabled = true;
             btn.style.opacity = "0.7";
         }
+
+        // Lazy Load
+        await loadReportLibs();
+        if (btn) btn.textContent = "Generating PDF...";
+
+        console.log("Libs loaded, proceeding to download");
 
         hydrateData();
         const { jsPDF } = window.jspdf;
@@ -3936,10 +3989,14 @@ async function sharePDF() {
 
     try {
         if (btn) {
-            btn.textContent = "Preparing Share...";
+            btn.textContent = "Loading Libs...";
             btn.disabled = true;
             btn.style.opacity = "0.7";
         }
+
+        // Lazy Load
+        await loadReportLibs();
+        if (btn) btn.textContent = "Preparing Share...";
 
         hydrateData();
         const { jsPDF } = window.jspdf;
@@ -4871,7 +4928,12 @@ document.addEventListener('DOMContentLoaded', () => {
         console.warn("checkPaymentStatus function missing - skipping");
     }
     if (typeof calculateCostOfConfusion === 'function') {
-        calculateCostOfConfusion();
+        // Optimize: Defer heavy calc
+        if ('requestIdleCallback' in window) {
+            requestIdleCallback(() => calculateCostOfConfusion());
+        } else {
+            setTimeout(() => calculateCostOfConfusion(), 100);
+        }
     }
 
     // NEW: Initiate Visitor Counter
