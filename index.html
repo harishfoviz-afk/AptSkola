@@ -3,6 +3,10 @@
 
 <head>
     <meta charset="UTF-8">
+    <!-- viewport: width=device-width is critical for IABs; viewport-fit=cover handles notch-aware layout on iPhone in Instagram -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <!-- theme-color: keeps Chrome/Instagram address bar consistent -->
+    <meta name="theme-color" content="#0F172A">
     <title>Apt Skola | Scientific School Board Selection</title>
     <meta name="description"
         content="Find the perfect school board for your child (CBSE, ICSE, IB, IGCSE) using our scientific 15-year forensic analysis tool.">
@@ -36,13 +40,23 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-    <!-- Font Loading: Inter (UI) + Montserrat (Headlines) -->
-    <!-- display=swap ensures numbers appear even if font is slow (FOUT is better than invisible text) -->
+    <!-- Font Loading: Non-blocking (media=print trick prevents render blocking) -->
+    <!-- display=swap ensures text visible even if font is slow -->
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Montserrat:wght@700;800;900&display=swap"
-        rel="stylesheet">
+        rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Montserrat:wght@700;800;900&display=swap"
+            rel="stylesheet">
+    </noscript>
 
-    <!-- INIT GUARD (Critical for iOS & Interaction Queuing) -->
+    <!-- Resource Preload Hints: start downloading critical JS early so LCP text is interactive sooner -->
+    <!-- hero-bundle first: it renders the above-the-fold hero, directly impacting LCP -->
+    <link rel="preload" href="hero-bundle.js?v=3" as="script">
+    <link rel="preload" href="core-app.js?v=4" as="script">
+
+    <!-- INIT GUARD (Critical for iOS & Interaction Queuing — must be synchronous) -->
     <script src="init-guard.js"></script>
 
     <!-- Microsoft Clarity -->
@@ -163,7 +177,23 @@
             color: white;
             font-family: 'Inter', sans-serif;
             -webkit-font-smoothing: antialiased;
+            /* IAB Safe-area: prevent notch + home indicator from clipping content on iPhone in Instagram/Facebook IAB */
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+            padding-left: env(safe-area-inset-left, 0px);
+            padding-right: env(safe-area-inset-right, 0px);
         }
+
+        /* IAB Viewport Fix: overlays/modals must not rely on 100vh — use fill-available instead */
+        /* 100vh in IABs = full screen height including hidden address bar → content gets cut off */
+        .momentum-overlay,
+        .payment-modal,
+        .phase0-modal-overlay {
+            /* Fallback order: dvh (dynamic viewport) → -webkit-fill-available → 100vh */
+            min-height: 100vh;
+            min-height: -webkit-fill-available;
+            min-height: 100dvh;
+        }
+
 
         /* CRITICAL SAFETY CSS (Works without Tailwind Script) */
         /* Forces Layout Stability if Script Fails/Blocks */
@@ -3748,7 +3778,9 @@
                         </div>
                         <div class="form-group">
                             <label>Mobile Number *</label>
-                            <input type="tel" id="phone" name="phone" required autocomplete="off">
+                            <input type="tel" id="phone" name="phone" required inputmode="numeric"
+                                autocomplete="tel-national" pattern="[6-9][0-9]{9}" maxlength="10"
+                                placeholder="10-digit mobile number" aria-label="Mobile number">
                         </div>
 
                         <div class="form-group">
@@ -3899,7 +3931,9 @@
                 </div>
                 <div class="form-group mb-4">
                     <label>WhatsApp Number</label>
-                    <input type="tel" name="whatsapp" required class="w-full p-3 border rounded-lg bg-slate-50">
+                    <input type="tel" name="whatsapp" required class="w-full p-3 border rounded-lg bg-slate-50"
+                        inputmode="numeric" autocomplete="tel-national" pattern="[6-9][0-9]{9}" maxlength="10"
+                        placeholder="10-digit WhatsApp number">
                 </div>
                 <div class="form-group mb-4">
                     <label>School / College / Community Name</label>
@@ -4346,14 +4380,20 @@
 
             <div class="momentum-form">
                 <div class="phone-input-wrapper">
-                    <input type="tel" id="momentumPhone" placeholder="Mobile Number (10 Digits)" maxlength="10"
-                        oninput="validateMomentumPhone(this)">
+                    <input type="tel" id="momentumPhone" inputmode="numeric" autocomplete="tel-national"
+                        placeholder="10-digit mobile number" maxlength="10" pattern="[6-9][0-9]{9}"
+                        aria-label="Mobile number" oninput="validateMomentumPhone(this)">
                     <div id="phoneCheckmark" class="phone-check hidden">✓</div>
+                </div>
+                <div id="momentumPhoneError"
+                    style="color:#ef4444; font-size:0.82rem; font-weight:600; margin:-10px 0 12px; text-align:left; display:none;"
+                    role="alert">
+                    ⚠ Please enter a valid 10-digit mobile number (starts with 6–9)
                 </div>
 
                 <button id="momentumSubmitBtn" onclick="handleMomentumSubmit()" class="custom-cta-button momentum-cta"
                     disabled>
-                    Start Phase 1 & Activate Learning Calibration →
+                    Start Phase 1 &amp; Activate Learning Calibration →
                 </button>
 
                 <p class="ghost-note">
@@ -4417,6 +4457,80 @@
             </div>
         </div>
     </footer>
+    <!-- ─────────────────────────────────────────────────────────────────────
+         Phone Validation Helpers
+         validateMomentumPhone: real-time input validation for the momentum modal
+         handleMomentumSubmit : proceeds to Phase 1 after phone is confirmed
+    ──────────────────────────────────────────────────────────────────────── -->
+    <script>
+        function validateMomentumPhone(input) {
+            // Strip all non-digit characters the user may have typed
+            var cleaned = input.value.replace(/\D/g, '');
+            if (cleaned !== input.value) input.value = cleaned;
+
+            var btn = document.getElementById('momentumSubmitBtn');
+            var check = document.getElementById('phoneCheckmark');
+            var err = document.getElementById('momentumPhoneError');
+
+            // Indian mobile: 10 digits, starts with 6/7/8/9
+            var isValid = /^[6-9]\d{9}$/.test(cleaned);
+
+            if (isValid) {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                btn.style.cursor = 'pointer';
+                check.classList.remove('hidden');
+                if (err) err.style.display = 'none';
+            } else {
+                btn.disabled = true;
+                btn.style.opacity = '0.5';
+                btn.style.cursor = 'not-allowed';
+                check.classList.add('hidden');
+                // Show error only once user has typed enough digits
+                if (err) err.style.display = cleaned.length >= 4 ? 'block' : 'none';
+            }
+        }
+
+        function handleMomentumSubmit() {
+            var input = document.getElementById('momentumPhone');
+            var phone = input ? input.value.replace(/\D/g, '') : '';
+
+            if (!/^[6-9]\d{9}$/.test(phone)) {
+                // Guard: should not happen because button is disabled when invalid,
+                // but add a hard check for safety.
+                var err = document.getElementById('momentumPhoneError');
+                if (err) err.style.display = 'block';
+                if (input) input.focus();
+                return;
+            }
+
+            // Persist phone number to shared customer state
+            if (window.customerData) {
+                window.customerData.phone = phone;
+            }
+
+            // Fire analytics event (safe call - triggerTrack is defined in core-app.js)
+            if (typeof triggerTrack === 'function') {
+                triggerTrack('momentum_phone_submitted', { phone_length: phone.length });
+            }
+
+            // Close the momentum modal
+            var modal = document.getElementById('momentumModal');
+            if (modal) {
+                modal.classList.remove('active');
+                modal.classList.add('hidden');
+            }
+
+            // Proceed: if initializeQuizShell is ready, start Phase 1 directly,
+            // otherwise fall back to Phase 0 (safe default)
+            if (typeof initializeQuizShell === 'function') {
+                initializeQuizShell(0, 1);
+            } else if (typeof window.initializeQuizShell === 'function') {
+                window.initializeQuizShell(0, 1);
+            }
+        }
+    </script>
+
 </body>
 
 </html>

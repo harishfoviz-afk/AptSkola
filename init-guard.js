@@ -1,11 +1,78 @@
 (function () {
-    // 1. iOS WebKit Polyfill
-    // Mentions of "window.webkit.messageHandlers" in analytics/injected scripts can crash the app if undefined.
-    if (typeof window.webkit === 'undefined') {
-        window.webkit = {
-            messageHandlers: {
-                // Polyfill common handlers if needed, or leave empty to prevent 'undefined' crash
-                // The mere existence of the object usually stops the crash.
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 1. iOS / Instagram IAB WebKit Polyfill (Hardened)
+    // ─────────────────────────────────────────────────────────────────────────
+    // Analytics SDKs (GTM, Clarity, Cordova, etc.) call patterns like:
+    //   window.webkit.messageHandlers.cordova_iab.postMessage(...)
+    //   window.webkit.messageHandlers['myHandler'].postMessage(...)
+    // On non-native browsers these sub-keys are undefined → TypeError crash.
+    // Solution: use a Proxy that returns a no-op object for ANY handler access.
+
+    var _noopHandler = {
+        postMessage: function () { },
+        addEventListener: function () { },
+        removeEventListener: function () { }
+    };
+
+    var _handlersProxy = (typeof Proxy !== 'undefined')
+        ? new Proxy({}, {
+            get: function (target, prop) {
+                // Return a no-op handler for every named handler
+                return _noopHandler;
+            }
+        })
+        : _noopHandler; // Proxy not available (very old Safari) — safe fallback
+
+    if (typeof window.webkit === 'undefined' || !window.webkit.messageHandlers) {
+        window.webkit = { messageHandlers: _handlersProxy };
+    } else if (!window.webkit.messageHandlers) {
+        window.webkit.messageHandlers = _handlersProxy;
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 2. Targeted WebKit Error Suppressor
+    // ─────────────────────────────────────────────────────────────────────────
+    // Suppress the specific WebKit/Instagram error pattern without swallowing
+    // real application errors. This acts as a safety net for third-party
+    // scripts that bypass the polyfill.
+
+    var _prevOnError = window.onerror;
+    window.onerror = function (message, source, lineno, colno, error) {
+        if (message && typeof message === 'string' &&
+            (message.indexOf('webkit') !== -1 ||
+                message.indexOf('messageHandlers') !== -1 ||
+                message.indexOf('cordova_iab') !== -1)) {
+            // Swallow WebKit-specific errors silently
+            return true; // prevents default browser error handling
+        }
+        // Delegate everything else to the previous handler (or default)
+        if (typeof _prevOnError === 'function') {
+            return _prevOnError.apply(this, arguments);
+        }
+        return false;
+    };
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 3. Instagram / Facebook In-App Browser (IAB) Compatibility
+    // ─────────────────────────────────────────────────────────────────────────
+    // Instagram IAB blocks window.open() — external links silently fail.
+    // Patch: detect IAB and redirect via location.href instead.
+
+    var ua = navigator.userAgent || '';
+    var isInstagramIAB = (ua.indexOf('Instagram') !== -1 ||
+        ua.indexOf('FBAN') !== -1 ||
+        ua.indexOf('FBAV') !== -1);
+
+    if (isInstagramIAB) {
+        var _origOpen = window.open;
+        window.open = function (url) {
+            if (url && typeof url === 'string') {
+                try {
+                    window.location.href = url;
+                } catch (e) { /* fail silently */ }
+            } else {
+                return _origOpen.apply(this, arguments);
             }
         };
     }
