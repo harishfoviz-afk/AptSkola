@@ -39,38 +39,32 @@ document.addEventListener('DOMContentLoaded', () => {
             const object = Object.fromEntries(formData);
             const json = JSON.stringify(object);
 
-            if (object.access_key === "1930d1ce-5416-45d1-9b2b-5f129cb30dbd") {
-                console.warn("Web3Forms access key is missing. Simulating success for testing.");
+            // Google Forms Submit (Silent Sync)
+            const googleFormData = new URLSearchParams();
+            googleFormData.append("entry.106579225", object.childName);
+            googleFormData.append("entry.361134983", object.grade);
+            googleFormData.append("entry.659775470", object.parentName);
+            googleFormData.append("entry.597202577", object.phone);
+            googleFormData.append("entry.1740304574", object.email);
+            googleFormData.append("entry.84335970", object.timeSlot);
+            googleFormData.append("entry.84485773", object.city);
+
+            fetch("https://docs.google.com/forms/d/e/1FAIpQLScoa34XlY6WLDpQN0ZWPAXn28uhI2lHPK-6YFtT4BnNWfjTRg/formResponse", {
+                method: "POST",
+                mode: "no-cors",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: googleFormData.toString()
+            })
+            .then(() => {
+                // Success - hide form, show payment
                 form.classList.add('hidden');
                 paymentSection.classList.remove('hidden');
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
-                return;
-            }
-
-            // Web3Forms Submit
-            fetch('https://api.web3forms.com/submit', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: json
-            })
-            .then(async (response) => {
-                let jsonResponse = await response.json();
-                if (response.status == 200) {
-                    // Success - hide form, show payment
-                    form.classList.add('hidden');
-                    paymentSection.classList.remove('hidden');
-                } else {
-                    console.log(response);
-                    alert("Something went wrong with the submission. Please try again.");
-                }
             })
             .catch(error => {
-                console.log(error);
-                alert("Something went wrong. Please check your network connection.");
+                console.error("Google Forms Sync Error:", error);
+                alert("Something went wrong with the submission. Please try again.");
             })
             .finally(() => {
                 submitBtn.innerHTML = originalText;
@@ -130,9 +124,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 rzp1.on('payment.failed', function (response){
                     alert("Payment Failed. Reason: " + response.error.description);
-                    // Re-enable the pay button to allow retry
-                    payBtn.innerHTML = 'Pay ₹99 Enrollment Fee';
-                    payBtn.disabled = false;
+                    // Redirect back to the chaitu landing page on failure
+                    window.location.href = '/chaitu';
                 });
                 
                 // Reset state if modal is closed without payment
