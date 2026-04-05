@@ -1,5 +1,5 @@
 import * as tf from '@tensorflow/tfjs';
-import '@tensorflow/tfjs-backend-wasm';
+import { setWasmPaths } from '@tensorflow/tfjs-backend-wasm';
 
 /**
  * Pseudo-Spectral Reconstruction Logic
@@ -7,9 +7,11 @@ import '@tensorflow/tfjs-backend-wasm';
  */
 
 export const initTensorFlow = async () => {
+  // Use CDN paths to ensure WASM binaries are always available in production
+  setWasmPaths('https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@latest/dist/');
   await tf.setBackend('wasm');
   await tf.ready();
-  console.log('TF.js initialized with WASM backend');
+  console.log('TF.js initialized with WASM backend (CDN)');
 };
 
 /**
