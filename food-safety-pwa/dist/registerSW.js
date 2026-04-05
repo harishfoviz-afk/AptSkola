@@ -1,0 +1,1 @@
+if('serviceWorker' in navigator) {window.addEventListener('load', () => {navigator.serviceWorker.register('/food-safety-pwa/sw.js', { scope: '/food-safety-pwa/' })})}
