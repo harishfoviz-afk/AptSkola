@@ -1,17 +1,21 @@
 import * as tf from '@tensorflow/tfjs';
 import { setWasmPaths } from '@tensorflow/tfjs-backend-wasm';
 
+const WASM_VERSION = '4.22.0';
+const WASM_PATH = `https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@${WASM_VERSION}/dist/`;
+
 /**
  * Pseudo-Spectral Reconstruction Logic
  * Targeting NIR 709nm and 950nm absorbance proxies
  */
 
 export const initTensorFlow = async () => {
-  // Use CDN paths to ensure WASM binaries are always available in production
-  setWasmPaths('https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@latest/dist/');
+  // Use specific version and explicit path for WASM binaries
+  setWasmPaths(WASM_PATH);
+  
   await tf.setBackend('wasm');
   await tf.ready();
-  console.log('TF.js initialized with WASM backend (CDN)');
+  console.log(`TF.js initialized with WASM backend (CDN v${WASM_VERSION})`);
 };
 
 /**
