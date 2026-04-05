@@ -4,7 +4,7 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/food-safety-pwa/',
+  base: '/food-safety-pwa/dist/',
   plugins: [
     react(),
     VitePWA({
