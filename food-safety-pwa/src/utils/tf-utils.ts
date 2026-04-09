@@ -1,3 +1,6 @@
+import * as tf from '@tensorflow/tfjs';
+import { setWasmPaths } from '@tensorflow/tfjs-backend-wasm';
+
 const WASM_VERSION = '4.22.0';
 const WASM_PATH = `https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@${WASM_VERSION}/dist/`;
 
