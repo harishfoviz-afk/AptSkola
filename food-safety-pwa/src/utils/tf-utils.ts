@@ -1,8 +1,8 @@
-import * as tf from '@tensorflow/tfjs';
-import { setWasmPaths } from '@tensorflow/tfjs-backend-wasm';
-
 const WASM_VERSION = '4.22.0';
 const WASM_PATH = `https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@${WASM_VERSION}/dist/`;
+
+// Global configuration must happen before backend registration
+setWasmPaths(WASM_PATH);
 
 /**
  * Pseudo-Spectral Reconstruction Logic
@@ -10,12 +10,15 @@ const WASM_PATH = `https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@${
  */
 
 export const initTensorFlow = async () => {
-  // Use specific version and explicit path for WASM binaries
-  setWasmPaths(WASM_PATH);
-  
-  await tf.setBackend('wasm');
-  await tf.ready();
-  console.log(`TF.js initialized with WASM backend (CDN v${WASM_VERSION})`);
+  try {
+    await tf.setBackend('wasm');
+    await tf.ready();
+    console.log(`TF.js initialized with WASM backend (CDN v${WASM_VERSION})`);
+  } catch (err) {
+    console.warn('WASM backend failed, falling back to CPU:', err);
+    await tf.setBackend('cpu');
+    await tf.ready();
+  }
 };
 
 /**
