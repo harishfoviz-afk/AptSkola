@@ -112,10 +112,6 @@ if (document.readyState === 'loading') {
 }
 window.addEventListener('load', applyAdminConfig);
 
-// Route/Redirect to Admin portal if hash matches
-if (window.location.hash.toLowerCase() === '#admin' || window.location.search.toLowerCase().includes('admin')) {
-    window.location.href = 'Admin/index.html';
-}
 
 // --- FORCE DOMAIN CONSISTENCY ---
 if (location.hostname !== 'localhost' && location.hostname === 'www.aptskola.com') {

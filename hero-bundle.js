@@ -83,6 +83,9 @@
         // Narrative Build State: Always 2 (Main Hero Visible Immediately)
         const [introState, setIntroState] = useState(2);
 
+        // Load admin configuration
+        const config = (window.getAdminConfig && window.getAdminConfig()) || { schoolSwitchCostActive: true, forensicReportActive: true };
+
         // Scroll Listener
         useEffect(() => {
             const handleScroll = () => {
@@ -809,8 +812,6 @@
                     renderSocialProof(),
 
                     // New Buttons After Phase 0
-                    const config = (window.getAdminConfig && window.getAdminConfig()) || { schoolSwitchCostActive: true, forensicReportActive: true };
-                    
                     h('div', { className: "flex flex-col md:flex-row gap-4 justify-center items-center mt-8 w-full max-w-4xl px-4 animate-fade-in-up" },
                         // 1. Calculator
                         config.schoolSwitchCostActive !== false && h('button', {
