@@ -4530,6 +4530,462 @@
         }
     </script>
 
+    <!-- INTEGRATED ADMIN PORTAL OVERLAY -->
+    <style>
+        #adminPortalOverlay {
+            position: fixed;
+            inset: 0;
+            z-index: 99999;
+            background: linear-gradient(135deg, #0B132B 0%, #111E38 100%);
+            color: #F8FAFC;
+            overflow-y: auto;
+            padding: 40px 20px;
+            font-family: 'Inter', sans-serif;
+            display: none;
+        }
+
+        #adminPortalOverlay * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        #adminPortalOverlay .admin-container {
+            width: 100%;
+            max-width: 600px;
+            padding: 40px;
+            margin: 20px auto;
+            background: rgba(28, 37, 65, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 50px rgba(255, 107, 53, 0.15);
+        }
+
+        #adminPortalOverlay h1, #adminPortalOverlay h2 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        #adminPortalOverlay h1 span {
+            color: #FF6B35;
+        }
+
+        #adminPortalOverlay .subtitle {
+            color: #94A3B8;
+            font-size: 0.95rem;
+            text-align: center;
+            margin-top: -15px;
+            margin-bottom: 30px;
+        }
+
+        #adminPortalOverlay .form-group {
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        #adminPortalOverlay label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #94A3B8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        #adminPortalOverlay input[type="password"],
+        #adminPortalOverlay input[type="number"] {
+            width: 100%;
+            padding: 14px 18px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1.5px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: white;
+            font-size: 1rem;
+            font-weight: 500;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        #adminPortalOverlay input[type="password"]:focus,
+        #adminPortalOverlay input[type="number"]:focus {
+            border-color: #FF6B35;
+            box-shadow: 0 0 12px rgba(255, 107, 53, 0.3);
+            background: rgba(15, 23, 42, 0.9);
+        }
+
+        #adminPortalOverlay .switch-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            background: rgba(15, 23, 42, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 14px;
+            margin-bottom: 16px;
+        }
+
+        #adminPortalOverlay .switch-label {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+        }
+
+        #adminPortalOverlay .switch-title {
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        #adminPortalOverlay .switch-desc {
+            font-size: 0.75rem;
+            color: #94A3B8;
+            margin-top: 2px;
+        }
+
+        #adminPortalOverlay .switch {
+            position: relative;
+            display: inline-block;
+            width: 52px;
+            height: 28px;
+        }
+
+        #adminPortalOverlay .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        #adminPortalOverlay .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.1);
+            transition: .3s;
+            border-radius: 34px;
+        }
+
+        #adminPortalOverlay .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        #adminPortalOverlay input:checked + .slider {
+            background-color: #FF6B35;
+        }
+
+        #adminPortalOverlay input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+
+        #adminPortalOverlay .section-header {
+            font-size: 0.85rem;
+            font-weight: 800;
+            color: #FF6B35;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-top: 35px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 107, 53, 0.2);
+            padding-bottom: 6px;
+            text-align: left;
+        }
+
+        #adminPortalOverlay .btn-group {
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        #adminPortalOverlay button {
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            border: none;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #adminPortalOverlay .btn-primary {
+            background: #FF6B35;
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+        }
+
+        #adminPortalOverlay .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.5);
+            background: #ff7f52;
+        }
+
+        #adminPortalOverlay .btn-secondary {
+            background: transparent;
+            border: 1.5px solid rgba(255, 255, 255, 0.15);
+            color: #F8FAFC;
+        }
+
+        #adminPortalOverlay .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        #adminPortalOverlay .btn-success {
+            background: #10B981;
+            color: white;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
+        }
+
+        #adminPortalOverlay .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        }
+
+        #adminPortalOverlay .pricing-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            background: rgba(15, 23, 42, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 20px;
+        }
+
+        #adminPortalOverlay .pricing-grid-header {
+            grid-column: span 2;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: #F8FAFC;
+            margin-bottom: 4px;
+            text-align: left;
+        }
+
+        #adminPortalOverlay .error-message {
+            color: #EF4444;
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            display: none;
+            text-align: center;
+        }
+
+        #adminPortalOverlay .success-toast {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            background: #10B981;
+            color: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            transform: translateY(-100px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 99999;
+        }
+    </style>
+
+    <div id="adminPortalOverlay">
+        <!-- Success Toast -->
+        <div id="adminSuccessToast" class="success-toast">
+            <span>✅</span> Settings saved successfully!
+        </div>
+
+        <!-- Login Card -->
+        <div id="adminLoginCard" class="admin-container">
+            <h1>Apt <span>Skola</span></h1>
+            <div class="subtitle">Enter password to access portal</div>
+            
+            <div id="adminLoginError" class="error-message">Incorrect password. Please try again.</div>
+            
+            <form onsubmit="handleAdminLogin(event)">
+                <div class="form-group">
+                    <label for="adminPassword">Password</label>
+                    <input type="password" id="adminPassword" placeholder="••••••••" required>
+                </div>
+                
+                <button type="submit" class="btn-primary">Unlock Dashboard 🔐</button>
+            </form>
+            
+            <div style="text-align: center; margin-top: 20px;">
+                <button onclick="closeAdminPortal()" class="btn-secondary" style="padding: 8px 16px; font-size: 0.85rem; width: auto; display: inline-flex;">Cancel & Close</button>
+            </div>
+        </div>
+
+        <!-- Dashboard Card -->
+        <div id="adminDashboardCard" class="admin-container" style="display: none;">
+            <h1>Admin <span>Dashboard</span></h1>
+            <div class="subtitle">Configure landing page features and pricing</div>
+            
+            <!-- Toggle Section -->
+            <div class="section-header">Landing Page Content Toggles</div>
+            
+            <!-- School Switch Cost Toggle -->
+            <div class="switch-container">
+                <div class="switch-label">
+                    <span class="switch-title">School Switch Cost</span>
+                    <span class="switch-desc">Toggle the leakage alert switch penalty section & calculation</span>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="adminSchoolSwitchToggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <!-- Forensic Report Toggle -->
+            <div class="switch-container">
+                <div class="switch-label">
+                    <span class="switch-title">🔎 Forensic Report Card</span>
+                    <span class="switch-desc">Toggle visibility of AI Forensic X-Ray block in Ecosystem block</span>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="adminForensicReportToggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <!-- Package Availability Toggles -->
+            <div class="section-header">Package Toggles</div>
+            
+            <div class="switch-container">
+                <div class="switch-label">
+                    <span class="switch-title">Essential Package</span>
+                    <span class="switch-desc">Toggle Essential package card in the pricing modal</span>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="adminEssentialActiveToggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            
+            <div class="switch-container">
+                <div class="switch-label">
+                    <span class="switch-title">Premium Package</span>
+                    <span class="switch-desc">Toggle Premium package card in the pricing modal</span>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="adminPremiumActiveToggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            
+            <div class="switch-container">
+                <div class="switch-label">
+                    <span class="switch-title">Pro Package</span>
+                    <span class="switch-desc">Toggle Pro package card in the pricing modal</span>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="adminProActiveToggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <!-- Upgrade Popup Toggles -->
+            <div class="section-header">Upgrade Popup Toggles</div>
+            
+            <div class="switch-container">
+                <div class="switch-label">
+                    <span class="switch-title">Essential Upgrade Upsell</span>
+                    <span class="switch-desc">Show upsell popup (downgradeModal) when selecting Essential</span>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="adminEssentialUpgradeToggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            
+            <div class="switch-container">
+                <div class="switch-label">
+                    <span class="switch-title">Premium Upgrade Upsell</span>
+                    <span class="switch-desc">Show upsell popup (proUpgradeModal) when selecting Premium</span>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="adminPremiumUpgradeToggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <!-- Pricing Section -->
+            <div class="section-header">Package Pricing & original prices (₹)</div>
+
+            <!-- Essential Prices -->
+            <div class="pricing-grid">
+                <div class="pricing-grid-header">Essential Package</div>
+                <div>
+                    <label for="adminPriceEssential" style="font-size: 0.75rem;">Active Price</label>
+                    <input type="number" id="adminPriceEssential" min="0" placeholder="19">
+                </div>
+                <div>
+                    <label for="adminPriceEssentialOriginal" style="font-size: 0.75rem;">Original Price</label>
+                    <input type="number" id="adminPriceEssentialOriginal" min="0" placeholder="499">
+                </div>
+            </div>
+
+            <!-- Premium Prices -->
+            <div class="pricing-grid">
+                <div class="pricing-grid-header">Premium Package</div>
+                <div>
+                    <label for="adminPricePremium" style="font-size: 0.75rem;">Active Price</label>
+                    <input type="number" id="adminPricePremium" min="0" placeholder="49">
+                </div>
+                <div>
+                    <label for="adminPricePremiumOriginal" style="font-size: 0.75rem;">Original Price</label>
+                    <input type="number" id="adminPricePremiumOriginal" min="0" placeholder="999">
+                </div>
+            </div>
+
+            <!-- Pro Prices -->
+            <div class="pricing-grid">
+                <div class="pricing-grid-header">Pro Package</div>
+                <div>
+                    <label for="adminPricePro" style="font-size: 0.75rem;">Active Price</label>
+                    <input type="number" id="adminPricePro" min="0" placeholder="99">
+                </div>
+                <div>
+                    <label for="adminPriceProOriginal" style="font-size: 0.75rem;">Original Price</label>
+                    <input type="number" id="adminPriceProOriginal" min="0" placeholder="1499">
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="btn-group">
+                <button onclick="saveAdminConfig()" class="btn-primary">Save Settings 💾</button>
+                <button onclick="exportAdminConfig()" class="btn-success">Export admin-config.js File 📤</button>
+                <button onclick="resetAdminDefaults()" class="btn-secondary">Reset to Standard Defaults 🔄</button>
+                <button onclick="logoutAdmin()" class="btn-secondary" style="margin-top: 10px; color: #EF4444; border-color: rgba(239,68,68,0.2);">Logout 🔒</button>
+                <button onclick="closeAdminPortal()" class="btn-secondary">← Exit Admin Portal</button>
+            </div>
+        </div>
+    </div>
+
 </body>
 
 </html>

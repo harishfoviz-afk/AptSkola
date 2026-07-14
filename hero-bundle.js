@@ -809,9 +809,11 @@
                     renderSocialProof(),
 
                     // New Buttons After Phase 0
+                    const config = (window.getAdminConfig && window.getAdminConfig()) || { schoolSwitchCostActive: true, forensicReportActive: true };
+                    
                     h('div', { className: "flex flex-col md:flex-row gap-4 justify-center items-center mt-8 w-full max-w-4xl px-4 animate-fade-in-up" },
                         // 1. Calculator
-                        h('button', {
+                        config.schoolSwitchCostActive !== false && h('button', {
                             onClick: () => window.handleCostCalculatorClick && window.handleCostCalculatorClick(),
                             className: "group px-6 py-3 rounded-xl font-bold text-slate-100 border border-slate-500 bg-slate-800/60 hover:border-[#FF6B35] hover:text-white hover:bg-slate-800/80 transition-all text-sm flex items-center gap-2 shadow-lg backdrop-blur-sm"
                         },
@@ -827,7 +829,7 @@
                             " Unlock Parent & Child Sync Check"
                         ),
                         // 3. Forensic Report
-                        h('a', {
+                        config.forensicReportActive !== false && h('a', {
                             href: "https://xray.aptskola.com",
                             target: "_blank",
                             className: "group px-6 py-3 rounded-xl font-bold text-slate-100 border border-slate-500 bg-slate-800/60 hover:border-[#FF6B35] hover:text-white hover:bg-slate-800/80 transition-all text-sm flex items-center gap-2 no-underline text-center shadow-lg backdrop-blur-sm"

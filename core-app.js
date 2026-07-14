@@ -5300,3 +5300,173 @@ document.addEventListener('DOMContentLoaded', () => {
         if (typeof calculateNewConfusion === 'function') calculateNewConfusion();
     }
 });
+
+// --- INTEGRATED ADMIN PORTAL LOGIC ---
+window.handleAdminLogin = function(e) {
+    if (e) e.preventDefault();
+    const passwordInput = document.getElementById('adminPassword').value;
+    const errorEl = document.getElementById('adminLoginError');
+    
+    if (passwordInput === 'KUNTA') {
+        sessionStorage.setItem('isAdminLoggedIn', 'true');
+        errorEl.style.display = 'none';
+        showAdminDashboard();
+    } else {
+        errorEl.style.display = 'block';
+        document.getElementById('adminPassword').value = '';
+        document.getElementById('adminPassword').focus();
+    }
+};
+
+function showAdminDashboard() {
+    document.getElementById('adminLoginCard').style.display = 'none';
+    document.getElementById('adminDashboardCard').style.display = 'block';
+    loadAdminFormValues();
+}
+
+window.logoutAdmin = function() {
+    sessionStorage.removeItem('isAdminLoggedIn');
+    document.getElementById('adminDashboardCard').style.display = 'none';
+    document.getElementById('adminLoginCard').style.display = 'block';
+    document.getElementById('adminPassword').value = '';
+};
+
+window.saveAdminConfig = function() {
+    const config = {
+        schoolSwitchCostActive: document.getElementById('adminSchoolSwitchToggle').checked,
+        forensicReportActive: document.getElementById('adminForensicReportToggle').checked,
+        packages: {
+            essentialActive: document.getElementById('adminEssentialActiveToggle').checked,
+            premiumActive: document.getElementById('adminPremiumActiveToggle').checked,
+            proActive: document.getElementById('adminProActiveToggle').checked,
+        },
+        upgradeModals: {
+            essentialUpgradeActive: document.getElementById('adminEssentialUpgradeToggle').checked,
+            premiumUpgradeActive: document.getElementById('adminPremiumUpgradeToggle').checked,
+        },
+        prices: {
+            essential: Number(document.getElementById('adminPriceEssential').value) || 19,
+            essentialOriginal: Number(document.getElementById('adminPriceEssentialOriginal').value) || 499,
+            premium: Number(document.getElementById('adminPricePremium').value) || 49,
+            premiumOriginal: Number(document.getElementById('adminPricePremiumOriginal').value) || 999,
+            pro: Number(document.getElementById('adminPricePro').value) || 99,
+            proOriginal: Number(document.getElementById('adminPriceProOriginal').value) || 1499,
+        }
+    };
+    
+    localStorage.setItem('aptSkolaAdminConfig', JSON.stringify(config));
+    
+    // Apply changes immediately in the current session!
+    if (typeof applyAdminConfig === 'function') {
+        applyAdminConfig();
+    }
+    
+    showAdminToast();
+};
+
+function showAdminToast() {
+    const toast = document.getElementById('adminSuccessToast');
+    if (toast) {
+        toast.style.transform = 'translateY(0)';
+        toast.style.opacity = '1';
+        setTimeout(() => {
+            toast.style.transform = 'translateY(-100px)';
+            toast.style.opacity = '0';
+        }, 3000);
+    }
+}
+
+window.resetAdminDefaults = function() {
+    if (confirm("Are you sure you want to reset all configurations to the standard source defaults?")) {
+        localStorage.removeItem('aptSkolaAdminConfig');
+        loadAdminFormValues();
+        if (typeof applyAdminConfig === 'function') {
+            applyAdminConfig();
+        }
+        showAdminToast();
+    }
+};
+
+window.exportAdminConfig = function() {
+    const config = getAdminConfig();
+    const fileContent = `// Apt Skola Admin Configurations
+// Generated from Admin Panel
+window.AptSkolaConfig = {
+    schoolSwitchCostActive: ${config.schoolSwitchCostActive},
+    forensicReportActive: ${config.forensicReportActive},
+    packages: {
+        essentialActive: ${config.packages.essentialActive},
+        premiumActive: ${config.packages.premiumActive},
+        proActive: ${config.packages.proActive}
+    },
+    upgradeModals: {
+        essentialUpgradeActive: ${config.upgradeModals.essentialUpgradeActive},
+        premiumUpgradeActive: ${config.upgradeModals.premiumUpgradeActive}
+    },
+    prices: {
+        essential: ${config.prices.essential},
+        essentialOriginal: ${config.prices.essentialOriginal},
+        premium: ${config.prices.premium},
+        premiumOriginal: ${config.prices.premiumOriginal},
+        pro: ${config.prices.pro},
+        proOriginal: ${config.prices.proOriginal}
+    }
+};
+`;
+
+    const blob = new Blob([fileContent], { type: 'application/javascript;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", "admin-config.js");
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+};
+
+function loadAdminFormValues() {
+    const config = getAdminConfig();
+    
+    // Checkboxes
+    document.getElementById('adminSchoolSwitchToggle').checked = config.schoolSwitchCostActive;
+    document.getElementById('adminForensicReportToggle').checked = config.forensicReportActive;
+    document.getElementById('adminEssentialActiveToggle').checked = config.packages.essentialActive;
+    document.getElementById('adminPremiumActiveToggle').checked = config.packages.premiumActive;
+    document.getElementById('adminProActiveToggle').checked = config.packages.proActive;
+    document.getElementById('adminEssentialUpgradeToggle').checked = config.upgradeModals.essentialUpgradeActive;
+    document.getElementById('adminPremiumUpgradeToggle').checked = config.upgradeModals.premiumUpgradeActive;
+    
+    // Pricing inputs
+    document.getElementById('adminPriceEssential').value = config.prices.essential;
+    document.getElementById('adminPriceEssentialOriginal').value = config.prices.essentialOriginal;
+    document.getElementById('adminPricePremium').value = config.prices.premium;
+    document.getElementById('adminPricePremiumOriginal').value = config.prices.premiumOriginal;
+    document.getElementById('adminPricePro').value = config.prices.pro;
+    document.getElementById('adminPriceProOriginal').value = config.prices.proOriginal;
+}
+
+window.closeAdminPortal = function() {
+    window.location.hash = '';
+};
+
+function checkAdminHash() {
+    const isShowing = window.location.hash.toLowerCase() === '#admin' || window.location.search.toLowerCase().includes('admin');
+    const overlay = document.getElementById('adminPortalOverlay');
+    if (overlay) {
+        if (isShowing) {
+            overlay.style.display = 'block';
+            if (sessionStorage.getItem('isAdminLoggedIn') === 'true') {
+                showAdminDashboard();
+            } else {
+                document.getElementById('adminLoginCard').style.display = 'block';
+                document.getElementById('adminDashboardCard').style.display = 'none';
+            }
+        } else {
+            overlay.style.display = 'none';
+        }
+    }
+}
+window.addEventListener('hashchange', checkAdminHash);
+window.addEventListener('load', checkAdminHash);
+
