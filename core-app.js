@@ -8,46 +8,54 @@ const EMAILJS_LEAD_TEMPLATE_ID = "template_qze00kx";
 // --- ADMIN CONFIGURATION LOGIC ---
 function getAdminConfig() {
     const local = JSON.parse(localStorage.getItem('aptSkolaAdminConfig') || '{}');
-    const defaults = window.AptSkolaConfig || {
-        schoolSwitchCostActive: true,
-        forensicReportActive: true,
-        packages: {
-            essentialActive: true,
-            premiumActive: true,
-            proActive: true
-        },
-        upgradeModals: {
-            essentialUpgradeActive: true,
-            premiumUpgradeActive: true
-        },
-        prices: {
-            essential: 19,
-            essentialOriginal: 499,
-            premium: 49,
-            premiumOriginal: 999,
-            pro: 99,
-            proOriginal: 1499
+    const defaults = window.AptSkolaConfig || {};
+    
+    // Safety helper to resolve nested config properties with fallbacks
+    const getVal = (path, fallback) => {
+        let obj = local;
+        // try local first
+        for (const key of path) {
+            if (obj && obj[key] !== undefined) {
+                obj = obj[key];
+            } else {
+                obj = undefined;
+                break;
+            }
         }
+        if (obj !== undefined) return obj;
+        
+        // try defaults
+        obj = defaults;
+        for (const key of path) {
+            if (obj && obj[key] !== undefined) {
+                obj = obj[key];
+            } else {
+                obj = undefined;
+                break;
+            }
+        }
+        return obj !== undefined ? obj : fallback;
     };
+
     return {
-        schoolSwitchCostActive: local.schoolSwitchCostActive !== undefined ? local.schoolSwitchCostActive : defaults.schoolSwitchCostActive,
-        forensicReportActive: local.forensicReportActive !== undefined ? local.forensicReportActive : defaults.forensicReportActive,
+        schoolSwitchCostActive: getVal(['schoolSwitchCostActive'], true),
+        forensicReportActive: getVal(['forensicReportActive'], true),
         packages: {
-            essentialActive: (local.packages && local.packages.essentialActive !== undefined) ? local.packages.essentialActive : defaults.packages.essentialActive,
-            premiumActive: (local.packages && local.packages.premiumActive !== undefined) ? local.packages.premiumActive : defaults.packages.premiumActive,
-            proActive: (local.packages && local.packages.proActive !== undefined) ? local.packages.proActive : defaults.packages.proActive,
+            essentialActive: getVal(['packages', 'essentialActive'], true),
+            premiumActive: getVal(['packages', 'premiumActive'], true),
+            proActive: getVal(['packages', 'proActive'], true)
         },
         upgradeModals: {
-            essentialUpgradeActive: (local.upgradeModals && local.upgradeModals.essentialUpgradeActive !== undefined) ? local.upgradeModals.essentialUpgradeActive : (defaults.upgradeModals ? defaults.upgradeModals.essentialUpgradeActive : true),
-            premiumUpgradeActive: (local.upgradeModals && local.upgradeModals.premiumUpgradeActive !== undefined) ? local.upgradeModals.premiumUpgradeActive : (defaults.upgradeModals ? defaults.upgradeModals.premiumUpgradeActive : true)
+            essentialUpgradeActive: getVal(['upgradeModals', 'essentialUpgradeActive'], true),
+            premiumUpgradeActive: getVal(['upgradeModals', 'premiumUpgradeActive'], true)
         },
         prices: {
-            essential: (local.prices && local.prices.essential !== undefined) ? Number(local.prices.essential) : defaults.prices.essential,
-            essentialOriginal: (local.prices && local.prices.essentialOriginal !== undefined) ? Number(local.prices.essentialOriginal) : defaults.prices.essentialOriginal,
-            premium: (local.prices && local.prices.premium !== undefined) ? Number(local.prices.premium) : defaults.prices.premium,
-            premiumOriginal: (local.prices && local.prices.premiumOriginal !== undefined) ? Number(local.prices.premiumOriginal) : defaults.prices.premiumOriginal,
-            pro: (local.prices && local.prices.pro !== undefined) ? Number(local.prices.pro) : defaults.prices.pro,
-            proOriginal: (local.prices && local.prices.proOriginal !== undefined) ? Number(local.prices.proOriginal) : defaults.prices.proOriginal,
+            essential: Number(getVal(['prices', 'essential'], 19)),
+            essentialOriginal: Number(getVal(['prices', 'essentialOriginal'], 499)),
+            premium: Number(getVal(['prices', 'premium'], 49)),
+            premiumOriginal: Number(getVal(['prices', 'premiumOriginal'], 999)),
+            pro: Number(getVal(['prices', 'pro'], 99)),
+            proOriginal: Number(getVal(['prices', 'proOriginal'], 1499))
         }
     };
 }

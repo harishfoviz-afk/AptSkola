@@ -852,13 +852,19 @@
     window.Hero = Hero; // Expose to window
 
     // Initialize
-    document.addEventListener('DOMContentLoaded', () => {
+    const initReactHero = () => {
         const container = document.getElementById('react-hero-root');
         if (container) {
             // FIX: Use createRoot to avoid hydration mismatches (#418, #423)
             const root = ReactDOM.createRoot(container);
             root.render(h(Hero));
         }
-    });
+    };
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initReactHero);
+    } else {
+        initReactHero();
+    }
 
 })();

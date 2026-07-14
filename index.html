@@ -53,8 +53,8 @@
 
     <!-- Resource Preload Hints: start downloading critical JS early so LCP text is interactive sooner -->
     <!-- hero-bundle first: it renders the above-the-fold hero, directly impacting LCP -->
-    <link rel="preload" href="hero-bundle.js?v=3" as="script">
-    <link rel="preload" href="core-app.js?v=4" as="script">
+    <link rel="preload" href="hero-bundle.js?v=4" as="script">
+    <link rel="preload" href="core-app.js?v=5" as="script">
 
     <!-- INIT GUARD (Critical for iOS & Interaction Queuing — must be synchronous) -->
     <script src="admin-config.js"></script>
@@ -4362,10 +4362,10 @@
 
     <!-- PDF Generation Libraries -->
 
-    <script defer src="core-app.js?v=4"></script>
+    <script defer src="core-app.js?v=5"></script>
     <script defer src="report-engine.js?v=3"></script>
 
-    <script defer src="hero-bundle.js?v=3"></script>
+    <script defer src="hero-bundle.js?v=4"></script>
 
     <!-- MOMENTUM TRIGGER MODAL (Navy Premium) -->
     <div id="momentumModal" class="momentum-overlay hidden">
