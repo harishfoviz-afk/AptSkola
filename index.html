@@ -57,6 +57,7 @@
     <link rel="preload" href="core-app.js?v=4" as="script">
 
     <!-- INIT GUARD (Critical for iOS & Interaction Queuing — must be synchronous) -->
+    <script src="admin-config.js"></script>
     <script src="init-guard.js"></script>
 
     <!-- Microsoft Clarity -->
@@ -3438,7 +3439,7 @@
                                 <span>Hidden Fees (35%)</span>
                                 <span class="text-white" id="breakdownHidden">₹52,500</span>
                             </div>
-                            <div class="flex justify-between border-b border-slate-800 pb-2">
+                            <div id="schoolSwitchPenaltyRow" class="flex justify-between border-b border-slate-800 pb-2">
                                 <span>School Switch Penalty <span class="font-normal text-xs text-slate-400">-{Admission
                                         (Sunk Cost), Registration (Double-Tax), Setup (Discarded Assets)}</span></span>
                                 <span class="text-white">₹1,50,000</span>
@@ -3520,7 +3521,7 @@
                     </div>
 
                     <!-- Block 2: AI Forensic X-Ray -->
-                    <div
+                    <div id="forensicReportCard"
                         class="bg-white p-10 rounded-3xl shadow-lg border border-slate-100 flex flex-col items-center hover:shadow-xl transition-all min-h-[300px] justify-center">
                         <div class="text-3xl font-bold mb-4">AI <span class="text-brand-orange">Forensic</span> X-Ray
                         </div>
@@ -3992,7 +3993,7 @@
             <p class="text-lg text-slate-600 mb-8">Stop guessing. Get scientific recommendations and admission tools in
                 minutes.</p>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
-                <div
+                <div id="cardEssential"
                     class="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden transform transition duration-300 hover:-translate-y-2 hover:shadow-xl flex flex-col h-full">
                     <div class="p-8 flex-grow flex flex-col relative">
                         <h3 class="text-xl font-bold text-brand-navy mb-2">The Baseline Check-up</h3>
@@ -4000,8 +4001,8 @@
                             audit to identify your child's primary learning DNA and confirm basic alignment with
                             national or international frameworks.</p>
                         <div class="flex items-baseline mb-6">
-                            <span class="text-4xl font-extrabold text-brand-navy">₹19</span>
-                            <span class="text-lg text-slate-400 line-through ml-2">₹499</span>
+                            <span id="displayEssentialPrice" class="text-4xl font-extrabold text-brand-navy">₹19</span>
+                            <span id="displayEssentialOriginal" class="text-lg text-slate-400 line-through ml-2">₹499</span>
                         </div>
                         <ul class="feature-list" style="padding-bottom: 80px;">
                             <li class="feature-item highlighted" style="margin-bottom: 20px;">
@@ -4045,11 +4046,8 @@
                     <div class="p-8 pt-0 mt-auto sticky bottom-0 bg-white z-20 pb-8 rounded-b-2xl">
                         <button onclick="selectPackage('Essential', 19); closePricingModal();"
                             class="w-full block bg-slate-100 hover:bg-slate-200 text-brand-navy font-bold py-3 px-4 rounded-xl transition duration-200 text-center">Get
-                            Clarity Now</button>
-                    </div>
-                </div>
-                <div
-                    class="relative bg-white rounded-2xl shadow-xl border-2 border-brand-navy overflow-hidden transform transition duration-300 hover:-translate-y-2 hover:shadow-2xl flex flex-col h-full z-10 scale-105 md:scale-105 my-4 md:my-0">
+                 <div id="cardPremium"
+                    class="relative bg-white rounded-2xl shadow-xl border-2 border-brand-navy overflow-hidden transform transition duration-300 hover:-translate-y-2 hover:shadow-xl flex flex-col h-full z-10 scale-105 md:scale-105 my-4 md:my-0">
                     <div
                         class="absolute top-0 right-0 left-0 bg-brand-navy text-white text-center text-xs font-bold uppercase tracking-wider py-1.5">
                         Most Popular</div>
@@ -4059,8 +4057,9 @@
                             financial trajectory forecaster and a comprehensive risk mitigation checklist to stop hidden
                             fee leakage before Grade 1.</p>
                         <div class="flex items-baseline mb-6">
-                            <span class="text-4xl font-extrabold text-brand-navy">₹49</span>
-                            <span class="text-lg text-slate-400 line-through ml-2">₹999</span>
+                            <span id="displayPremiumPrice" class="text-4xl font-extrabold text-brand-navy">₹49</span>
+                            <span id="displayPremiumOriginal" class="text-lg text-slate-400 line-through ml-2">₹999</span>
+                        </div>     <span class="text-lg text-slate-400 line-through ml-2">₹999</span>
                         </div>
                         <div class="text-xs font-semibold text-brand-orange uppercase tracking-wide mb-3">Everything in
                             Check-Up, plus:</div>
@@ -4107,7 +4106,7 @@
                             the Toolkit</button>
                     </div>
                 </div>
-                <div
+                <div id="cardPro"
                     class="bg-white rounded-2xl shadow-lg border border-brand-orange/30 ring-1 ring-brand-orange/20 overflow-hidden transform transition duration-300 hover:-translate-y-2 hover:shadow-xl flex flex-col h-full">
                     <div class="p-8 flex-grow flex flex-col relative">
                         <h3 class="text-xl font-bold text-brand-navy mb-2">The Smart Parent Forensic Audit</h3>
@@ -4115,8 +4114,8 @@
                             pack. Includes proprietary Forensic X-Rays of up to 3 institutes and specific scripts to
                             negotiate admission fees.</p>
                         <div class="flex items-baseline mb-6">
-                            <span class="text-4xl font-extrabold text-brand-navy">₹99</span>
-                            <span class="text-lg text-slate-400 line-through ml-2">₹1,499</span>
+                            <span id="displayProPrice" class="text-4xl font-extrabold text-brand-navy">₹99</span>
+                            <span id="displayProOriginal" class="text-lg text-slate-400 line-through ml-2">₹1,499</span>
                         </div>
                         <div class="text-xs font-semibold text-brand-orange uppercase tracking-wide mb-3">Everything in
                             Risk Mitigation plus:</div>
@@ -4235,7 +4234,7 @@
                     <p
                         style="color: #0C4A6E; font-size: 0.9rem; line-height: 1.6; margin: 0 0 20px 0; text-align: center; font-style: italic;">
                         "I'm a parent, not just a founder. I've made this Board Fitment mapping available for the price
-                        of a Chai (₹19) so no parent has to guess. My mission is to replace 'guessing' with pure
+                        of a Chai (<span id="chaiPriceText">₹19</span>) so no parent has to guess. My mission is to replace 'guessing' with pure
                         science. If this helps you, please share it in your school WhatsApp group—let's help more
                         parents choose the right board for their kids."
                     </p>
@@ -4288,7 +4287,7 @@
             <h3 style="color: #0F172A; font-weight: 800; font-size: 1.5rem; margin-bottom: 10px;">⚠️ Wait! You are
                 missing the "Radar"</h3>
             <p style="color: #64748B; font-size: 0.95rem; line-height: 1.5; margin-bottom: 20px;">
-                You selected the <strong>Basic Report (₹19)</strong>. This will tell you <em>"Which Board"</em> but it
+                You selected the <strong>Basic Report (<span id="modalBasicReportPrice">₹19</span>)</strong>. This will tell you <em>"Which Board"</em> but it
                 won't help you spot <strong>fake schools</strong> or hidden fees.
             </p>
 
@@ -4306,7 +4305,7 @@
 
             <button onclick="upgradeAndProceed()" class="custom-cta-button"
                 style="background: #10B981; margin-bottom: 10px;">
-                Yes! Upgrade to Smart Toolkit (₹49)
+                Yes! Upgrade to Smart Toolkit (<span id="modalSmartPrice">₹49</span>)
             </button>
             <button onclick="confirmDowngrade()"
                 style="background: transparent; border: none; color: #94A3B8; font-size: 0.85rem; width: 100%; cursor: pointer; text-decoration: underline;">
@@ -4323,7 +4322,7 @@
                 "Done-For-You" Advantage</h3>
             <p style="color: #64748B; font-size: 1rem; line-height: 1.5; margin-bottom: 25px;">
                 You've chosen the Toolkit. For just <strong>₹500 more</strong>, unlock the full <strong>Pro Admission
-                    Pack</strong> (₹1499).
+                    Pack</strong> (<span id="modalProPrice">₹1499</span>).
             </p>
 
             <div
@@ -4350,7 +4349,7 @@
 
             <button onclick="upgradeToProAndProceed()" class="custom-cta-button"
                 style="background: #10B981; margin-bottom: 15px; box-shadow: 0 4px 14px 0 rgba(16, 185, 129, 0.39);">
-                Yes, Upgrade to Pro (₹1499)
+                Yes, Upgrade to Pro (<span id="modalProBtnPrice">₹1499</span>)
             </button>
             <button onclick="confirmPremium()"
                 style="background: transparent; border: none; color: #94A3B8; font-size: 0.85rem; width: 100%; cursor: pointer; text-decoration: underline;">

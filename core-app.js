@@ -1,9 +1,121 @@
-﻿// --- LIVE CONFIGURATION ---
+// --- LIVE CONFIGURATION ---
 const RAZORPAY_KEY_ID = "rzp_live_RxHmfgMlTRV3Su";
 const EMAILJS_PUBLIC_KEY = "GJEWFtAL7s231EDrk";
 const EMAILJS_SERVICE_ID = "service_bm56t8v";
 const EMAILJS_TEMPLATE_ID = "template_qze00kx";
 const EMAILJS_LEAD_TEMPLATE_ID = "template_qze00kx";
+
+// --- ADMIN CONFIGURATION LOGIC ---
+function getAdminConfig() {
+    const local = JSON.parse(localStorage.getItem('aptSkolaAdminConfig') || '{}');
+    const defaults = window.AptSkolaConfig || {
+        schoolSwitchCostActive: true,
+        forensicReportActive: true,
+        packages: {
+            essentialActive: true,
+            premiumActive: true,
+            proActive: true
+        },
+        upgradeModals: {
+            essentialUpgradeActive: true,
+            premiumUpgradeActive: true
+        },
+        prices: {
+            essential: 19,
+            essentialOriginal: 499,
+            premium: 49,
+            premiumOriginal: 999,
+            pro: 99,
+            proOriginal: 1499
+        }
+    };
+    return {
+        schoolSwitchCostActive: local.schoolSwitchCostActive !== undefined ? local.schoolSwitchCostActive : defaults.schoolSwitchCostActive,
+        forensicReportActive: local.forensicReportActive !== undefined ? local.forensicReportActive : defaults.forensicReportActive,
+        packages: {
+            essentialActive: (local.packages && local.packages.essentialActive !== undefined) ? local.packages.essentialActive : defaults.packages.essentialActive,
+            premiumActive: (local.packages && local.packages.premiumActive !== undefined) ? local.packages.premiumActive : defaults.packages.premiumActive,
+            proActive: (local.packages && local.packages.proActive !== undefined) ? local.packages.proActive : defaults.packages.proActive,
+        },
+        upgradeModals: {
+            essentialUpgradeActive: (local.upgradeModals && local.upgradeModals.essentialUpgradeActive !== undefined) ? local.upgradeModals.essentialUpgradeActive : (defaults.upgradeModals ? defaults.upgradeModals.essentialUpgradeActive : true),
+            premiumUpgradeActive: (local.upgradeModals && local.upgradeModals.premiumUpgradeActive !== undefined) ? local.upgradeModals.premiumUpgradeActive : (defaults.upgradeModals ? defaults.upgradeModals.premiumUpgradeActive : true)
+        },
+        prices: {
+            essential: (local.prices && local.prices.essential !== undefined) ? Number(local.prices.essential) : defaults.prices.essential,
+            essentialOriginal: (local.prices && local.prices.essentialOriginal !== undefined) ? Number(local.prices.essentialOriginal) : defaults.prices.essentialOriginal,
+            premium: (local.prices && local.prices.premium !== undefined) ? Number(local.prices.premium) : defaults.prices.premium,
+            premiumOriginal: (local.prices && local.prices.premiumOriginal !== undefined) ? Number(local.prices.premiumOriginal) : defaults.prices.premiumOriginal,
+            pro: (local.prices && local.prices.pro !== undefined) ? Number(local.prices.pro) : defaults.prices.pro,
+            proOriginal: (local.prices && local.prices.proOriginal !== undefined) ? Number(local.prices.proOriginal) : defaults.prices.proOriginal,
+        }
+    };
+}
+window.getAdminConfig = getAdminConfig;
+
+function applyAdminConfig() {
+    const config = getAdminConfig();
+    
+    // Toggle elements visibility
+    const switchRow = document.getElementById('schoolSwitchPenaltyRow');
+    if (switchRow) {
+        switchRow.style.display = config.schoolSwitchCostActive !== false ? 'flex' : 'none';
+    }
+    
+    const forensicCard = document.getElementById('forensicReportCard');
+    if (forensicCard) {
+        forensicCard.style.display = config.forensicReportActive !== false ? 'flex' : 'none';
+    }
+    
+    const cardEssential = document.getElementById('cardEssential');
+    if (cardEssential) {
+        cardEssential.style.display = config.packages.essentialActive !== false ? 'flex' : 'none';
+    }
+    
+    const cardPremium = document.getElementById('cardPremium');
+    if (cardPremium) {
+        cardPremium.style.display = config.packages.premiumActive !== false ? 'flex' : 'none';
+    }
+    
+    const cardPro = document.getElementById('cardPro');
+    if (cardPro) {
+        cardPro.style.display = config.packages.proActive !== false ? 'flex' : 'none';
+    }
+    
+    // Update displayed prices
+    const elementsToUpdate = {
+        'displayEssentialPrice': `₹${config.prices.essential}`,
+        'displayEssentialOriginal': `₹${config.prices.essentialOriginal}`,
+        'displayPremiumPrice': `₹${config.prices.premium}`,
+        'displayPremiumOriginal': `₹${config.prices.premiumOriginal}`,
+        'displayProPrice': `₹${config.prices.pro}`,
+        'displayProOriginal': `₹${config.prices.proOriginal}`,
+        'chaiPriceText': `₹${config.prices.essential}`,
+        'modalBasicReportPrice': `₹${config.prices.essential}`,
+        'modalSmartPrice': `₹${config.prices.premium}`,
+        'modalProPrice': `₹${config.prices.pro}`,
+        'modalProBtnPrice': `₹${config.prices.pro}`
+    };
+    
+    for (const [id, value] of Object.entries(elementsToUpdate)) {
+        const el = document.getElementById(id);
+        if (el) el.textContent = value;
+    }
+}
+window.applyAdminConfig = applyAdminConfig;
+
+// Run admin config on load
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', applyAdminConfig);
+} else {
+    applyAdminConfig();
+}
+window.addEventListener('load', applyAdminConfig);
+
+// Route/Redirect to Admin portal if hash matches
+if (window.location.hash.toLowerCase() === '#admin' || window.location.search.toLowerCase().includes('admin')) {
+    window.location.href = 'Admin/index.html';
+}
 
 // --- FORCE DOMAIN CONSISTENCY ---
 if (location.hostname !== 'localhost' && location.hostname === 'www.aptskola.com') {
@@ -408,11 +520,12 @@ window.calculateNewConfusion = function () {
     const feeDisplay = document.getElementById('feeDisplay');
     if (feeDisplay) feeDisplay.textContent = baseFee.toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 });
 
+    const config = getAdminConfig();
     if (calculatorWorker) {
         // PRODUCTION: Offload to Worker
         calculatorWorker.postMessage({
             type: 'CALCULATE_CONFUSION',
-            payload: { baseFee }
+            payload: { baseFee, schoolSwitchCostActive: config.schoolSwitchCostActive }
         });
     } else {
         // LOCAL FALLBACK: Main Thread Logic
@@ -422,7 +535,7 @@ window.calculateNewConfusion = function () {
         const totalProjected = baseFee * ((Math.pow(r, n) - 1) / (r - 1));
 
         const hiddenFees = baseFee * 0.35;
-        const switchPenalty = 150000;
+        const switchPenalty = config.schoolSwitchCostActive !== false ? 150000 : 0;
         const remedialFix = 50000;
         const totalLeak = hiddenFees + switchPenalty + remedialFix;
 
@@ -1546,10 +1659,21 @@ function selectPackage(pkg, price) {
         // Allow Phase 0 (DNA) to proceed
     }
     if (window.event) window.event.stopPropagation();
-    selectedPackage = pkg;
-    selectedPrice = price;
+    
+    const config = getAdminConfig();
+    let actualPrice = price;
+    if (pkg === 'Essential') {
+        actualPrice = config.prices.essential;
+    } else if (pkg === 'Premium') {
+        actualPrice = config.prices.premium;
+    } else if (pkg === 'The Smart Parent Pro' || pkg === 'The Smart Parent Forensic Audit' || pkg === 'The Smart Parent Pro') {
+        actualPrice = config.prices.pro;
+    }
 
-    if (price === 599) {
+    selectedPackage = pkg;
+    selectedPrice = actualPrice;
+
+    if (pkg === 'Essential' && config.upgradeModals && config.upgradeModals.essentialUpgradeActive !== false) {
         hasSeenDowngradeModal = true;
         const modal = document.getElementById('downgradeModal');
         if (modal) {
@@ -1557,7 +1681,7 @@ function selectPackage(pkg, price) {
         } else {
             showPaymentPage();
         }
-    } else if (price === 999) {
+    } else if (pkg === 'Premium' && config.upgradeModals && config.upgradeModals.premiumUpgradeActive !== false) {
         const modal = document.getElementById('proUpgradeModal');
         if (modal) {
             modal.classList.add('active');
@@ -1572,32 +1696,36 @@ function selectPackage(pkg, price) {
 function confirmDowngrade() {
     const downgradeModal = document.getElementById('downgradeModal');
     if (downgradeModal) downgradeModal.classList.remove('active');
+    const config = getAdminConfig();
     selectedPackage = 'Essential';
-    selectedPrice = 599;
+    selectedPrice = config.prices.essential;
     showPaymentPage();
 }
 
 function upgradeAndProceed() {
     const downgradeModal = document.getElementById('downgradeModal');
     if (downgradeModal) downgradeModal.classList.remove('active');
+    const config = getAdminConfig();
     selectedPackage = 'The Risk Mitigation Protocol'; // Updated Name
-    selectedPrice = 999;
+    selectedPrice = config.prices.premium;
     showPaymentPage();
 }
 
 function upgradeToProAndProceed() {
     const modal = document.getElementById('proUpgradeModal');
     if (modal) modal.classList.remove('active');
+    const config = getAdminConfig();
     selectedPackage = 'The Smart Parent Forensic Audit'; // Updated Name
-    selectedPrice = 1499;
+    selectedPrice = config.prices.pro;
     showPaymentPage();
 }
 
 function confirmPremium() {
     const modal = document.getElementById('proUpgradeModal');
     if (modal) modal.classList.remove('active');
+    const config = getAdminConfig();
     selectedPackage = 'The Risk Mitigation Protocol'; // Updated Name
-    selectedPrice = 999;
+    selectedPrice = config.prices.premium;
     showPaymentPage();
 }
 
@@ -2067,7 +2195,7 @@ function displayBridgeNarrativeScreen() {
             <div style="margin-top: 30px; padding: 25px; background: linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%); border: 2px solid #0EA5E9; border-radius: 12px;">
                 <h4 style="color: #0369A1; font-size: 1rem; font-weight: 800; margin: 0 0 15px 0; text-align: center;">📢 Spread the Word</h4>
                 <p style="color: #0C4A6E; font-size: 0.9rem; line-height: 1.6; margin: 0 0 20px 0; text-align: center; font-style: italic;">
-                    "I'm a parent, not just a founder. I've made this Board Fitment mapping available for the price of a Chai (₹19) so no parent has to guess. My mission is to replace 'guessing' with pure science. If this helps you, please share it in your school WhatsApp group—let's help more parents choose the right board for their kids."
+                    "I'm a parent, not just a founder. I've made this Board Fitment mapping available for the price of a Chai (₹${getAdminConfig().prices.essential}) so no parent has to guess. My mission is to replace 'guessing' with pure science. If this helps you, please share it in your school WhatsApp group—let's help more parents choose the right board for their kids."
                 </p>
                 <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
                     <button onclick="shareToWhatsApp()" style="background: #25D366; color: white; font-weight: 700; padding: 12px 20px; border-radius: 8px; border: none; cursor: pointer; font-size: 0.9rem; display: flex; align-items: center; gap: 6px; transition: all 0.3s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(37, 211, 102, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
@@ -2245,7 +2373,7 @@ window.shareViaEmail = function () {
     const body = encodeURIComponent(
         "Hi,\n\n" +
         "I wanted to share this amazing tool I discovered - Wiseboard's Board Fitment Report.\n\n" +
-        "For just ₹19 (price of a chai!), it provides a scientific analysis to help parents choose the right school board for their child based on cognitive DNA mapping.\n\n" +
+        `For just ₹${getAdminConfig().prices.essential} (price of a chai!), it provides a scientific analysis to help parents choose the right school board for their child based on cognitive DNA mapping.\n\n` +
         "The founder, who is a parent themselves, created this to replace guessing with pure science.\n\n" +
         "Check it out here: " + window.location.href + "\n\n" +
         "Hope this helps!\n"
@@ -3472,7 +3600,7 @@ function calculateSyncMatch() {
                 <h3 style="color:#1E40AF; font-size:1.1rem; font-weight:800; margin:0 0 10px 0;">Apt Skola Exclusive: AI Forensic School X-ray</h3>
 
                 <div style="font-size:1.8rem; font-weight:900; color:#1D4ED8; margin:5px 0 10px;">
-                    ₹99 <span style="font-size:0.9rem; color:#64748B; text-decoration:line-through; font-weight:500;">₹399</span>
+                    ₹${getAdminConfig().prices.pro} <span style="font-size:0.9rem; color:#64748B; text-decoration:line-through; font-weight:500;">₹${getAdminConfig().prices.proOriginal}</span>
                 </div>
                 <p style="font-size:0.9rem; color:#475569; margin-bottom:15px; line-height:1.4;">
                     Spot hidden red flags, library authenticity, and teacher turnover using our proprietary AI vision tool.

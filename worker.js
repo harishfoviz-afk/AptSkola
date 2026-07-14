@@ -16,7 +16,7 @@ self.onmessage = function (e) {
 
         // Leak Calculation
         const hiddenFees = baseFee * 0.35;
-        const switchPenalty = 150000; // Fixed sunk cost
+        const switchPenalty = payload.schoolSwitchCostActive !== false ? 150000 : 0; // Fixed sunk cost
         const remedialFix = 50000;    // Fixed remedial cost
         const totalLeak = hiddenFees + switchPenalty + remedialFix;
 
