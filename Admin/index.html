@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apt Skola - Admin Dashboard</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Custom Vanilla CSS -->
+    <style>
+        :root {
+            --bg-dark: #0B132B;
+            --card-bg: rgba(28, 37, 65, 0.7);
+            --border-glow: rgba(255, 107, 53, 0.15);
+            --brand-orange: #FF6B35;
+            --brand-navy: #1C2541;
+            --text-light: #F8FAFC;
+            --text-gray: #94A3B8;
+            --success-green: #10B981;
+            --error-red: #EF4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0B132B 0%, #111E38 100%);
+            color: var(--text-light);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        /* Glassmorphism Card Container */
+        .admin-container {
+            width: 100%;
+            max-width: 600px;
+            padding: 40px;
+            margin: 20px;
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 50px var(--border-glow);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        h1, h2 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        h1 span {
+            color: var(--brand-orange);
+        }
+
+        .subtitle {
+            color: var(--text-gray);
+            font-size: 0.95rem;
+            text-align: center;
+            margin-top: -15px;
+            margin-bottom: 30px;
+        }
+
+        /* Form Controls */
+        .form-group {
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-gray);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        input[type="password"],
+        input[type="number"] {
+            width: 100%;
+            padding: 14px 18px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1.5px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: white;
+            font-size: 1rem;
+            font-weight: 500;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        input[type="password"]:focus,
+        input[type="number"]:focus {
+            border-color: var(--brand-orange);
+            box-shadow: 0 0 12px rgba(255, 107, 53, 0.3);
+            background: rgba(15, 23, 42, 0.9);
+        }
+
+        /* Custom Toggle Switch */
+        .switch-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            background: rgba(15, 23, 42, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 14px;
+            margin-bottom: 16px;
+        }
+
+        .switch-label {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .switch-title {
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        .switch-desc {
+            font-size: 0.75rem;
+            color: var(--text-gray);
+            margin-top: 2px;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 52px;
+            height: 28px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.1);
+            transition: .3s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--brand-orange);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+
+        /* Section Dividers */
+        .section-header {
+            font-size: 0.85rem;
+            font-weight: 800;
+            color: var(--brand-orange);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-top: 35px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 107, 53, 0.2);
+            padding-bottom: 6px;
+        }
+
+        /* Buttons styling */
+        .btn-group {
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        button {
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            border: none;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--brand-orange);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.5);
+            background: #ff7f52;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1.5px solid rgba(255, 255, 255, 0.15);
+            color: var(--text-light);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-success {
+            background: var(--success-green);
+            color: white;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        }
+
+        /* Pricing Input Grid */
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            background: rgba(15, 23, 42, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 20px;
+        }
+
+        .pricing-grid-header {
+            grid-column: span 2;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-bottom: 4px;
+        }
+
+        /* Notifications & Error messages */
+        .error-message {
+            color: var(--error-red);
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            display: none;
+            text-align: center;
+        }
+
+        .success-toast {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            background: var(--success-green);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            transform: translateY(-100px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 9999;
+        }
+
+        .success-toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* Views Toggle */
+        .hidden-view {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Success Toast -->
+    <div id="successToast" class="success-toast">
+        <span>✅</span> Settings saved successfully!
+    </div>
+
+    <!-- Login Container -->
+    <div id="loginCard" class="admin-container">
+        <h1>Apt <span>Skola</span></h1>
+        <div class="subtitle">Enter password to access portal</div>
+        
+        <div id="loginError" class="error-message">Incorrect password. Please try again.</div>
+        
+        <form onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="••••••••" required autofocus>
+            </div>
+            
+            <button type="submit" class="btn-primary">Unlock Dashboard 🔐</button>
+        </form>
+        
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="../index.html" style="color: var(--text-gray); text-decoration: none; font-size: 0.85rem; font-weight: 600;">← Back to Landing Page</a>
+        </div>
+    </div>
+
+    <!-- Dashboard Container -->
+    <div id="dashboardCard" class="admin-container hidden-view" style="max-height: 90vh; overflow-y: auto;">
+        <h1>Admin <span>Dashboard</span></h1>
+        <div class="subtitle">Configure landing page features and pricing</div>
+        
+        <!-- Toggle Section -->
+        <div class="section-header">Landing Page Content Toggles</div>
+        
+        <!-- School Switch Cost Toggle -->
+        <div class="switch-container">
+            <div class="switch-label">
+                <span class="switch-title">School Switch Cost</span>
+                <span class="switch-desc">Toggle the leakage alert switch penalty section & calculation</span>
+            </div>
+            <label class="switch">
+                <input type="checkbox" id="schoolSwitchToggle">
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <!-- Forensic Report Toggle -->
+        <div class="switch-container">
+            <div class="switch-label">
+                <span class="switch-title">🔎 Forensic Report Card</span>
+                <span class="switch-desc">Toggle visibility of AI Forensic X-Ray block in Ecosystem block</span>
+            </div>
+            <label class="switch">
+                <input type="checkbox" id="forensicReportToggle">
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <!-- Package Availability Toggles -->
+        <div class="section-header">Package Toggles</div>
+        
+        <div class="switch-container">
+            <div class="switch-label">
+                <span class="switch-title">Essential Package</span>
+                <span class="switch-desc">Toggle Essential package card in the pricing modal</span>
+            </div>
+            <label class="switch">
+                <input type="checkbox" id="essentialActiveToggle">
+                <span class="slider"></span>
+            </label>
+        </div>
+        
+        <div class="switch-container">
+            <div class="switch-label">
+                <span class="switch-title">Premium Package</span>
+                <span class="switch-desc">Toggle Premium package card in the pricing modal</span>
+            </div>
+            <label class="switch">
+                <input type="checkbox" id="premiumActiveToggle">
+                <span class="slider"></span>
+            </label>
+        </div>
+        
+        <div class="switch-container">
+            <div class="switch-label">
+                <span class="switch-title">Pro Package</span>
+                <span class="switch-desc">Toggle Pro package card in the pricing modal</span>
+            </div>
+            <label class="switch">
+                <input type="checkbox" id="proActiveToggle">
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <!-- Upgrade Popup Toggles -->
+        <div class="section-header">Upgrade Popup Toggles</div>
+        
+        <div class="switch-container">
+            <div class="switch-label">
+                <span class="switch-title">Essential Upgrade Upsell</span>
+                <span class="switch-desc">Show upsell popup (downgradeModal) when selecting Essential</span>
+            </div>
+            <label class="switch">
+                <input type="checkbox" id="essentialUpgradeToggle">
+                <span class="slider"></span>
+            </label>
+        </div>
+        
+        <div class="switch-container">
+            <div class="switch-label">
+                <span class="switch-title">Premium Upgrade Upsell</span>
+                <span class="switch-desc">Show upsell popup (proUpgradeModal) when selecting Premium</span>
+            </div>
+            <label class="switch">
+                <input type="checkbox" id="premiumUpgradeToggle">
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <!-- Pricing Section -->
+        <div class="section-header">Package Pricing & original prices (₹)</div>
+
+        <!-- Essential Prices -->
+        <div class="pricing-grid">
+            <div class="pricing-grid-header">Essential Package</div>
+            <div>
+                <label for="priceEssential" style="font-size: 0.75rem;">Active Price</label>
+                <input type="number" id="priceEssential" min="0" placeholder="19">
+            </div>
+            <div>
+                <label for="priceEssentialOriginal" style="font-size: 0.75rem;">Original Price</label>
+                <input type="number" id="priceEssentialOriginal" min="0" placeholder="499">
+            </div>
+        </div>
+
+        <!-- Premium Prices -->
+        <div class="pricing-grid">
+            <div class="pricing-grid-header">Premium Package</div>
+            <div>
+                <label for="pricePremium" style="font-size: 0.75rem;">Active Price</label>
+                <input type="number" id="pricePremium" min="0" placeholder="49">
+            </div>
+            <div>
+                <label for="pricePremiumOriginal" style="font-size: 0.75rem;">Original Price</label>
+                <input type="number" id="pricePremiumOriginal" min="0" placeholder="999">
+            </div>
+        </div>
+
+        <!-- Pro Prices -->
+        <div class="pricing-grid">
+            <div class="pricing-grid-header">Pro Package</div>
+            <div>
+                <label for="pricePro" style="font-size: 0.75rem;">Active Price</label>
+                <input type="number" id="pricePro" min="0" placeholder="99">
+            </div>
+            <div>
+                <label for="priceProOriginal" style="font-size: 0.75rem;">Original Price</label>
+                <input type="number" id="priceProOriginal" min="0" placeholder="1499">
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="btn-group">
+            <button onclick="saveConfig()" class="btn-primary">Save Settings 💾</button>
+            <button onclick="exportConfig()" class="btn-success">Export admin-config.js File 📤</button>
+            <button onclick="resetDefaults()" class="btn-secondary">Reset to Standard Defaults 🔄</button>
+            <button onclick="logout()" class="btn-secondary" style="margin-top: 10px; color: var(--error-red); border-color: rgba(239,68,68,0.2);">Logout 🔒</button>
+            <a href="../index.html" style="text-align: center; color: var(--text-gray); text-decoration: none; font-size: 0.85rem; font-weight: 600; margin-top: 10px;">← Back to Landing Page</a>
+        </div>
+    </div>
+
+    <!-- Configuration/JS files dependencies -->
+    <script src="../admin-config.js"></script>
+    
+    <script>
+        // Check session login state
+        if (sessionStorage.getItem('isAdminLoggedIn') === 'true') {
+            showDashboard();
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const passwordInput = document.getElementById('password').value;
+            const errorEl = document.getElementById('loginError');
+            
+            if (passwordInput === 'KUNTA') {
+                sessionStorage.setItem('isAdminLoggedIn', 'true');
+                errorEl.style.display = 'none';
+                showDashboard();
+            } else {
+                errorEl.style.display = 'block';
+                document.getElementById('password').value = '';
+                document.getElementById('password').focus();
+            }
+        }
+
+        function showDashboard() {
+            document.getElementById('loginCard').classList.add('hidden-view');
+            document.getElementById('dashboardCard').classList.remove('hidden-view');
+            loadFormValues();
+        }
+
+        function getActiveConfig() {
+            // Merges defaults from admin-config.js and settings stored in localStorage
+            const local = JSON.parse(localStorage.getItem('aptSkolaAdminConfig') || '{}');
+            const defaults = window.AptSkolaConfig || {
+                schoolSwitchCostActive: true,
+                forensicReportActive: true,
+                packages: { essentialActive: true, premiumActive: true, proActive: true },
+                upgradeModals: { essentialUpgradeActive: true, premiumUpgradeActive: true },
+                prices: { essential: 19, essentialOriginal: 499, premium: 49, premiumOriginal: 999, pro: 99, proOriginal: 1499 }
+            };
+            
+            return {
+                schoolSwitchCostActive: local.schoolSwitchCostActive !== undefined ? local.schoolSwitchCostActive : defaults.schoolSwitchCostActive,
+                forensicReportActive: local.forensicReportActive !== undefined ? local.forensicReportActive : defaults.forensicReportActive,
+                packages: {
+                    essentialActive: (local.packages && local.packages.essentialActive !== undefined) ? local.packages.essentialActive : defaults.packages.essentialActive,
+                    premiumActive: (local.packages && local.packages.premiumActive !== undefined) ? local.packages.premiumActive : defaults.packages.premiumActive,
+                    proActive: (local.packages && local.packages.proActive !== undefined) ? local.packages.proActive : defaults.packages.proActive,
+                },
+                upgradeModals: {
+                    essentialUpgradeActive: (local.upgradeModals && local.upgradeModals.essentialUpgradeActive !== undefined) ? local.upgradeModals.essentialUpgradeActive : (defaults.upgradeModals ? defaults.upgradeModals.essentialUpgradeActive : true),
+                    premiumUpgradeActive: (local.upgradeModals && local.upgradeModals.premiumUpgradeActive !== undefined) ? local.upgradeModals.premiumUpgradeActive : (defaults.upgradeModals ? defaults.upgradeModals.premiumUpgradeActive : true)
+                },
+                prices: {
+                    essential: (local.prices && local.prices.essential !== undefined) ? Number(local.prices.essential) : defaults.prices.essential,
+                    essentialOriginal: (local.prices && local.prices.essentialOriginal !== undefined) ? Number(local.prices.essentialOriginal) : defaults.prices.essentialOriginal,
+                    premium: (local.prices && local.prices.premium !== undefined) ? Number(local.prices.premium) : defaults.prices.premium,
+                    premiumOriginal: (local.prices && local.prices.premiumOriginal !== undefined) ? Number(local.prices.premiumOriginal) : defaults.prices.premiumOriginal,
+                    pro: (local.prices && local.prices.pro !== undefined) ? Number(local.prices.pro) : defaults.prices.pro,
+                    proOriginal: (local.prices && local.prices.proOriginal !== undefined) ? Number(local.prices.proOriginal) : defaults.prices.proOriginal,
+                }
+            };
+        }
+
+        function loadFormValues() {
+            const config = getActiveConfig();
+            
+            // Checkboxes
+            document.getElementById('schoolSwitchToggle').checked = config.schoolSwitchCostActive;
+            document.getElementById('forensicReportToggle').checked = config.forensicReportActive;
+            document.getElementById('essentialActiveToggle').checked = config.packages.essentialActive;
+            document.getElementById('premiumActiveToggle').checked = config.packages.premiumActive;
+            document.getElementById('proActiveToggle').checked = config.packages.proActive;
+            document.getElementById('essentialUpgradeToggle').checked = config.upgradeModals.essentialUpgradeActive;
+            document.getElementById('premiumUpgradeToggle').checked = config.upgradeModals.premiumUpgradeActive;
+            
+            // Pricing inputs
+            document.getElementById('priceEssential').value = config.prices.essential;
+            document.getElementById('priceEssentialOriginal').value = config.prices.essentialOriginal;
+            document.getElementById('pricePremium').value = config.prices.premium;
+            document.getElementById('pricePremiumOriginal').value = config.prices.premiumOriginal;
+            document.getElementById('pricePro').value = config.prices.pro;
+            document.getElementById('priceProOriginal').value = config.prices.proOriginal;
+        }
+
+        function saveConfig() {
+            const config = {
+                schoolSwitchCostActive: document.getElementById('schoolSwitchToggle').checked,
+                forensicReportActive: document.getElementById('forensicReportToggle').checked,
+                packages: {
+                    essentialActive: document.getElementById('essentialActiveToggle').checked,
+                    premiumActive: document.getElementById('premiumActiveToggle').checked,
+                    proActive: document.getElementById('proActiveToggle').checked,
+                },
+                upgradeModals: {
+                    essentialUpgradeActive: document.getElementById('essentialUpgradeToggle').checked,
+                    premiumUpgradeActive: document.getElementById('premiumUpgradeToggle').checked,
+                },
+                prices: {
+                    essential: Number(document.getElementById('priceEssential').value) || 19,
+                    essentialOriginal: Number(document.getElementById('priceEssentialOriginal').value) || 499,
+                    premium: Number(document.getElementById('pricePremium').value) || 49,
+                    premiumOriginal: Number(document.getElementById('pricePremiumOriginal').value) || 999,
+                    pro: Number(document.getElementById('pricePro').value) || 99,
+                    proOriginal: Number(document.getElementById('priceProOriginal').value) || 1499,
+                }
+            };
+            
+            localStorage.setItem('aptSkolaAdminConfig', JSON.stringify(config));
+            showToast();
+        }
+
+        function showToast() {
+            const toast = document.getElementById('successToast');
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        function resetDefaults() {
+            if (confirm("Are you sure you want to reset all configurations to the standard source defaults?")) {
+                localStorage.removeItem('aptSkolaAdminConfig');
+                loadFormValues();
+                showToast();
+            }
+        }
+
+        function logout() {
+            sessionStorage.removeItem('isAdminLoggedIn');
+            document.getElementById('dashboardCard').classList.add('hidden-view');
+            document.getElementById('loginCard').classList.remove('hidden-view');
+            document.getElementById('password').value = '';
+        }
+
+        function exportConfig() {
+            const config = getActiveConfig();
+            
+            // Generate Javascript file content
+            const fileContent = `// Apt Skola Admin Configurations
+// Generated from Admin Panel
+window.AptSkolaConfig = {
+    schoolSwitchCostActive: ${config.schoolSwitchCostActive},
+    forensicReportActive: ${config.forensicReportActive},
+    packages: {
+        essentialActive: ${config.packages.essentialActive},
+        premiumActive: ${config.packages.premiumActive},
+        proActive: ${config.packages.proActive}
+    },
+    upgradeModals: {
+        essentialUpgradeActive: ${config.upgradeModals.essentialUpgradeActive},
+        premiumUpgradeActive: ${config.upgradeModals.premiumUpgradeActive}
+    },
+    prices: {
+        essential: ${config.prices.essential},
+        essentialOriginal: ${config.prices.essentialOriginal},
+        premium: ${config.prices.premium},
+        premiumOriginal: ${config.prices.premiumOriginal},
+        pro: ${config.prices.pro},
+        proOriginal: ${config.prices.proOriginal}
+    }
+};
+`;
+
+            const blob = new Blob([fileContent], { type: 'application/javascript;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", "admin-config.js");
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+</html>
