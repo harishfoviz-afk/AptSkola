@@ -435,39 +435,20 @@ window.handleCostCalculatorClick = function () {
     if (globalHeader) globalHeader.classList.remove('hidden');
 };
 
-// --- SYNC GATE HANDLER (RESTORED) ---
-window.openSyncMatchGate = function () {
-    const gate = document.getElementById('syncMatchGate');
-    const landing = document.getElementById('landingPage');
-    const hero = document.getElementById('react-hero-root');
-    const calc = document.getElementById('cost-calculator-section');
-    const footer = document.getElementById('mainFooter');
 
-    // Hide others
-    if (landing) landing.classList.add('hidden');
-    if (hero) hero.classList.add('hidden');
-    if (calc) calc.classList.add('hidden');
-    if (hero) hero.classList.add('hidden');
-    if (calc) calc.classList.add('hidden');
-
-    window.toggleFooter('minimal');
-    const globalHeader = document.getElementById('global-sticky-header');
-    if (globalHeader) globalHeader.classList.remove('hidden');
-
-    // Show Gate
-    if (gate) {
-        gate.classList.remove('hidden');
-        gate.classList.add('active');
-        gate.style.display = 'block';
-        gate.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-        // Focus Input if exists
-        const input = document.getElementById('syncOrderId');
-        if (input) setTimeout(() => input.focus(), 500);
-    }
-};
 
 window.revealPolicies = function (id) {
+    const landing = document.getElementById('landingPage');
+    if (landing) {
+        landing.classList.remove('hidden');
+        landing.classList.add('active');
+        landing.style.setProperty('display', 'block', 'important');
+    }
+    const hero = document.getElementById('react-hero-root');
+    if (hero) {
+        hero.classList.remove('hidden');
+        hero.style.setProperty('display', 'flex', 'important');
+    }
     const policySection = document.getElementById('contact-policies');
     if (policySection) {
         policySection.classList.remove('hidden');
@@ -478,6 +459,7 @@ window.revealPolicies = function (id) {
             policySection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
     }
+    window.toggleFooter('landing');
 };
 
 // --- WORKER INITIALIZATION ---
@@ -599,15 +581,7 @@ function RealCostOfSchooling(tuitionFee) {
 // Legacy wrapper
 const calculateCostOfConfusion = RealCostOfSchooling;
 
-// --- UI COMPONENTS (HTML Strings) ---
-const xrayCardHtml = `
-    <div class="xray-card">
-        <h3>Apt Skola Exclusive: AI Forensic School X-ray</h3>
-        <div class="price">₹99 <span style="font-size: 0.9rem; color: #64748B; text-decoration: line-through;">₹399</span></div>
-        <p style="font-size: 0.85rem; color: #475569; margin-bottom: 15px;">Spot hidden red flags, library authenticity, and teacher turnover using our proprietary AI vision tool.</p>
-        <a href="https://xray.aptskola.com" target="_blank" class="btn-xray">Get X-ray (75% OFF)</a>
-    </div>
-`;
+
 
 const fovizBannerHtml = `
     <div class="foviz-banner" style="margin-top: 30px; padding: 15px; background: #F0FDFA; border: 1px solid #CCFBF1; border-radius: 8px; text-align: center;">
@@ -1545,11 +1519,11 @@ function showSyncTransition() {
     transition.classList.add('active');
 
     const transitionContainer = transition.querySelector('.details-form');
-    if (transitionContainer && !transitionContainer.querySelector('.xray-card')) {
+    if (transitionContainer && !transitionContainer.querySelector('.foviz-banner')) {
         // Find the timer circle to place the ads below it
         const timerCont = transitionContainer.querySelector('.timer-circle-container');
         if (timerCont) {
-            timerCont.insertAdjacentHTML('afterend', xrayCardHtml + fovizBannerHtml);
+            timerCont.insertAdjacentHTML('afterend', fovizBannerHtml);
         }
     }
 
@@ -1658,6 +1632,38 @@ function showPaymentPage() {
     }
 }
 
+function updateOrderIdForSelectedPrice() {
+    if (typeof customerData !== 'undefined' && customerData && customerData.orderId) {
+        const oldOrderId = customerData.orderId;
+        const prefix = selectedPrice === 49 ? 'AS5-' : (selectedPrice === 99 ? 'AS9-' : 'AS1-');
+        
+        // Only update if the prefix changed
+        if (!oldOrderId.startsWith(prefix)) {
+            const baseId = oldOrderId.includes('-') ? oldOrderId.split('-')[1] : oldOrderId.slice(4);
+            const newOrderId = prefix + baseId;
+            
+            console.log(`Updating Order ID from ${oldOrderId} to ${newOrderId} due to price change to ${selectedPrice}`);
+            
+            // Update customerData
+            customerData.orderId = newOrderId;
+            customerData.amount = selectedPrice;
+            customerData.package = selectedPackage;
+            
+            // Clean up old local storage item
+            localStorage.removeItem(`aptskola_session_${oldOrderId}`);
+            
+            // Persist with new key
+            localStorage.setItem(`aptskola_session_${newOrderId}`, JSON.stringify({
+                answers: answers,
+                customerData: customerData,
+                selectedPackage: selectedPackage,
+                selectedPrice: selectedPrice
+            }));
+            localStorage.setItem('aptskola_last_order_id', newOrderId);
+        }
+    }
+}
+
 function selectPackage(pkg, price) {
     if (window.currentPhase !== 1 && window.currentPhase !== 2 && !isSyncMatchMode && window.currentPhase !== 0) {
         // Allow Phase 0 (DNA) to proceed
@@ -1677,6 +1683,9 @@ function selectPackage(pkg, price) {
     selectedPackage = pkg;
     selectedPrice = actualPrice;
 
+    // Dynamically update order ID prefix and persist if package tier changed
+    updateOrderIdForSelectedPrice();
+
     if (pkg === 'Essential' && config.upgradeModals && config.upgradeModals.essentialUpgradeActive !== false) {
         hasSeenDowngradeModal = true;
         const modal = document.getElementById('downgradeModal');
@@ -1694,18 +1703,14 @@ function confirmDowngrade() {
     const downgradeModal = document.getElementById('downgradeModal');
     if (downgradeModal) downgradeModal.classList.remove('active');
     const config = getAdminConfig();
-    selectedPackage = 'Essential';
-    selectedPrice = config.prices.essential;
-    showPaymentPage();
+    selectPackage('Essential', config.prices.essential);
 }
 
 function upgradeAndProceed() {
     const downgradeModal = document.getElementById('downgradeModal');
     if (downgradeModal) downgradeModal.classList.remove('active');
     const config = getAdminConfig();
-    selectedPackage = 'The Risk Mitigation Protocol'; // Updated Name
-    selectedPrice = config.prices.premium;
-    showPaymentPage();
+    selectPackage('Premium', config.prices.premium);
 }
 
 
@@ -2428,7 +2433,7 @@ function showDetailsPage() {
 }
 
 function generateOrderId(prefix = '') {
-    const typePrefix = prefix || (selectedPrice === 599 ? 'AS5-' : (selectedPrice === 999 ? 'AS9-' : 'AS1-'));
+    const typePrefix = prefix || (selectedPrice === 49 ? 'AS5-' : (selectedPrice === 99 ? 'AS9-' : 'AS1-'));
     return typePrefix + Date.now().toString().slice(-8) + Math.floor(Math.random() * 100);
 }
 
@@ -2884,8 +2889,8 @@ async function triggerAutomatedEmail() {
     htmlSummary += '<p style="margin-top: 0;"><strong>Persona:</strong> ' + data.persona + '</p>';
     htmlSummary += '<p style="line-height: 1.6;"><strong>Philosophy:</strong> ' + data.philosophy + '</p>';
 
-    // ADDED: Premium Insights (₹999 Tier)
-    if (selectedPrice >= 999) {
+    // ADDED: Premium Insights (₹99 Tier)
+    if (selectedPrice >= 99) {
         console.log("Adding premium content for price:", selectedPrice);
         htmlSummary += '<div style="margin-top: 20px; padding: 15px; background-color: #F0FDF4; border-left: 4px solid #10B981; border-radius: 4px;">';
         htmlSummary += '<h4 style="margin: 0 0 5px 0; color: #166534; font-size: 14px; text-transform: uppercase;">Premium Insights</h4>';
@@ -2894,8 +2899,8 @@ async function triggerAutomatedEmail() {
         htmlSummary += '</div>';
     }
 
-    // ADDED: Pro Admission Tips (₹1499 Tier)
-    if (selectedPrice >= 1499) {
+    // ADDED: Pro Admission Tips (₹99 Tier)
+    if (selectedPrice >= 99) {
         console.log("Adding pro content for price:", selectedPrice);
         htmlSummary += '<div style="margin-top: 15px; padding: 15px; background-color: #FFF7ED; border-left: 4px solid #FF6B35; border-radius: 4px;">';
         htmlSummary += '<h4 style="margin: 0 0 5px 0; color: #9A3412; font-size: 14px; text-transform: uppercase;">Pro Admission Tips</h4>';
@@ -3036,14 +3041,14 @@ function handleManualBoardConfirmation() {
     // INFER TIER IF MISSING (For AS9/AS1 manual recovery)
     if (customerData.orderId.toUpperCase().startsWith("AS9")) {
         customerData.package = 'Premium';
-        customerData.amount = 999;
+        customerData.amount = 99;
         selectedPackage = 'Premium';
-        selectedPrice = 999;
+        selectedPrice = 99;
     } else if (customerData.orderId.toUpperCase().startsWith("AS1")) {
-        customerData.package = 'The Smart Parent Pro';
-        customerData.amount = 1499;
-        selectedPackage = 'The Smart Parent Pro';
-        selectedPrice = 1499;
+        customerData.package = 'Premium';
+        customerData.amount = 99;
+        selectedPackage = 'Premium';
+        selectedPrice = 99;
     }
 
     // Persist again
@@ -3058,18 +3063,6 @@ let hasShownSuccessModals = false;
 
 function closeBonusModalAndShowSuccess() {
     document.getElementById('bonusModal').classList.remove('active');
-
-    // Check for Pro Tier (Price >= 1499) for the second acknowledgment
-    if (selectedPrice >= 1499) {
-        document.getElementById('forensicSuccessModal').classList.add('active');
-    } else {
-        hasShownSuccessModals = true;
-        showInstantSuccessPage();
-    }
-}
-
-function closeForensicModalAndShowSuccess() {
-    document.getElementById('forensicSuccessModal').classList.remove('active');
     hasShownSuccessModals = true;
     showInstantSuccessPage();
 }
@@ -3080,7 +3073,7 @@ async function showInstantSuccessPage() {
 
     // 1. MODAL FLOW INTERCEPTION
     if (!hasShownSuccessModals) {
-        if (selectedPrice >= 999) {
+        if (selectedPrice >= 99) {
             // Show First Acknowledgment
             const bonusModal = document.getElementById('bonusModal');
             if (bonusModal) {
@@ -3152,7 +3145,7 @@ async function showInstantSuccessPage() {
         }
     }
 
-    if (selectedPrice >= 1499) {
+    if (selectedPrice >= 99) {
         const ticket = document.getElementById('goldenTicketContainer');
         if (ticket) ticket.style.display = 'block';
     }
@@ -3173,6 +3166,7 @@ async function showInstantSuccessPage() {
 
 
 // --- SYNC MATCH LOGIC RESTORED ---
+// --- SYNC MATCH LOGIC RESTORED ---
 function openSyncMatchGate() {
     console.log("Opening Sync Match Gate...");
     // 1. Hide Landing Page
@@ -3186,7 +3180,13 @@ function openSyncMatchGate() {
     const hero = document.getElementById('react-hero-root');
     if (hero) {
         hero.classList.add('hidden');
-        hero.style.display = 'none';
+        hero.style.setProperty('display', 'none', 'important');
+    }
+
+    // Hide cost calculator
+    const calc = document.getElementById('cost-calculator-section');
+    if (calc) {
+        calc.classList.add('hidden');
     }
 
     // 2. Hide all other specific containers
@@ -3195,6 +3195,7 @@ function openSyncMatchGate() {
         const el = document.getElementById(id);
         if (el) {
             el.classList.remove('active');
+            el.classList.add('hidden');
             el.style.display = ''; // Clear inline style
         }
     });
@@ -3207,7 +3208,9 @@ function openSyncMatchGate() {
     if (gate) {
         // Inject Header
         const gHeader = document.getElementById('syncGateHeader');
-        if (gHeader) gHeader.innerHTML = getIntermediateHeaderHtml();
+        if (gHeader) {
+            gHeader.innerHTML = getIntermediateHeaderHtml();
+        }
 
         gate.classList.remove('hidden');
         gate.classList.add('active');
@@ -3218,6 +3221,7 @@ function openSyncMatchGate() {
         console.error("Sync Match Gate element not found!");
     }
 }
+window.openSyncMatchGate = openSyncMatchGate;
 // NEW FUNCTION: Process Sync Upgrade for AS5 users  
 window.processSyncUpgrade = function () {
     const btn = document.querySelector('#upgradeBlock button');
@@ -3308,7 +3312,7 @@ function validateAndStartSyncMatch() {
     }
 
     // Load Session
-    let parsed = { answers: {}, customerData: {}, selectedPackage: 'Premium', selectedPrice: 999 };
+    let parsed = { answers: {}, customerData: {}, selectedPackage: 'Premium', selectedPrice: 99 };
     if (sessionData) {
         parsed = JSON.parse(sessionData);
         // MERGE: Keep the new Child Name and Order ID, don't overwrite with old data
@@ -3319,24 +3323,24 @@ function validateAndStartSyncMatch() {
         // SYNTHETIC SESSION FOR AS5 UPGRADE
         // Assumption: If entering AS5 ID manually and no session found, 
         // they are effectively an "Essential" user needing upgrade.
-        parsed.selectedPrice = 599;
+        parsed.selectedPrice = 49;
         parsed.selectedPackage = 'Essential';
         parsed.customerData = {
             childName: syncChildName,
             orderId: orderId,
             childAge: syncChildAge, // Critical for Question Options
-            amount: 599
+            amount: 49
         };
     }
     answers = parsed.answers || {};
     customerData = parsed.customerData || {};
     selectedPackage = parsed.selectedPackage || 'Essential'; // Default to Essential if missing 
-    selectedPrice = parsed.selectedPrice || 599;
+    selectedPrice = parsed.selectedPrice || 49;
 
     // Check for Upgrade Requirement (Sync Check is Premium Feature)
-    // AS5- users MUST pay 299 to proceed.
+    // AS5- users MUST pay to proceed.
     // const isAS5 ... (already defined above)
-    const isEssentialTier = (selectedPrice < 999 && selectedPackage !== "The Smart Parent Pro" && selectedPackage !== "Premium") || isAS5;
+    const isEssentialTier = (selectedPrice < 99 && selectedPackage !== "The Smart Parent Pro" && selectedPackage !== "Premium") || isAS5;
 
     if (isEssentialTier) {
         const upgradeBlock = document.getElementById('upgradeBlock');
@@ -3577,17 +3581,7 @@ function calculateSyncMatch() {
 
             ${bridgeHtml}
 
-            <div class="apt-skola-exclusive" style="text-align:center;">
-                <h3 style="color:#1E40AF; font-size:1.1rem; font-weight:800; margin:0 0 10px 0;">Apt Skola Exclusive: AI Forensic School X-ray</h3>
 
-                <div style="font-size:1.8rem; font-weight:900; color:#1D4ED8; margin:5px 0 10px;">
-                    ₹${getAdminConfig().prices.pro} <span style="font-size:0.9rem; color:#64748B; text-decoration:line-through; font-weight:500;">₹${getAdminConfig().prices.proOriginal}</span>
-                </div>
-                <p style="font-size:0.9rem; color:#475569; margin-bottom:15px; line-height:1.4;">
-                    Spot hidden red flags, library authenticity, and teacher turnover using our proprietary AI vision tool.
-                </p>
-                <a href="https://xray.aptskola.com" target="_blank" class="btn-xray" style="display:inline-block;">Get X-ray (75% OFF)</a>
-            </div>
 
 
             <!-- Partnership / Ambassador Form -->
@@ -3734,8 +3728,8 @@ async function renderReportToBrowser() {
     }
     const amount = (sessionData && sessionData.selectedPrice) ? sessionData.selectedPrice : (sessionCustomerData.amount || 599);
     const pkgName = (sessionData && sessionData.selectedPackage) ? sessionData.selectedPackage : (sessionCustomerData.package || '');
-    const isPro = amount >= 1499 || pkgName === 'The Smart Parent Pro';
-    const isPremium = amount >= 999 || pkgName === 'Premium' || isPro;
+    const isPro = amount >= 99 || pkgName === 'Premium' || pkgName === 'The Smart Parent Pro';
+    const isPremium = amount >= 99 || pkgName === 'Premium' || isPro;
 
     // --- BASE BLOCKS (Included in all tiers: ₹599, ₹999, ₹1499) ---
     let html = `
@@ -4018,7 +4012,7 @@ async function downloadReport() {
         document.body.appendChild(tempContainer);
 
         // 2. Clone cards into this container
-        const originalCards = reportElement.querySelectorAll(".report-card, .xray-card, .foviz-banner, .btn-ambassador");
+        const originalCards = reportElement.querySelectorAll(".report-card, .foviz-banner, .btn-ambassador");
         originalCards.forEach(card => {
             const clone = card.cloneNode(true);
             // Ensure clone has full width
@@ -4115,7 +4109,7 @@ async function sharePDF() {
             await renderReportToBrowser();
         }
 
-        const cards = reportElement.querySelectorAll(".report-card, .xray-card, .foviz-banner, .btn-ambassador");
+        const cards = reportElement.querySelectorAll(".report-card, .foviz-banner, .btn-ambassador");
         const pdf = new jsPDF("p", "mm", "a4");
         const pdfWidth = pdf.internal.pageSize.getWidth();
         const pdfHeight = pdf.internal.pageSize.getHeight();
@@ -5228,16 +5222,7 @@ window.handleCostCalculatorClick = function () {
     }
 };
 
-window.openSyncMatchGate = function () {
-    const gate = document.getElementById('syncMatchGate');
-    const landing = document.getElementById('landingPage');
-    if (gate) {
-        gate.classList.remove('hidden');
-        gate.classList.add('active'); // Ensure active class for flex display
-        if (landing) landing.classList.add('hidden');
-        window.scrollTo({ top: 0, behavior: 'instant' });
-    }
-};
+
 
 window.safeExecute = function (fn) {
     try {
@@ -5281,173 +5266,4 @@ document.addEventListener('DOMContentLoaded', () => {
         if (typeof calculateNewConfusion === 'function') calculateNewConfusion();
     }
 });
-
-// --- INTEGRATED ADMIN PORTAL LOGIC ---
-window.handleAdminLogin = function(e) {
-    if (e) e.preventDefault();
-    const passwordInput = document.getElementById('adminPassword').value;
-    const errorEl = document.getElementById('adminLoginError');
-    
-    if (passwordInput === 'KUNTA') {
-        sessionStorage.setItem('isAdminLoggedIn', 'true');
-        errorEl.style.display = 'none';
-        showAdminDashboard();
-    } else {
-        errorEl.style.display = 'block';
-        document.getElementById('adminPassword').value = '';
-        document.getElementById('adminPassword').focus();
-    }
-};
-
-function showAdminDashboard() {
-    document.getElementById('adminLoginCard').style.display = 'none';
-    document.getElementById('adminDashboardCard').style.display = 'block';
-    loadAdminFormValues();
-}
-
-window.logoutAdmin = function() {
-    sessionStorage.removeItem('isAdminLoggedIn');
-    document.getElementById('adminDashboardCard').style.display = 'none';
-    document.getElementById('adminLoginCard').style.display = 'block';
-    document.getElementById('adminPassword').value = '';
-};
-
-window.saveAdminConfig = function() {
-    const config = {
-        schoolSwitchCostActive: document.getElementById('adminSchoolSwitchToggle').checked,
-        forensicReportActive: document.getElementById('adminForensicReportToggle').checked,
-        packages: {
-            essentialActive: document.getElementById('adminEssentialActiveToggle').checked,
-            premiumActive: document.getElementById('adminPremiumActiveToggle').checked,
-            proActive: document.getElementById('adminProActiveToggle').checked,
-        },
-        upgradeModals: {
-            essentialUpgradeActive: document.getElementById('adminEssentialUpgradeToggle').checked,
-            premiumUpgradeActive: document.getElementById('adminPremiumUpgradeToggle').checked,
-        },
-        prices: {
-            essential: Number(document.getElementById('adminPriceEssential').value) || 49,
-            essentialOriginal: Number(document.getElementById('adminPriceEssentialOriginal').value) || 499,
-            premium: Number(document.getElementById('adminPricePremium').value) || 99,
-            premiumOriginal: Number(document.getElementById('adminPricePremiumOriginal').value) || 999,
-            pro: Number(document.getElementById('adminPricePro').value) || 99,
-            proOriginal: Number(document.getElementById('adminPriceProOriginal').value) || 1499,
-        }
-    };
-    
-    localStorage.setItem('aptSkolaAdminConfig', JSON.stringify(config));
-    
-    // Apply changes immediately in the current session!
-    if (typeof applyAdminConfig === 'function') {
-        applyAdminConfig();
-    }
-    
-    showAdminToast();
-};
-
-function showAdminToast() {
-    const toast = document.getElementById('adminSuccessToast');
-    if (toast) {
-        toast.style.transform = 'translateY(0)';
-        toast.style.opacity = '1';
-        setTimeout(() => {
-            toast.style.transform = 'translateY(-100px)';
-            toast.style.opacity = '0';
-        }, 3000);
-    }
-}
-
-window.resetAdminDefaults = function() {
-    if (confirm("Are you sure you want to reset all configurations to the standard source defaults?")) {
-        localStorage.removeItem('aptSkolaAdminConfig');
-        loadAdminFormValues();
-        if (typeof applyAdminConfig === 'function') {
-            applyAdminConfig();
-        }
-        showAdminToast();
-    }
-};
-
-window.exportAdminConfig = function() {
-    const config = getAdminConfig();
-    const fileContent = `// Apt Skola Admin Configurations
-// Generated from Admin Panel
-window.AptSkolaConfig = {
-    schoolSwitchCostActive: ${config.schoolSwitchCostActive},
-    forensicReportActive: ${config.forensicReportActive},
-    packages: {
-        essentialActive: ${config.packages.essentialActive},
-        premiumActive: ${config.packages.premiumActive},
-        proActive: ${config.packages.proActive}
-    },
-    upgradeModals: {
-        essentialUpgradeActive: ${config.upgradeModals.essentialUpgradeActive},
-        premiumUpgradeActive: ${config.upgradeModals.premiumUpgradeActive}
-    },
-    prices: {
-        essential: ${config.prices.essential},
-        essentialOriginal: ${config.prices.essentialOriginal},
-        premium: ${config.prices.premium},
-        premiumOriginal: ${config.prices.premiumOriginal},
-        pro: ${config.prices.pro},
-        proOriginal: ${config.prices.proOriginal}
-    }
-};
-`;
-
-    const blob = new Blob([fileContent], { type: 'application/javascript;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.setAttribute("href", url);
-    link.setAttribute("download", "admin-config.js");
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-};
-
-function loadAdminFormValues() {
-    const config = getAdminConfig();
-    
-    // Checkboxes
-    document.getElementById('adminSchoolSwitchToggle').checked = config.schoolSwitchCostActive;
-    document.getElementById('adminForensicReportToggle').checked = config.forensicReportActive;
-    document.getElementById('adminEssentialActiveToggle').checked = config.packages.essentialActive;
-    document.getElementById('adminPremiumActiveToggle').checked = config.packages.premiumActive;
-    document.getElementById('adminProActiveToggle').checked = config.packages.proActive;
-    document.getElementById('adminEssentialUpgradeToggle').checked = config.upgradeModals.essentialUpgradeActive;
-    document.getElementById('adminPremiumUpgradeToggle').checked = config.upgradeModals.premiumUpgradeActive;
-    
-    // Pricing inputs
-    document.getElementById('adminPriceEssential').value = config.prices.essential;
-    document.getElementById('adminPriceEssentialOriginal').value = config.prices.essentialOriginal;
-    document.getElementById('adminPricePremium').value = config.prices.premium;
-    document.getElementById('adminPricePremiumOriginal').value = config.prices.premiumOriginal;
-    document.getElementById('adminPricePro').value = config.prices.pro;
-    document.getElementById('adminPriceProOriginal').value = config.prices.proOriginal;
-}
-
-window.closeAdminPortal = function() {
-    window.location.hash = '';
-};
-
-function checkAdminHash() {
-    const isShowing = window.location.hash.toLowerCase() === '#admin' || window.location.search.toLowerCase().includes('admin');
-    const overlay = document.getElementById('adminPortalOverlay');
-    if (overlay) {
-        if (isShowing) {
-            overlay.style.display = 'block';
-            if (sessionStorage.getItem('isAdminLoggedIn') === 'true') {
-                showAdminDashboard();
-            } else {
-                document.getElementById('adminLoginCard').style.display = 'block';
-                document.getElementById('adminDashboardCard').style.display = 'none';
-            }
-        } else {
-            overlay.style.display = 'none';
-        }
-    }
-}
-window.addEventListener('hashchange', checkAdminHash);
-window.addEventListener('load', checkAdminHash);
 

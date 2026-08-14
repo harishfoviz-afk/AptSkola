@@ -225,35 +225,6 @@
                             h('span', { className: "text-white font-black text-lg md:text-xl italic" }, "Vs")
                         ),
 
-                        // MOBILE STICKER (Attached to Vs)
-                        h('button', {
-                            type: 'button',
-                            className: "absolute -right-48 -top-4 z-50 transform rotate-12 block md:hidden cursor-pointer active:scale-95 transition-transform appearance-none bg-transparent border-none p-0",
-                            style: { touchAction: 'manipulation' },
-                            onClick: (e) => { e.stopPropagation(); triggerStart(0); },
-                            onTouchStart: (e) => { e.stopPropagation(); e.preventDefault(); triggerStart(0); }
-                        },
-                            h('div', { className: "relative w-20 h-20 bg-[#0F172A] rounded-full border-2 border-[#F59E0B] shadow-[0_0_15px_rgba(245,158,11,0.4)] flex items-center justify-center overflow-hidden scale-90 animate-pulse-slow" },
-                                // Rotating Text Ring
-                                h('div', { className: "absolute inset-0 animate-spin-slow-linear w-full h-full" },
-                                    h('svg', { viewBox: "0 0 100 100", className: "w-full h-full" },
-                                        h('defs', {},
-                                            h('path', { id: "circlePath", d: "M 50, 50 m -35, 0 a 35,35 0 1,1 70,0 a 35,35 0 1,1 -70,0" })
-                                        ),
-                                        h('text', { fill: "#F59E0B", fontSize: "9", fontWeight: "bold", letterSpacing: "1.2" },
-                                            h('textPath', { href: "#circlePath" }, "• LIMITED ADMISSION SEASON SPECIAL •")
-                                        )
-                                    )
-                                ),
-                                // Inner Content
-                                h('div', { className: "relative z-10 flex flex-col items-center justify-center leading-none mt-1" },
-                                    h('span', { className: "text-xl font-black text-white drop-shadow-md" }, "₹49"),
-                                    h('span', { className: "text-[10px] text-slate-400 line-through decoration-red-500 decoration-2 font-bold opacity-80 mt-0.5" }, "₹499")
-                                )
-                            )
-                        )
-                    ),
-
                     // Part 3: "Suits" Question
                     h('div', {
                         className: "text-center md:text-left"
@@ -282,33 +253,6 @@
                 // New Headline (Replaces STOP/Worrying)
                 h('div', { style: { position: 'relative', display: 'inline-block', marginBottom: '0.25rem', fontSize: 'clamp(18px, 5vw, 28px)', whiteSpace: 'nowrap', overflow: 'visible', textOverflow: 'clip', textAlign: 'center' } },
 
-                    // DESKTOP STICKER (Attached to Headline, Hidden on Mobile)
-                    h('button', {
-                        type: 'button',
-                        className: "absolute -right-4 -top-12 md:-left-32 md:-top-8 z-50 transform rotate-12 md:-rotate-12 hover:rotate-0 transition-transform duration-300 cursor-pointer group hidden md:block active:scale-95 appearance-none bg-transparent border-none p-0",
-                        style: { touchAction: 'manipulation' },
-                        onClick: () => triggerStart(0),
-                        onTouchStart: (e) => { e.preventDefault(); triggerStart(0); }
-                    },
-                        h('div', { className: "relative w-20 h-20 md:w-24 md:h-24 bg-[#0F172A] rounded-full border-2 border-[#F59E0B] shadow-[0_0_15px_rgba(245,158,11,0.4)] flex items-center justify-center overflow-hidden scale-90 md:scale-100 animate-pulse-slow" },
-                            // Rotating Text Ring
-                            h('div', { className: "absolute inset-0 animate-spin-slow-linear w-full h-full" },
-                                h('svg', { viewBox: "0 0 100 100", className: "w-full h-full" },
-                                    h('defs', {},
-                                        h('path', { id: "circlePath", d: "M 50, 50 m -35, 0 a 35,35 0 1,1 70,0 a 35,35 0 1,1 -70,0" })
-                                    ),
-                                    h('text', { fill: "#F59E0B", fontSize: "9", fontWeight: "bold", letterSpacing: "1.2" },
-                                        h('textPath', { href: "#circlePath" }, "• LIMITED ADMISSION SEASON SPECIAL •")
-                                    )
-                                )
-                            ),
-                            // Inner Content
-                            h('div', { className: "relative z-10 flex flex-col items-center justify-center leading-none mt-1" },
-                                h('span', { className: "text-xl md:text-2xl font-black text-white drop-shadow-md" }, "₹49"),
-                                h('span', { className: "text-[10px] md:text-xs text-slate-400 line-through decoration-red-500 decoration-2 font-bold opacity-80 mt-0.5" }, "₹499")
-                            )
-                        )
-                    ),
                     h('span', { className: "text-slate-400" }, "From Enquiring "),
                     // Animated Arrow (Replaces "to")
                     h('span', {
@@ -828,15 +772,6 @@
                         },
                             h('span', { className: "text-lg transition-all" }, "🔐"),
                             " Unlock Parent & Child Sync Check"
-                        ),
-                        // 3. Forensic Report
-                        config.forensicReportActive !== false && h('a', {
-                            href: "https://xray.aptskola.com",
-                            target: "_blank",
-                            className: "group px-6 py-3 rounded-xl font-bold text-slate-100 border border-slate-500 bg-slate-800/60 hover:border-[#FF6B35] hover:text-white hover:bg-slate-800/80 transition-all text-sm flex items-center gap-2 no-underline text-center shadow-lg backdrop-blur-sm"
-                        },
-                            h('span', { className: "text-lg transition-all" }, "🔎"),
-                            " School/College Forensic Report"
                         )
                     )
                 ),
