@@ -6,16 +6,16 @@ window.AptSkolaConfig = {
     packages: {
         essentialActive: true,
         premiumActive: true,
-        proActive: true
+        proActive: false
     },
     upgradeModals: {
         essentialUpgradeActive: true,
-        premiumUpgradeActive: true
+        premiumUpgradeActive: false
     },
     prices: {
-        essential: 19,
+        essential: 49,
         essentialOriginal: 499,
-        premium: 49,
+        premium: 99,
         premiumOriginal: 999,
         pro: 99,
         proOriginal: 1499

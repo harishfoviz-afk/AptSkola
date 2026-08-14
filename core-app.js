@@ -43,16 +43,16 @@ function getAdminConfig() {
         packages: {
             essentialActive: getVal(['packages', 'essentialActive'], true),
             premiumActive: getVal(['packages', 'premiumActive'], true),
-            proActive: getVal(['packages', 'proActive'], true)
+            proActive: getVal(['packages', 'proActive'], false)
         },
         upgradeModals: {
             essentialUpgradeActive: getVal(['upgradeModals', 'essentialUpgradeActive'], true),
-            premiumUpgradeActive: getVal(['upgradeModals', 'premiumUpgradeActive'], true)
+            premiumUpgradeActive: getVal(['upgradeModals', 'premiumUpgradeActive'], false)
         },
         prices: {
-            essential: Number(getVal(['prices', 'essential'], 19)),
+            essential: Number(getVal(['prices', 'essential'], 49)),
             essentialOriginal: Number(getVal(['prices', 'essentialOriginal'], 499)),
-            premium: Number(getVal(['prices', 'premium'], 49)),
+            premium: Number(getVal(['prices', 'premium'], 99)),
             premiumOriginal: Number(getVal(['prices', 'premiumOriginal'], 999)),
             pro: Number(getVal(['prices', 'pro'], 99)),
             proOriginal: Number(getVal(['prices', 'proOriginal'], 1499))
@@ -1685,13 +1685,6 @@ function selectPackage(pkg, price) {
         } else {
             showPaymentPage();
         }
-    } else if (pkg === 'Premium' && config.upgradeModals && config.upgradeModals.premiumUpgradeActive !== false) {
-        const modal = document.getElementById('proUpgradeModal');
-        if (modal) {
-            modal.classList.add('active');
-        } else {
-            showPaymentPage();
-        }
     } else {
         showPaymentPage();
     }
@@ -1715,23 +1708,7 @@ function upgradeAndProceed() {
     showPaymentPage();
 }
 
-function upgradeToProAndProceed() {
-    const modal = document.getElementById('proUpgradeModal');
-    if (modal) modal.classList.remove('active');
-    const config = getAdminConfig();
-    selectedPackage = 'The Smart Parent Forensic Audit'; // Updated Name
-    selectedPrice = config.prices.pro;
-    showPaymentPage();
-}
 
-function confirmPremium() {
-    const modal = document.getElementById('proUpgradeModal');
-    if (modal) modal.classList.remove('active');
-    const config = getAdminConfig();
-    selectedPackage = 'The Risk Mitigation Protocol'; // Updated Name
-    selectedPrice = config.prices.premium;
-    showPaymentPage();
-}
 
 function proceedToQuiz(pkg, price) {
     // --- REFACTOR: POST-QUIZ STATE DETECTION ---
@@ -2358,7 +2335,7 @@ function fallbackShare(text) {
 window.shareToWhatsApp = function () {
     const shareMessage = encodeURIComponent(
         "🎯 I just discovered Wiseboard's Board Fitment Report!\n\n" +
-        "For just ₹19, it helped me choose the right school board for my child based on their cognitive DNA.\n\n" +
+        "For just ₹" + getAdminConfig().prices.essential + ", it helped me choose the right school board for my child based on their cognitive DNA.\n\n" +
         "No more guessing - pure science! 🧬\n\n" +
         "Check it out: " + window.location.href
     );
@@ -2842,7 +2819,7 @@ function handlePaymentSuccess(response) {
     let currentPrice = typeof selectedPrice !== 'undefined' ? selectedPrice : 0;
     let currentPackage = typeof selectedPackage !== 'undefined' ? selectedPackage : '';
 
-    const isUpgrade = (currentPackage === "Upgrade to Phase 2" || (currentPrice === 19 && window.currentPhase === 2) || (currentPrice === 299 && window.currentPhase === 2));
+    const isUpgrade = (currentPackage === "Upgrade to Phase 2" || (currentPrice === 19 && window.currentPhase === 2) || (currentPrice === 50 && window.currentPhase === 2) || (currentPrice === 299 && window.currentPhase === 2));
 
     if (isUpgrade) {
         // --- SYNC UPGRADE SUCCESS ---
@@ -2971,7 +2948,7 @@ function processSyncUpgrade() {
 
     const options = {
         "key": RAZORPAY_KEY_ID,
-        "amount": 1900, // ₹19 Upgrade Fee
+        "amount": 5000, // ₹50 Upgrade Fee
         "currency": "INR",
         "payment_capture": 1,
         "name": "Apt Skola",
@@ -3255,8 +3232,8 @@ window.processSyncUpgrade = function () {
     customerData.childName = childName;
     customerData.orderId = orderId;
     customerData.childAge = childAge;
-    customerData.amount = 19;
-    selectedPrice = 19;
+    customerData.amount = 50;
+    selectedPrice = 50;
     selectedPackage = "Upgrade to Phase 2";
 
     // Save to localStorage  
@@ -5349,9 +5326,9 @@ window.saveAdminConfig = function() {
             premiumUpgradeActive: document.getElementById('adminPremiumUpgradeToggle').checked,
         },
         prices: {
-            essential: Number(document.getElementById('adminPriceEssential').value) || 19,
+            essential: Number(document.getElementById('adminPriceEssential').value) || 49,
             essentialOriginal: Number(document.getElementById('adminPriceEssentialOriginal').value) || 499,
-            premium: Number(document.getElementById('adminPricePremium').value) || 49,
+            premium: Number(document.getElementById('adminPricePremium').value) || 99,
             premiumOriginal: Number(document.getElementById('adminPricePremiumOriginal').value) || 999,
             pro: Number(document.getElementById('adminPricePro').value) || 99,
             proOriginal: Number(document.getElementById('adminPriceProOriginal').value) || 1499,

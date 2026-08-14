@@ -3310,7 +3310,7 @@
                             </svg>
                         </div>
                         <div class="relative z-10 flex flex-col items-center justify-center leading-none mt-1">
-                            <span class="text-xl md:text-2xl font-black text-white drop-shadow-md">₹19</span>
+                            <span class="text-xl md:text-2xl font-black text-white drop-shadow-md">₹49</span>
                             <span
                                 class="text-[10px] md:text-xs text-slate-400 line-through decoration-red-500 decoration-2 font-bold opacity-80 mt-0.5">₹499</span>
                         </div>
@@ -3703,7 +3703,7 @@
                         Tier Detected. The Sync Check module requires a Premium upgrade.</p>
                     <button onclick="processSyncUpgrade()" class="custom-cta-button"
                         style="background: #E11D48; border: none; font-size: 0.95rem;">Unlock Sync Match for
-                        ₹19</button>
+                        ₹50</button>
                 </div>
                 <button id="startSyncBtn" onclick="validateAndStartSyncMatch()" class="custom-cta-button">Start Sync
                     Check →</button>
@@ -3985,14 +3985,14 @@
     </div>
 
     <div id="pricingModal" class="payment-modal" style="z-index: 2500;">
-        <div class="payment-modal-content" style="max-width: 1200px; text-align: left;">
+        <div class="payment-modal-content" style="max-width: 900px; text-align: left;">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-3xl font-bold text-brand-navy">Choose the Right Roadmap</h3>
                 <span class="cursor-pointer text-3xl" onclick="closePricingModal()">&times;</span>
             </div>
             <p class="text-lg text-slate-600 mb-8">Stop guessing. Get scientific recommendations and admission tools in
                 minutes.</p>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
                 <div id="cardEssential"
                     class="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden transform transition duration-300 hover:-translate-y-2 hover:shadow-xl flex flex-col h-full">
                     <div class="p-8 flex-grow flex flex-col relative">
@@ -4001,7 +4001,7 @@
                             audit to identify your child's primary learning DNA and confirm basic alignment with
                             national or international frameworks.</p>
                         <div class="flex items-baseline mb-6">
-                            <span id="displayEssentialPrice" class="text-4xl font-extrabold text-brand-navy">₹19</span>
+                            <span id="displayEssentialPrice" class="text-4xl font-extrabold text-brand-navy">₹49</span>
                             <span id="displayEssentialOriginal" class="text-lg text-slate-400 line-through ml-2">₹499</span>
                         </div>
                         <ul class="feature-list" style="padding-bottom: 80px;">
@@ -4044,8 +4044,10 @@
                         </ul>
                     </div>
                     <div class="p-8 pt-0 mt-auto sticky bottom-0 bg-white z-20 pb-8 rounded-b-2xl">
-                        <button onclick="selectPackage('Essential', 19); closePricingModal();"
-                            class="w-full block bg-slate-100 hover:bg-slate-200 text-brand-navy font-bold py-3 px-4 rounded-xl transition duration-200 text-center">Get
+                        <button onclick="selectPackage('Essential', 49); closePricingModal();"
+                            class="w-full block bg-slate-100 hover:bg-slate-200 text-brand-navy font-bold py-3 px-4 rounded-xl transition duration-200 text-center">Get the Toolkit</button>
+                    </div>
+                </div>
                  <div id="cardPremium"
                     class="relative bg-white rounded-2xl shadow-xl border-2 border-brand-navy overflow-hidden transform transition duration-300 hover:-translate-y-2 hover:shadow-xl flex flex-col h-full z-10 scale-105 md:scale-105 my-4 md:my-0">
                     <div
@@ -4057,9 +4059,8 @@
                             financial trajectory forecaster and a comprehensive risk mitigation checklist to stop hidden
                             fee leakage before Grade 1.</p>
                         <div class="flex items-baseline mb-6">
-                            <span id="displayPremiumPrice" class="text-4xl font-extrabold text-brand-navy">₹49</span>
+                            <span id="displayPremiumPrice" class="text-4xl font-extrabold text-brand-navy">₹99</span>
                             <span id="displayPremiumOriginal" class="text-lg text-slate-400 line-through ml-2">₹999</span>
-                        </div>     <span class="text-lg text-slate-400 line-through ml-2">₹999</span>
                         </div>
                         <div class="text-xs font-semibold text-brand-orange uppercase tracking-wide mb-3">Everything in
                             Check-Up, plus:</div>
@@ -4101,80 +4102,11 @@
                         </ul>
                     </div>
                     <div class="p-8 pt-0 mt-auto sticky bottom-0 bg-white z-20 pb-8 rounded-b-2xl">
-                        <button onclick="selectPackage('Premium', 49); closePricingModal();"
-                            class="w-full block bg-brand-navy hover:bg-slate-800 text-white font-bold py-4 px-4 rounded-xl transition duration-200 text-center shadow-lg">Get
-                            the Toolkit</button>
+                        <button onclick="selectPackage('Premium', 99); closePricingModal();"
+                            class="w-full block bg-brand-navy hover:bg-slate-800 text-white font-bold py-4 px-4 rounded-xl transition duration-200 text-center shadow-lg">Get the Toolkit</button>
                     </div>
                 </div>
-                <div id="cardPro"
-                    class="bg-white rounded-2xl shadow-lg border border-brand-orange/30 ring-1 ring-brand-orange/20 overflow-hidden transform transition duration-300 hover:-translate-y-2 hover:shadow-xl flex flex-col h-full">
-                    <div class="p-8 flex-grow flex flex-col relative">
-                        <h3 class="text-xl font-bold text-brand-navy mb-2">The Smart Parent Forensic Audit</h3>
-                        <p style="font-size: 13px; color: #64748B; margin-bottom: 1.5rem;">Our premium 'Done-For-You'
-                            pack. Includes proprietary Forensic X-Rays of up to 3 institutes and specific scripts to
-                            negotiate admission fees.</p>
-                        <div class="flex items-baseline mb-6">
-                            <span id="displayProPrice" class="text-4xl font-extrabold text-brand-navy">₹99</span>
-                            <span id="displayProOriginal" class="text-lg text-slate-400 line-through ml-2">₹1,499</span>
-                        </div>
-                        <div class="text-xs font-semibold text-brand-orange uppercase tracking-wide mb-3">Everything in
-                            Risk Mitigation plus:</div>
-                        <ul class="feature-list" style="padding-bottom: 80px;">
-                            <li class="feature-item highlighted" style="margin-bottom: 20px;">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="flex-shrink-0 mt-1">
-                                    <circle class="icon-circle" cx="12" cy="12" r="10" stroke-width="2" />
-                                    <path class="icon-circle" d="M8 12L11 15L16 9" stroke-width="2"
-                                        stroke-linecap="round" stroke-linejoin="round" />
-                                </svg>
-                                <span><span style="color: #10B981; font-weight:700;">Forensic X-Ray (3
-                                        Institutes):</span> <span class="text-slate-400"
-                                        style="font-weight: 400; font-size: inherit;">Proprietary AI audit of school
-                                        authenticity, teacher turnover, and facility hygiene.</span></span>
-                            </li>
-                            <li class="feature-item" style="margin-bottom: 20px;">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="flex-shrink-0 mt-1">
-                                    <circle class="icon-circle" cx="12" cy="12" r="10" stroke-width="2" />
-                                    <path class="icon-circle" d="M8 12L11 15L16 9" stroke-width="2"
-                                        stroke-linecap="round" stroke-linejoin="round" />
-                                </svg>
-                                <span><span style="color:var(--sunrise-primary); font-weight:700;">Lump-Sum Leverage
-                                        Scripts:</span> <span class="text-slate-400"
-                                        style="font-weight: 400; font-size: inherit;">Professional negotiation templates
-                                        to secure admission fee waivers.</span></span>
-                            </li>
-                            <li class="feature-item" style="margin-bottom: 20px;">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="flex-shrink-0 mt-1">
-                                    <circle class="icon-circle" cx="12" cy="12" r="10" stroke-width="2" />
-                                    <path class="icon-circle" d="M8 12L11 15L16 9" stroke-width="2"
-                                        stroke-linecap="round" stroke-linejoin="round" />
-                                </svg>
-                                <span><span style="color:var(--sunrise-primary); font-weight:700;">Elite Parent Mastery
-                                        Guide:</span> <span class="text-slate-400"
-                                        style="font-weight: 400; font-size: inherit;">Strategic interview preparation to
-                                        navigate school selection curveballs.</span></span>
-                            </li>
-                            <li class="feature-item" style="margin-bottom: 20px;">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="flex-shrink-0 mt-1">
-                                    <circle class="icon-circle" cx="12" cy="12" r="10" stroke-width="2"
-                                        style="stroke: #10B981;" />
-                                    <path class="icon-circle" d="M8 12L11 15L16 9" stroke-width="2"
-                                        style="stroke: #10B981;" stroke-linecap="round" stroke-linejoin="round" />
-                                </svg>
-                                <span><span style="color:var(--sunrise-primary); font-weight:700;">Exclusive
-                                        Offer:</span> <span class="text-slate-400"
-                                        style="font-weight: 400; font-size: inherit;">Save 15% on
-                                        Expert Career Guidance at Foviz.in</span></span>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="p-8 pt-0 mt-auto sticky bottom-0 bg-white z-20 pb-8 rounded-b-2xl">
-                        <button onclick="selectPackage('The Smart Parent Pro', 99); closePricingModal();"
-                            class="w-full block bg-brand-orange hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-xl transition duration-200 text-center shadow-md">Get
-                            Forensic Audit</button>
-                        <div style="font-size: 11px; color: #64748B; text-align: center; margin-top: 8px;">Includes
-                            ₹50,000+ Potential Savings Audit</div>
-                    </div>
-                </div>
+
             </div>
         </div>
     </div>
@@ -4234,7 +4166,7 @@
                     <p
                         style="color: #0C4A6E; font-size: 0.9rem; line-height: 1.6; margin: 0 0 20px 0; text-align: center; font-style: italic;">
                         "I'm a parent, not just a founder. I've made this Board Fitment mapping available for the price
-                        of a Chai (<span id="chaiPriceText">₹19</span>) so no parent has to guess. My mission is to replace 'guessing' with pure
+                        of a Chai (<span id="chaiPriceText">₹49</span>) so no parent has to guess. My mission is to replace 'guessing' with pure
                         science. If this helps you, please share it in your school WhatsApp group—let's help more
                         parents choose the right board for their kids."
                     </p>
@@ -4287,7 +4219,7 @@
             <h3 style="color: #0F172A; font-weight: 800; font-size: 1.5rem; margin-bottom: 10px;">⚠️ Wait! You are
                 missing the "Radar"</h3>
             <p style="color: #64748B; font-size: 0.95rem; line-height: 1.5; margin-bottom: 20px;">
-                You selected the <strong>Basic Report (<span id="modalBasicReportPrice">₹19</span>)</strong>. This will tell you <em>"Which Board"</em> but it
+                You selected the <strong>Basic Report (<span id="modalBasicReportPrice">₹49</span>)</strong>. This will tell you <em>"Which Board"</em> but it
                 won't help you spot <strong>fake schools</strong> or hidden fees.
             </p>
 
@@ -4305,7 +4237,7 @@
 
             <button onclick="upgradeAndProceed()" class="custom-cta-button"
                 style="background: #10B981; margin-bottom: 10px;">
-                Yes! Upgrade to Smart Toolkit (<span id="modalSmartPrice">₹49</span>)
+                Yes! Upgrade to Smart Toolkit (<span id="modalSmartPrice">₹99</span>)
             </button>
             <button onclick="confirmDowngrade()"
                 style="background: transparent; border: none; color: #94A3B8; font-size: 0.85rem; width: 100%; cursor: pointer; text-decoration: underline;">
@@ -4314,49 +4246,7 @@
         </div>
     </div>
 
-    <div id="proUpgradeModal" class="payment-modal" style="z-index: 2100;">
-        <div class="payment-modal-content"
-            style="max-width: 500px; text-align: center; border-top: 5px solid #10B981; padding: 40px 30px;">
-            <div style="font-size: 3rem; margin-bottom: 15px;">🚀</div>
-            <h3 style="color: #0F172A; font-weight: 800; font-size: 1.6rem; margin-bottom: 10px;">Wait! Get the
-                "Done-For-You" Advantage</h3>
-            <p style="color: #64748B; font-size: 1rem; line-height: 1.5; margin-bottom: 25px;">
-                You've chosen the Toolkit. For just <strong>₹500 more</strong>, unlock the full <strong>Pro Admission
-                    Pack</strong> (<span id="modalProPrice">₹1499</span>).
-            </p>
 
-            <div
-                style="background: #F0FDF4; border: 1px solid #BBF7D0; padding: 20px; border-radius: 12px; margin-bottom: 25px; text-align: left;">
-                <div style="font-weight: 700; color: #166534; font-size: 0.95rem; margin-bottom: 10px;">Pro Exclusives
-                    You'll Get:</div>
-                <ul
-                    style="list-style: none; padding: 0; margin: 0; font-size: 0.9rem; color: #14532D; display: flex; flex-direction: column; gap: 8px;">
-                    <li style="display: flex; gap: 8px; align-items: center;">✅ <span>Fee Negotiation Scripts (Save
-                            ₹10k+)</span></li>
-                    <li style="display: flex; gap: 8px; align-items: center;">✅ <span>Parent Interview Curveball
-                            Guide</span></li>
-                </ul>
-                <div
-                    style="font-weight: 700; color: #EF4444; font-size: 0.95rem; margin-top: 15px; border-top: 1px dashed #EF4444; padding-top: 10px;">
-                    ⚠️ Currently Missing:</div>
-                <ul
-                    style="list-style: none; padding: 0; margin: 0; font-size: 0.85rem; color: #EF4444; display: flex; flex-direction: column; gap: 5px; margin-top: 5px;">
-                    <li>❌ Missing: AI Forensic Report (3 Institutes)</li>
-                    <li>❌ Missing: <a href="https://foviz.in" target="_blank" style="text-decoration: underline;">Foviz
-                            Elite Discount (50% OFF)</a></li>
-                </ul>
-            </div>
-
-            <button onclick="upgradeToProAndProceed()" class="custom-cta-button"
-                style="background: #10B981; margin-bottom: 15px; box-shadow: 0 4px 14px 0 rgba(16, 185, 129, 0.39);">
-                Yes, Upgrade to Pro (<span id="modalProBtnPrice">₹1499</span>)
-            </button>
-            <button onclick="confirmPremium()"
-                style="background: transparent; border: none; color: #94A3B8; font-size: 0.85rem; width: 100%; cursor: pointer; text-decoration: underline;">
-                No, I'll stick with the Toolkit
-            </button>
-        </div>
-    </div>
 
 
 
@@ -4941,7 +4831,7 @@
                 <div class="pricing-grid-header">Essential Package</div>
                 <div>
                     <label for="adminPriceEssential" style="font-size: 0.75rem;">Active Price</label>
-                    <input type="number" id="adminPriceEssential" min="0" placeholder="19">
+                    <input type="number" id="adminPriceEssential" min="0" placeholder="49">
                 </div>
                 <div>
                     <label for="adminPriceEssentialOriginal" style="font-size: 0.75rem;">Original Price</label>
@@ -4954,7 +4844,7 @@
                 <div class="pricing-grid-header">Premium Package</div>
                 <div>
                     <label for="adminPricePremium" style="font-size: 0.75rem;">Active Price</label>
-                    <input type="number" id="adminPricePremium" min="0" placeholder="49">
+                    <input type="number" id="adminPricePremium" min="0" placeholder="99">
                 </div>
                 <div>
                     <label for="adminPricePremiumOriginal" style="font-size: 0.75rem;">Original Price</label>

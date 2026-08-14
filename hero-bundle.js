@@ -247,7 +247,7 @@
                                 ),
                                 // Inner Content
                                 h('div', { className: "relative z-10 flex flex-col items-center justify-center leading-none mt-1" },
-                                    h('span', { className: "text-xl font-black text-white drop-shadow-md" }, "₹19"),
+                                    h('span', { className: "text-xl font-black text-white drop-shadow-md" }, "₹49"),
                                     h('span', { className: "text-[10px] text-slate-400 line-through decoration-red-500 decoration-2 font-bold opacity-80 mt-0.5" }, "₹499")
                                 )
                             )
@@ -304,7 +304,7 @@
                             ),
                             // Inner Content
                             h('div', { className: "relative z-10 flex flex-col items-center justify-center leading-none mt-1" },
-                                h('span', { className: "text-xl md:text-2xl font-black text-white drop-shadow-md" }, "₹19"),
+                                h('span', { className: "text-xl md:text-2xl font-black text-white drop-shadow-md" }, "₹49"),
                                 h('span', { className: "text-[10px] md:text-xs text-slate-400 line-through decoration-red-500 decoration-2 font-bold opacity-80 mt-0.5" }, "₹499")
                             )
                         )
