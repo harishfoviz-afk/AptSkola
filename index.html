@@ -3271,7 +3271,7 @@
             <div class="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">
                 Select a Board to View its Methodology & Risk Profile
             </div>
-            <div class="flex flex-wrap justify-center gap-2 md:gap-4 w-full max-w-2xl">
+            <div class="flex flex-wrap justify-center gap-2 md:gap-4 w-full max-w-4xl">
                 <button
                     class="px-4 md:px-8 py-2 md:py-3 rounded-lg border border-slate-600 bg-slate-800/60 text-slate-300 hover:text-white hover:border-[#FF6B35] hover:bg-slate-800 transition-all text-sm md:text-base font-semibold backdrop-blur-sm">CBSE</button>
                 <button
@@ -3280,6 +3280,10 @@
                     class="px-4 md:px-8 py-2 md:py-3 rounded-lg border border-slate-600 bg-slate-800/60 text-slate-300 hover:text-white hover:border-[#FF6B35] hover:bg-slate-800 transition-all text-sm md:text-base font-semibold backdrop-blur-sm">IGCSE</button>
                 <button
                     class="px-4 md:px-8 py-2 md:py-3 rounded-lg border border-slate-600 bg-slate-800/60 text-slate-300 hover:text-white hover:border-[#FF6B35] hover:bg-slate-800 transition-all text-sm md:text-base font-semibold backdrop-blur-sm">ICSE</button>
+                <button onclick="if(typeof openSyncMatchGate === 'function') openSyncMatchGate();"
+                    class="px-4 md:px-6 py-2 md:py-3 rounded-lg border border-slate-600 bg-slate-800/60 text-white hover:border-[#FF6B35] hover:bg-slate-850 transition-all text-sm md:text-base font-bold backdrop-blur-sm flex items-center gap-2">
+                    <span>🔐</span> Unlock Parent & Child Sync Check
+                </button>
             </div>
         </div>
 
@@ -3406,18 +3410,7 @@
 
     <div id="landingPage">
 
-        <div class="container mx-auto px-4 text-center">
-            <h2 class="text-4xl font-extrabold text-brand-black mb-8">Decoding the Leading Indicators of Academic
-                Stagnation.</h2>
 
-            <div class="mx-auto bg-slate-50 p-8 rounded-3xl border border-slate-200 shadow-sm">
-                <p class="text-lg leading-relaxed text-slate-700">
-                    To ensure that no child in India hates school simply because they are in the wrong ecosystem.
-                    By aligning the Board to the Brain, we future-proof your child's career before the first school
-                    bell even rings.
-                </p>
-            </div>
-        </div>
 
 
 
@@ -3989,8 +3982,8 @@
                         Choosing Apt Skola!</h3>
                     <p style="color: var(--navy-light); font-size: 0.9em; margin-bottom: 15px;">Help other parents by
                         joining our referral program and earn rewards.</p>
-                    <button onclick="openCollaborationModal('Partner')" class="custom-cta-button"
-                        style="background: var(--sunrise-primary);">Join as Partner →</button>
+                    <a href="https://foviz.in/#educatorPartner" target="_blank" class="custom-cta-button"
+                        style="background: var(--sunrise-primary); display: inline-flex; align-items: center; justify-content: center; text-decoration: none;">Join as Partner →</a>
                 </div>
 
                 <!-- Spread the Word Block -->
@@ -4036,7 +4029,7 @@
                         50% OFF Foviz Elite Career Sessions.</p>
                     <div style="font-size: 1.5rem; font-weight: 900; color: #D97706; margin: 10px 0;">CODE: <span
                             id="fovizDiscountCode">FOV50ELITE</span></div>
-                    <a href="https://foviz.in/elite" target="_blank"
+                    <a href="https://foviz.in/" target="_blank"
                         style="text-decoration: underline; font-weight: bold; color: #92400E;">Claim at Foviz.in →</a>
                 </div>
             </div>
@@ -4055,8 +4048,7 @@
             <h3 style="color: #0F172A; font-weight: 800; font-size: 1.5rem; margin-bottom: 10px;">⚠️ Wait! You are
                 missing the "Radar"</h3>
             <p style="color: #64748B; font-size: 0.95rem; line-height: 1.5; margin-bottom: 20px;">
-                You selected the <strong>Basic Report (<span id="modalBasicReportPrice">₹49</span>)</strong>. This will tell you <em>"Which Board"</em> but it
-                won't help you spot <strong>fake schools</strong> or hidden fees.
+                You selected the <strong>Basic Report (<span id="modalBasicReportPrice">₹49</span>)</strong>. This will tell you <em>"Which Board"</em> but it won't help you find out if you and your child are aligned on the right board selection.
             </p>
 
             <div
@@ -4066,8 +4058,7 @@
                 <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.85rem; color: #431407;">
                     <li style="margin-bottom: 5px; color: #EF4444; font-weight: 700;">❌ Missing: Parent & Child Sync
                         Check</li>
-                    <li style="margin-bottom: 5px;">❌ You won't get the 15-Year Fee Forecast.</li>
-                    <li>❌ You won't get the "Fake School" Checklist.</li>
+                    <li>❌ You won't get the 15-Year Fee Forecast.</li>
                 </ul>
             </div>
 
@@ -4255,6 +4246,19 @@
             }
         }
     </script>
+    <!--Start of Tawk.to Script-->
+    <script type="text/javascript">
+    var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+    (function(){
+    var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+    s1.async=true;
+    s1.src='https://embed.tawk.to/6a7fcfd5c3522a1d4548794f/1k01k7muc';
+    s1.charset='UTF-8';
+    s1.setAttribute('crossorigin','*');
+    s0.parentNode.insertBefore(s1,s0);
+    })();
+    </script>
+    <!--End of Tawk.to Script-->
 </body>
 
 </html>

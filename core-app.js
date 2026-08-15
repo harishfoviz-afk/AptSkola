@@ -1439,7 +1439,7 @@ function getIntermediateHeaderHtml() {
     return `
         <div style="background: #0F172A; padding: 20px 24px; display: flex; align-items: center; width: 100%; border-bottom: 1px solid #1E293B;">
             <div onclick="window.location.reload()" style="cursor: pointer; display: flex; flex-direction: column; align-items: flex-start; line-height: 1;">
-                 <h1 class="text-2xl md:text-3xl font-black text-white tracking-tighter" style="margin: 0; font-family: 'Montserrat', sans-serif;">
+                 <h1 class="text-2xl md:text-3xl font-black text-white tracking-tighter" style="margin: 0; font-family: 'Inter', sans-serif;">
                     Apt <span class="text-[#FF6B35]">Skola</span>
                 </h1>
                 <span class="text-[0.6rem] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1 ml-1" style="font-family: 'Inter', sans-serif;">
@@ -2893,7 +2893,7 @@ async function triggerAutomatedEmail() {
     htmlSummary += '<div style="margin-top: 20px; padding: 15px; border: 1px dashed #CBD5E1; border-radius: 8px; background-color: #F8FAFC; text-align: center;">';
     htmlSummary += '<h4 style="margin: 0 0 10px 0; color: #0F172A; font-size: 14px;">🤝 Join the Apt Skola Network</h4>';
     htmlSummary += '<p style="margin: 0; color: #475569; font-size: 13px; line-height: 1.5;">Teachers & Tutors: Earn <strong>₹300</strong> for student referrals and <strong>₹3,000</strong> per session for school-wide engagement.</p>';
-    htmlSummary += '<a href="https://aptskola.com/#educatorPartner" style="display: inline-block; margin-top: 10px; color: #FF6B35; font-weight: 700; text-decoration: none; font-size: 13px;">Register as Partner →</a>';
+    htmlSummary += '<a href="https://foviz.in/#educatorPartner" target="_blank" style="display: inline-block; margin-top: 10px; color: #FF6B35; font-weight: 700; text-decoration: none; font-size: 13px;">Register as Partner →</a>';
     htmlSummary += '</div>';
 
     try {
@@ -3827,11 +3827,10 @@ async function renderReportToBrowser() {
     if (isPremium) {
         html += `
         <div class="report-card">
-                <div class="report-header-bg">ðŸ§ RISK MITIGATION & VETTING</div>
+                <div class="report-header-bg">RISK MITIGATION & VETTING</div>
                 <div class="space-y-3 p-4">
                     ${MASTER_DATA.vetting.redFlags.map(f => `
                         <div class="flex items-start gap-3">
-                            <span style="font-size:1.2rem;">🚩</span>
                             <span class="text-slate-700 text-sm font-medium leading-tight">${f}</span>
                         </div>
                     `).join('')}
@@ -3867,7 +3866,7 @@ async function renderReportToBrowser() {
                         </tbody>
                     </table>
                     <div class="p-3 bg-blue-50 text-blue-900 text-xs rounded-lg border border-blue-100 leading-relaxed">
-                        <strong>💰 Smart Planning Tip:</strong> Early investments in high-yield mutual funds can offset up to 40% of these projected costs.
+                        <strong>Smart Planning Tip:</strong> Early investments in high-yield mutual funds can offset up to 40% of these projected costs.
                     </div>
                 </div>
             </div>
@@ -3879,7 +3878,7 @@ async function renderReportToBrowser() {
     if (isPro) {
         html += `
         <div class="report-card">
-                <div class="report-header-bg">🤝 FEE NEGOTIATION STRATEGIES</div>
+                <div class="report-header-bg">FEE NEGOTIATION STRATEGIES</div>
                 <div class="space-y-6 p-4">
                     ${MASTER_DATA.concierge.negotiation.map(n => `
                         <div class="pl-4 border-l-4 border-brand-orange">
@@ -3894,7 +3893,7 @@ async function renderReportToBrowser() {
             </div>
 
         <div class="report-card">
-            <div class="report-header-bg">🎙️ PARENT INTERVIEW MASTERY</div>
+            <div class="report-header-bg">PARENT INTERVIEW MASTERY</div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
                 ${MASTER_DATA.interviewMastery.part2.slice(0, 6).map(i => `
                         <div class="bg-white border boundary-slate-200 rounded-lg p-5 shadow-sm hover:shadow-md transition-all">
@@ -4129,7 +4128,14 @@ async function sharePDF() {
     } catch (err) {
         console.error("Share failed:", err);
         if (err.name !== "AbortError") {
-            alert("Share failed: " + err.message);
+            try {
+                // Silently fall back to downloading the PDF file
+                pdf.save("Apt-Skola-Report.pdf");
+                console.log("PDF downloaded successfully as fallback after share failed.");
+            } catch (saveErr) {
+                console.error("Fallback PDF download also failed:", saveErr);
+                alert("Share failed: " + err.message);
+            }
         }
     } finally {
         if (btn) {
@@ -4391,6 +4397,8 @@ window.selectPackage = selectPackage;
 window.openSyncMatchGate = openSyncMatchGate;
 window.openPricingOrScroll = openPricingOrScroll;
 window.openPricingModal = openPricingModal;
+window.closePricingModal = closePricingModal;
+window.redirectToRazorpay = redirectToRazorpay;
 window.scrollToClarity = scrollToClarity;
 window.openSampleReport = openSampleReport;
 window.closeSampleReport = closeSampleReport;
