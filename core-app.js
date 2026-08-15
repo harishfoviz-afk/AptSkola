@@ -1785,29 +1785,7 @@ function proceedToQuiz(pkg, price) {
 
 
 
-// Helper to generate Quiz Header
-function getIntermediateHeaderHtml() {
-    return `
-        <div style="background: #0F172A; padding: 20px 24px; display: flex; align-items: center; width: 100%; border-bottom: 1px solid #1E293B;">
-            <div onclick="window.location.reload()" style="cursor: pointer; display: flex; flex-direction: column; align-items: flex-start; line-height: 1;">
-                 <h1 class="text-2xl md:text-3xl font-black text-white tracking-tighter" style="margin: 0;">
-                    Apt <span class="text-[#FF6B35]">Skola</span>
-                </h1>
-                <span class="text-[0.6rem] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1 ml-1" style="font-family: 'Inter', sans-serif;">
-                    A Foviz Venture
-                </span>
-            </div>
-        </div>
-    `;
-}
 
-// Helper to generate Quiz Footer (Reduced Height)
-function getIntermediateFooterHtml() {
-    return `
-        <div style="text-align: center; padding-top: 10px; padding-bottom: 20px;">
-        </div>
-    `;
-}
 
 /* 
 REMOVED DUPLICATE: initializeQuizShell consolidated to Version 1 (line 240)
@@ -4450,72 +4428,7 @@ window.openCollaborationModal = openCollaborationModal;
 window.toggleSyncTimer = toggleSyncTimer;
 window.handleSyncConfirmation = handleSyncConfirmation;
 
-// --- MISSING PARTNER MODAL ---
-function openCollaborationModal(type) {
-    console.log("Opening Collaboration Modal:", type);
 
-    // 1. Remove existing if any
-    const existing = document.getElementById('collaborationModal');
-    if (existing) existing.remove();
-
-    // 2. Create Modal HTML
-    const modal = document.createElement('div');
-    modal.id = 'collaborationModal';
-    modal.className = 'payment-modal active';
-    modal.style.zIndex = '9999';
-
-    const title = type === 'Partner' ? 'Educator Partnership' : 'Ambassador Program';
-    const sub = type === 'Partner' ? 'Join our Forensic Network' : 'Earn Rewards for Referrals';
-
-    modal.innerHTML = `
-        <div class="payment-modal-content" style="max-width: 550px; text-align: left; border-top: 5px solid #FF6B35;">
-            <button onclick="document.getElementById('collaborationModal').remove()" style="position:absolute; top:15px; right:15px; background:none; border:none; font-size:1.5rem; cursor:pointer;">&times;</button>
-            
-            <h3 style="color: #0F172A; font-weight: 800; font-size: 1.5rem; margin-bottom: 5px;">${title}</h3>
-            <p style="color: #64748B; margin-bottom: 25px;">${sub}</p>
-
-            <form onsubmit="handleCollaborationSubmit(event, '${type}')" style="display: flex; flex-direction: column; gap: 15px;">
-                <div>
-                    <label style="font-size: 0.85rem; font-weight: 700; color: #334155;">Full Name</label>
-                    <input type="text" name="name" required style="width: 100%; padding: 12px; border: 1px solid #CBD5E1; border-radius: 8px; margin-top: 5px;">
-                </div>
-                <div>
-                    <label style="font-size: 0.85rem; font-weight: 700; color: #334155;">WhatsApp Number</label>
-                    <input type="tel" name="phone" pattern="[6-9][0-9]{9}" required style="width: 100%; padding: 12px; border: 1px solid #CBD5E1; border-radius: 8px; margin-top: 5px;">
-                </div>
-                <div>
-                    <label style="font-size: 0.85rem; font-weight: 700; color: #334155;">Current Role / Institute</label>
-                    <input type="text" name="role" required style="width: 100%; padding: 12px; border: 1px solid #CBD5E1; border-radius: 8px; margin-top: 5px;">
-                </div>
-                
-                <button type="submit" class="custom-cta-button" style="margin-top: 10px; width: 100%;">Submit Interest →</button>
-            </form>
-            <p style="text-align: center; font-size: 0.75rem; color: #94A3B8; margin-top: 15px;">Our team will contact you within 24 hours.</p>
-        </div>
-        `;
-
-    document.body.appendChild(modal);
-}
-
-function handleCollaborationSubmit(e, type) {
-    e.preventDefault();
-    const btn = e.target.querySelector('button[type="submit"]');
-    btn.innerHTML = "Submitting...";
-    btn.disabled = true;
-
-    // Simulate API
-    setTimeout(() => {
-        btn.innerHTML = "Success! ✅";
-        btn.style.background = "#10B981";
-
-        // Track
-        if (window.triggerTrack) window.triggerTrack('Collaboration_Lead', { type: type });
-
-        setTimeout(() => {
-            document.getElementById('collaborationModal').remove();
-        }, 1500);
-    }, 1000);
-}
 
 function showPsychometricHistogram() {
     console.log("Rendering Preliminary Fitment Analysis...");

@@ -219,11 +219,10 @@
                         onClick: () => triggerStart(0),
                         onTouchStart: (e) => { e.preventDefault(); triggerStart(0); }
                     },
-
-
                         h('div', { className: "w-12 h-12 md:w-16 md:h-16 bg-[#FF6B35] rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(255,107,53,0.6)] animate-bounce hover:scale-110 transition-transform" },
                             h('span', { className: "text-white font-black text-lg md:text-xl italic" }, "Vs")
-                        ),
+                        )
+                    ),
 
                     // Part 3: "Suits" Question
                     h('div', {
